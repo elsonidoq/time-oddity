@@ -16,5 +16,8 @@ export const GameConfig = {
       debug: false,
     },
   },
+  audio: {
+    noAudio: true
+  },
   scene: [BootScene, MenuScene, Act1Scene, ClockHUD],
 }; 
