@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { GameConfig } from './config/GameConfig';
 import BootScene from './scenes/BootScene';
 import MenuScene from './scenes/MenuScene';
 import Act1Scene from './scenes/Act1Scene';
@@ -19,6 +20,6 @@ const config = {
   scene: [BootScene, MenuScene, Act1Scene, ClockHUD],
 };
 
-const game = new Phaser.Game(config);
+const game = new Phaser.Game(GameConfig);
 
 export default game;
