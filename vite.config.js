@@ -2,17 +2,15 @@ import { defineConfig } from 'vite';
 import path from 'path';
 
 export default defineConfig({
-  root: '.',
-  publicDir: 'public',
+  // By default, Vite uses the project root and serves 'public' dir at '/'
+  // We don't need to specify root or publicDir if using defaults.
+
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: true,
-    rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'public/index.html')
-      }
-    }
+    // The input is implicitly public/index.html, so we can remove this for now
+    // to ensure it's not interfering with the dev server.
   },
   server: {
     port: 5173,
