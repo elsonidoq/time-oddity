@@ -87,7 +87,7 @@ This document contains a comprehensive list of tasks to refactor the Time Oddity
 
 ## Phase 2: Core Architecture Implementation - MEDIUM RISK
 
-### Task 2.1: Create Game Configuration Constants
+### Task 2.1: Create Game Configuration Constants [COMPLETED]
 **Goal**: Extract game config to constants for easier modification
 **Start**: Config hardcoded in main.js
 **End**: Config in separate constants file
@@ -102,7 +102,7 @@ This document contains a comprehensive list of tasks to refactor the Time Oddity
 
 **Rollback**: `git reset --hard HEAD~1` (restores inline config)
 
-### Task 2.2: Disable Phaser Audio System
+### Task 2.2: Disable Phaser Audio System [COMPLETED]
 **Goal**: Disable Phaser audio to prevent conflicts with Howler.js
 **Start**: Audio config in game config
 **End**: Audio disabled in config

@@ -19,5 +19,9 @@ export const GameConfig = {
   audio: {
     noAudio: true
   },
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH
+  },
   scene: [BootScene, MenuScene, Act1Scene, ClockHUD],
 }; 
