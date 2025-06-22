@@ -1,0 +1,47 @@
+{
+  "name": "time-oddity",
+  "version": "1.0.0",
+  "description": "A time-manipulation platformer game built with Phaser 3, GSAP, and Howler.js",
+  "main": "server/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "node server/server.js",
+    "dev:full": "concurrently \"npm run dev\" \"npm run server\"",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch"
+  },
+  "keywords": [
+    "phaser",
+    "game",
+    "platformer",
+    "time-manipulation",
+    "gsap",
+    "howler"
+  ],
+  "author": "Time Oddity Development Team",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.0",
+    "express-session": "^1.17.0",
+    "gsap": "^3.12.0",
+    "helmet": "^7.0.0",
+    "howler": "^2.2.3",
+    "phaser": "3.90.0",
+    "socket.io": "^4.7.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0",
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "matter-js": "^0.20.0",
+    "vite": "^4.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
