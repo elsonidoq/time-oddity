@@ -35,138 +35,276 @@ Before merging each phase branch:
 
 **Branch**: `feature/phase-1-foundation`
 
+**CRITICAL IMPLEMENTATION REQUIREMENT**: Before implementing any task in this phase, you MUST read the comprehensive documentation file `agent_docs/comprehensive_documentation.md`. This document contains detailed implementation patterns, architectural decisions, and code examples for all systems in this phase. Pay special attention to:
+- Section 1.1: Project Setup and Game Configuration (for Phaser setup and configuration)
+- Section 1.2: The Scene System: Architecture and Lifecycle (for scene management)
+- Section 1.3: Asset and Sprite Management (for asset loading)
+- Section 1.4: Arcade Physics Engine (for physics setup)
+- Section 6.1: Build Pipeline and Development Server: Vite vs. Webpack (for Vite configuration)
+
+**TDD REQUIREMENT**: All tasks in this phase follow Test-Driven Development (TDD). You MUST:
+1. Write comprehensive unit tests FIRST
+2. Run tests to confirm they fail (Red phase)
+3. Implement the minimum functionality to make tests pass (Green phase)
+4. Refactor and bugfix until all tests pass (Refactor phase)
+5. Only mark task as complete when ALL tests pass
+
 ### Task 1.1: Initialize Node.js Project
 **Objective**: Set up the basic Node.js project structure
-- Create `package.json` with basic project metadata
-- Initialize git repository
-- Create `.gitignore` file for Node.js projects
-- Create basic project directory structure (client/, server/, shared/)
-- **Test**: Run `npm install` and verify no errors
-- [x] Task 1.1: Initialize Node.js Project - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 6.1 "Build Pipeline and Development Server" in `agent_docs/comprehensive_documentation.md` for project structure patterns.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for project structure
+   - Test package.json creation with correct metadata
+   - Test directory structure validation
+   - Test .gitignore file contents
+   - Test npm install functionality
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create basic Node.js project structure following Section 6.1 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All project structure tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 1.2: Set Up Vite Build Pipeline
 **Objective**: Configure Vite for development and building
-- Install Vite as dev dependency
-- Create `vite.config.js` with basic configuration
-- Add build scripts to package.json
-- Create `public/index.html` with game container div
-- **Test**: Run `npm run dev` and see Vite server start successfully
-- [x] Task 1.2: Set Up Vite Build Pipeline - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 6.1 "Vite Configuration" in `agent_docs/comprehensive_documentation.md` for the exact Vite configuration code and proxy setup.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for Vite configuration
+   - Test vite.config.js creation with correct settings
+   - Test development server proxy configuration
+   - Test build output directory setup
+   - Test hot module replacement functionality
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create Vite configuration following Section 6.1 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All Vite configuration tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 1.3: Install and Configure Phaser 3.90.0
 **Objective**: Set up Phaser as the game engine
-- Install Phaser 3.90.0 as dependency
-- Create `client/src/main.js` as entry point
-- Configure basic Phaser game config object
-- Disable Phaser's audio system (`audio: { noAudio: true }`)
-- **Test**: Game canvas appears in browser without errors
-- [x] Task 1.3: Install and Configure Phaser 3.90.0 - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.1 "Game Configuration Object" in `agent_docs/comprehensive_documentation.md` for the exact Phaser configuration code and audio system setup.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for Phaser configuration
+   - Test Phaser installation and import
+   - Test game configuration object creation
+   - Test audio system disable configuration
+   - Test canvas creation and display
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Configure Phaser following Section 1.1 patterns with audio disabled
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All Phaser configuration tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 1.4: Install GSAP for Animations
 **Objective**: Set up GSAP for advanced animations
-- Install GSAP as dependency
-- Create `client/src/systems/AnimationManager.js`
-- Set up basic GSAP configuration
-- **Test**: GSAP can be imported and used
-- [x] Task 1.4: Install GSAP for Animations - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 2.1 "GSAP Core API Reference" in `agent_docs/comprehensive_documentation.md` for GSAP installation and basic configuration patterns.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for GSAP integration
+   - Test GSAP installation and import
+   - Test basic tween creation and execution
+   - Test GSAP timeline functionality
+   - Test GSAP-Phaser integration setup
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Install and configure GSAP following Section 2.1 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All GSAP integration tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 1.5: Create BaseScene Abstract Class
 **Objective**: Establish the foundation for all game scenes
-- Create `client/src/scenes/BaseScene.js`
-- Extend `Phaser.Scene`
-- Add common scene lifecycle methods (init, preload, create, update)
-- Add common utility methods for scene management
-- **Test**: BaseScene can be imported and extended without errors
-- [x] Task 1.5: Create BaseScene Abstract Class - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.2 "Core Scene Methods" in `agent_docs/comprehensive_documentation.md` for scene lifecycle patterns and Section 1.2 "Scene Management" for scene transition methods.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for BaseScene class
+   - Test BaseScene instantiation and inheritance
+   - Test scene lifecycle methods (init, preload, create, update)
+   - Test scene management utility methods
+   - Test scene transition functionality
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create BaseScene class following Section 1.2 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All BaseScene tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 1.6: Implement BootScene
 **Objective**: Create the initial loading scene
-- Create `client/src/scenes/BootScene.js` extending BaseScene
-- Add loading bar display
-- Add basic asset preloading (placeholder for now)
-- Add scene transition to MenuScene
-- **Test**: BootScene loads and transitions to MenuScene
-- [x] Task 1.6: Implement BootScene - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.2 "Scene Management" in `agent_docs/comprehensive_documentation.md` for scene transition patterns and Section 1.3 for asset loading setup.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for BootScene
+   - Test BootScene instantiation and initialization
+   - Test loading bar display functionality
+   - Test asset preloading system
+   - Test scene transition to MenuScene
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create BootScene following Section 1.2 and 1.3 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All BootScene tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 1.7: Implement MenuScene
 **Objective**: Create the main menu interface
-- Create `client/src/scenes/MenuScene.js` extending BaseScene
-- Add title text "Time Oddity"
-- Add "Start Game" button
-- Add button click handler to transition to GameScene
-- **Test**: Menu displays and clicking "Start Game" transitions to GameScene
-- [x] Task 1.7: Implement MenuScene - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.2 "Multi-Scene Communication" in `agent_docs/comprehensive_documentation.md` for scene communication patterns and Section 1.5 for input handling.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for MenuScene
+   - Test MenuScene instantiation and display
+   - Test title text creation and positioning
+   - Test button creation and interactivity
+   - Test scene transition on button click
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create MenuScene following Section 1.2 and 1.5 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All MenuScene tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
+
 
 ### Task 1.8: Implement Basic GameScene
 **Objective**: Create the main gameplay scene structure
-- Create `client/src/scenes/GameScene.js` extending BaseScene
-- Add basic scene setup with placeholder content
-- Add "Back to Menu" button for testing
-- **Test**: GameScene loads and "Back to Menu" button works
-- [x] Task 1.8: Implement Basic GameScene - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.2 "Scene Management" in `agent_docs/comprehensive_documentation.md` for scene setup patterns and Section 1.4 for physics initialization.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for GameScene
+   - Test GameScene instantiation and setup
+   - Test basic scene content creation
+   - Test navigation button functionality
+   - Test scene cleanup and memory management
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create GameScene following Section 1.2 and 1.4 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All GameScene tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 1.9: Set Up Scene Management
 **Objective**: Configure scene transitions and management
-- Update main.js to register all scenes
-- Set BootScene as the starting scene
-- Configure scene transitions with fade effects
-- **Test**: All scene transitions work smoothly
-- [x] Task 1.9: Set Up Scene Management - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.2 "Scene Management" table in `agent_docs/comprehensive_documentation.md` for the complete list of scene management methods and transition patterns.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for scene management
+   - Test scene registration in main game config
+   - Test scene transition methods (start, launch, stop)
+   - Test scene fade effects and timing
+   - Test scene lifecycle management
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Configure scene management following Section 1.2 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All scene management tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 1.10: Load Kenney Character Spritesheet
 **Objective**: Integrate the main character assets
-- Copy Kenney character spritesheet to `client/src/assets/sprites/`
-- Load spritesheet in BootScene preload method
-- Create basic character animations (idle, walk, jump, fall)
-- **Test**: Character spritesheet loads without errors
-- [x] Task 1.10: Load Kenney Character Spritesheet - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.3 "Loading Assets" in `agent_docs/comprehensive_documentation.md` for spritesheet loading patterns and Section 1.5 for animation creation.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for character spritesheet loading
+   - Test spritesheet file loading and validation
+   - Test spritesheet parsing and frame extraction
+   - Test character animation creation (idle, walk, jump, fall)
+   - Test spritesheet error handling
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Load Kenney character spritesheet following Section 1.3 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All character spritesheet tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 1.11: Load Kenney Tile Assets
 **Objective**: Integrate tile assets for level building
-- Copy Kenney tile spritesheets to `client/src/assets/sprites/`
-- Load tile spritesheets in BootScene preload method
-- Create basic tile animations if needed
-- **Test**: Tile spritesheets load without errors
-- [x] Task 1.11: Load Kenney Tile Assets - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.3 "Creating Game Objects" in `agent_docs/comprehensive_documentation.md` for tile creation patterns and Section 1.4 for static body setup.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for tile assets loading
+   - Test tile spritesheet loading and validation
+   - Test tile frame extraction and organization
+   - Test tile animation creation if needed
+   - Test tile asset error handling
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Load Kenney tile assets following Section 1.3 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All tile assets tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 1.12: Load Kenney Enemy Assets
 **Objective**: Integrate enemy assets
-- Copy Kenney enemy spritesheets to `client/src/assets/sprites/`
-- Load enemy spritesheets in BootScene preload method
-- Create basic enemy animations
-- **Test**: Enemy spritesheets load without errors
-- [x] Task 1.12: Load Kenney Enemy Assets - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.3 "Asset and Sprite Management" in `agent_docs/comprehensive_documentation.md` for enemy sprite loading patterns and Section 1.5 for enemy animation setup.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for enemy assets loading
+   - Test enemy spritesheet loading and validation
+   - Test enemy frame extraction and organization
+   - Test enemy animation creation
+   - Test enemy asset error handling
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Load Kenney enemy assets following Section 1.3 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All enemy assets tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 1.13: Configure Arcade Physics
 **Objective**: Set up the physics system
-- Enable Arcade Physics in game config
-- Set gravity to { y: 980 }
-- Configure physics debug (disabled by default)
-- **Test**: Physics system is active (can be verified in console)
-- [x] Task 1.13: Configure Arcade Physics - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.4 "Setup and Configuration" in `agent_docs/comprehensive_documentation.md` for the exact physics configuration code and gravity setup.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for Arcade Physics configuration
+   - Test physics system initialization
+   - Test gravity configuration validation
+   - Test physics debug mode setup
+   - Test physics body creation and properties
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Configure Arcade Physics following Section 1.4 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All Arcade Physics tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 1.14: Create Basic Platform Group
 **Objective**: Set up collision detection foundation
-- Create static physics group in GameScene
-- Add a simple ground platform
-- Configure collision bounds
-- **Test**: Platform group is created and visible
-- [x] Task 1.14: Create Basic Platform Group - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.4 "Physics Groups" in `agent_docs/comprehensive_documentation.md` for static group creation patterns and Section 1.4 "Static vs. Dynamic Bodies" for platform setup.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for platform group creation
+   - Test static physics group creation
+   - Test platform object addition to group
+   - Test collision bounds configuration
+   - Test platform group management
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create platform group following Section 1.4 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All platform group tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 1.15: Set Up World Boundaries
 **Objective**: Prevent objects from leaving the game world
-- Configure world bounds in GameScene
-- Set up camera bounds
-- **Test**: Objects cannot move outside the game area
-- [x] Task 1.15: Set Up World Boundaries - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.6 "Camera Manager" in `agent_docs/comprehensive_documentation.md` for camera bounds setup and Section 1.4 for world boundary configuration.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for world boundaries
+   - Test world bounds configuration
+   - Test camera bounds setup
+   - Test object containment validation
+   - Test boundary collision detection
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Set up world boundaries following Section 1.6 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All world boundaries tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 1.16: Create Object Pool System
 **Objective**: Set up performance optimization foundation
-- Create `client/src/systems/ObjectPool.js`
-- Add basic object pooling methods (get, release, reset)
-- Add pool management for common objects
-- **Test**: ObjectPool can create and recycle objects
-- [x] Task 1.16: Create Object Pool System - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.7 "Object Pooling" in `agent_docs/comprehensive_documentation.md` for the complete object pooling implementation pattern and performance optimization strategies.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for Object Pool system
+   - Test object pool creation and initialization
+   - Test object creation and recycling methods
+   - Test pool size management and limits
+   - Test object reset functionality
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create Object Pool system following Section 1.7 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All Object Pool tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 **Phase 1 Completion**: Merge `feature/phase-1-foundation` into `main`
 
@@ -176,328 +314,309 @@ Before merging each phase branch:
 
 **Branch**: `feature/phase-2-player-movement`
 
+**CRITICAL IMPLEMENTATION REQUIREMENT**: Before implementing any task in this phase, you MUST read the comprehensive documentation file `agent_docs/comprehensive_documentation.md`. This document contains detailed implementation patterns, architectural decisions, and code examples for all systems in this phase. Pay special attention to:
+- Section 1.3: Asset and Sprite Management (for entity creation and sprite setup)
+- Section 1.4: Arcade Physics Engine (for physics body setup and collision detection)
+- Section 1.5: Input and Animation Systems (for input handling and animation)
+- Section 7.2: Platformer Character Controller (for state machine patterns)
+- Section 1.7: Advanced Topics & Best Practices (for object pooling and performance)
+
+**TDD REQUIREMENT**: All tasks in this phase follow Test-Driven Development (TDD). You MUST:
+1. Write comprehensive unit tests FIRST
+2. Run tests to confirm they fail (Red phase)
+3. Implement the minimum functionality to make tests pass (Green phase)
+4. Refactor and bugfix until all tests pass (Refactor phase)
+5. Only mark task as complete when ALL tests pass
+
 ### Task 2.1: Create Entity Base Class
 **Objective**: Establish base class for all game entities
-- Create `client/src/entities/Entity.js`
-- Extend Phaser.GameObjects.Sprite
-- Add common entity properties (health, active state)
-- Add common entity methods (takeDamage, destroy)
-- **Test**: Entity class can be instantiated without errors
-- [x] Task 2.1: Create Entity Base Class - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.3 "Creating Game Objects" in `agent_docs/comprehensive_documentation.md` for entity creation patterns and Section 1.4 for physics body setup.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for Entity base class
+   - Test Entity instantiation with valid parameters
+   - Test Entity health management (takeDamage, heal)
+   - Test Entity lifecycle methods (destroy, activate, deactivate)
+   - Test Entity physics body setup
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create Entity class following Section 1.3 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All Entity base class tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.2: Create Player Class
 **Objective**: Create the main player character class
-- Create `client/src/entities/Player.js` extending Entity
-- Add player-specific properties (speed, jumpPower)
-- Add basic constructor with sprite setup
-- **Test**: Player instance can be created without errors
-- [x] Task 2.2: Create Player Class - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.3 "Creating Game Objects" in `agent_docs/comprehensive_documentation.md` for sprite creation patterns and Section 7.2 for player-specific properties.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for Player class
+   - Test Player instantiation and initialization
+   - Test Player physics properties (speed, jumpPower, gravity)
+   - Test Player state machine integration
+   - Test Player input manager integration
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create Player class extending Entity following Section 1.3 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All Player class tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.3: Add Player to GameScene
 **Objective**: Integrate player into the game world
-- Create player instance in GameScene create method
-- Position player at starting location
-- Add player to scene's display list
-- **Test**: Player sprite appears in game world
-- [x] Task 2.3: Add Player to GameScene - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.3 "Creating Game Objects" in `agent_docs/comprehensive_documentation.md` for sprite positioning and Section 1.4 for physics integration.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for player integration
+   - Test player instance creation in GameScene
+   - Test player positioning at starting location
+   - Test player addition to scene display list
+   - Test player visibility and rendering
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Add player to GameScene following Section 1.3 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All player integration tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.4: Enable Player Physics
 **Objective**: Add physics body to player
-- Enable physics body on player sprite
-- Set collision bounds
-- Configure physics properties (bounce, friction)
-- **Test**: Player has physics body (can be verified in debug mode)
-- [x] Task 2.4: Enable Player Physics - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.4 "Physics Bodies" in `agent_docs/comprehensive_documentation.md` for physics body setup and Section 1.4 "Dynamic vs. Static Bodies" for player physics configuration.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for player physics
+   - Test physics body creation and attachment
+   - Test collision bounds configuration
+   - Test physics properties (bounce, friction)
+   - Test physics body validation
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Enable player physics following Section 1.4 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All player physics tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.5: Create StateMachine Class
 **Objective**: Implement state management system
-- Create `client/src/systems/StateMachine.js`
-- Add state management methods (changeState, getCurrentState)
-- Add state transition validation
-- **Test**: StateMachine can be instantiated and states can be changed
-- [x] Task 2.5: Create StateMachine Class - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 7.2 "State Machine Implementation" in `agent_docs/comprehensive_documentation.md` for the generic StateMachine class pattern and state management methods.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for StateMachine class
+   - Test StateMachine instantiation and state registration
+   - Test state transitions (valid and invalid)
+   - Test state lifecycle methods (enter, execute, exit)
+   - Test state data passing between transitions
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create StateMachine class following Section 7.2 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All StateMachine tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.6: Create IdleState Class
 **Objective**: Implement player idle state
-- Create `client/src/states/IdleState.js`
-- Add enter, execute, and exit methods
-- Set up idle animation
-- Handle input detection for state transitions
-- **Test**: Player enters idle state and plays idle animation
-- [x] Task 2.6: Create IdleState Class - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 7.2 "Player State Machine Definition" table in `agent_docs/comprehensive_documentation.md` for the exact IdleState behavior and Section 1.5 for animation setup.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for IdleState
+   - Test IdleState instantiation and initialization
+   - Test idle animation playback
+   - Test input detection for state transitions
+   - Test state exit conditions
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create IdleState class following Section 7.2 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All IdleState tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.7: Create RunState Class
 **Objective**: Implement player running state
-- Create `client/src/states/RunState.js`
-- Add enter, execute, and exit methods
-- Set up run animation
-- Handle horizontal movement
-- **Test**: Player enters run state and moves horizontally
-- [x] Task 2.7: Create RunState Class - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 7.2 "Player State Machine Definition" table in `agent_docs/comprehensive_documentation.md` for RunState behavior and Section 1.4 for horizontal movement physics.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for RunState
+   - Test RunState instantiation and initialization
+   - Test run animation playback
+   - Test horizontal movement implementation
+   - Test state transition conditions
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create RunState class following Section 7.2 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All RunState tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.8: Create JumpState Class
 **Objective**: Implement player jumping state
-- Create `client/src/states/JumpState.js`
-- Add enter, execute, and exit methods
-- Set up jump animation
-- Apply upward velocity
-- **Test**: Player enters jump state and moves upward
-- [x] Task 2.8: Create JumpState Class - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 7.2 "Player State Machine Definition" table in `agent_docs/comprehensive_documentation.md` for JumpState behavior and Section 1.4 for velocity application.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for JumpState
+   - Test JumpState instantiation and initialization
+   - Test jump animation playback
+   - Test upward velocity application
+   - Test jump state exit conditions
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create JumpState class following Section 7.2 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All JumpState tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.9: Create FallState Class
 **Objective**: Implement player falling state
-- Create `client/src/states/FallState.js`
-- Add enter, execute, and exit methods
-- Set up fall animation
-- Handle gravity application
-- **Test**: Player enters fall state and falls with gravity
-- [x] Task 2.9: Create FallState Class - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 7.2 "Player State Machine Definition" table in `agent_docs/comprehensive_documentation.md` for FallState behavior and Section 1.4 for gravity application.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for FallState
+   - Test FallState instantiation and initialization
+   - Test fall animation playback
+   - Test gravity application
+   - Test fall state exit conditions
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create FallState class following Section 7.2 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All FallState tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.10: Connect StateMachine to Player
 **Objective**: Integrate state machine with player
-- Add StateMachine instance to Player class
-- Initialize with IdleState
-- Update player update method to call current state
-- **Test**: Player starts in idle state and can transition between states
-- [x] Task 2.10: Connect StateMachine to Player - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 7.2 "State Machine Implementation" in `agent_docs/comprehensive_documentation.md` for state machine integration patterns and Section 1.2 for update loop integration.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for state machine integration
+   - Test StateMachine instance addition to Player
+   - Test initial state setup (IdleState)
+   - Test state machine update loop integration
+   - Test state transition functionality
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Connect StateMachine to Player following Section 7.2 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All state machine integration tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.11: Create InputManager Class
 **Objective**: Centralize input handling
-- Create `client/src/systems/InputManager.js`
-- Add keyboard input detection
-- Add input state tracking
-- Add input validation methods
-- **Test**: InputManager can detect key presses and releases
-- [x] Task 2.11: Create InputManager Class - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.5 "Input Handling" in `agent_docs/comprehensive_documentation.md` for keyboard input patterns and input state tracking.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for InputManager
+   - Test InputManager instantiation and initialization
+   - Test keyboard input detection
+   - Test input state tracking (isDown, isUp, JustDown)
+   - Test input validation methods
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create InputManager class following Section 1.5 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All InputManager tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.12: Add Keyboard Controls
 **Objective**: Implement basic keyboard input
-- Set up arrow key detection
-- Set up WASD key detection
-- Add input debouncing
-- **Test**: Keyboard input is detected and tracked correctly
-- [x] Task 2.12: Add Keyboard Controls - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.5 "Input Handling" in `agent_docs/comprehensive_documentation.md` for keyboard setup patterns and input debouncing.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for keyboard controls
+   - Test arrow key detection and tracking
+   - Test WASD key detection and tracking
+   - Test input debouncing implementation
+   - Test input validation and edge cases
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Add keyboard controls following Section 1.5 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All keyboard controls tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.13: Connect Input to Player Movement
 **Objective**: Link input to player actions
-- Update Player class to use InputManager
-- Handle left/right movement input
-- Handle jump input
-- **Test**: Player responds to keyboard input
-- [x] Task 2.13: Connect Input to Player Movement - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.5 "Input Handling" in `agent_docs/comprehensive_documentation.md` for input processing patterns and Section 7.2 for state machine input integration.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for input-player connection
+   - Test left/right movement input processing
+   - Test jump input detection and handling
+   - Test input validation and edge cases
+   - Test input manager integration with player
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Connect input to player movement following Section 1.5 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All input-player connection tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.14: Implement Variable Jump Height
 **Objective**: Add responsive jumping mechanics
-- Track jump key hold duration
-- Adjust jump velocity based on hold time
-- Set maximum jump height
-- **Test**: Jump height varies based on key hold duration
-- [x] Task 2.14: Implement Variable Jump Height - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 7.2 "Player State Machine Definition" table in `agent_docs/comprehensive_documentation.md` for JumpState variable height patterns and Section 1.4 for velocity control.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for variable jump height
+   - Test jump key hold duration tracking
+   - Test jump velocity adjustment based on hold time
+   - Test maximum jump height enforcement
+   - Test jump responsiveness validation
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Implement variable jump height following Section 7.2 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All variable jump height tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.15: Create CollisionManager Class
 **Objective**: Centralize collision detection
-- Create `client/src/systems/CollisionManager.js`
-- Add collision group management
-- Add collision callback system
-- Add collision filtering
-- **Test**: CollisionManager can be instantiated and manages collisions
-- [x] Task 2.15: Create CollisionManager Class - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.4 "Collision Detection" in `agent_docs/comprehensive_documentation.md` for collision setup patterns and Section 1.4 "Physics Groups" for efficient collision management.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for CollisionManager
+   - Test CollisionManager instantiation and initialization
+   - Test collision group management
+   - Test collision callback system
+   - Test collision filtering and validation
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create CollisionManager class following Section 1.4 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All CollisionManager tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.16: Add Player-Platform Collision
 **Objective**: Enable player to stand on platforms
-- Set up collision between player and platform group using CollisionManager
-- Handle collision callbacks
-- Ensure player stops falling when landing
-- **Test**: Player can land and stand on platforms
-- [x] Task 2.16: Add Player-Platform Collision - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.4 "Collision Detection" in `agent_docs/comprehensive_documentation.md` for collision setup patterns and Section 1.4 "Static vs. Dynamic Bodies" for platform collision.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for player-platform collision
+   - Test collision setup between player and platform group
+   - Test collision callback execution
+   - Test player landing detection and handling
+   - Test collision response validation
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Add player-platform collision following Section 1.4 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All player-platform collision tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.17: Create Basic Test Level
 **Objective**: Build a simple level for testing
-- Create multiple platforms at different heights
-- Add ground level
-- Position platforms for basic platforming
-- **Test**: Level is playable with basic movement
-- [x] Task 2.17: Create Basic Test Level - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.3 "Creating Game Objects" in `agent_docs/comprehensive_documentation.md` for level building patterns and Section 1.4 for platform positioning.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for test level
+   - Test multiple platform creation and positioning
+   - Test ground level setup and validation
+   - Test platform positioning for basic platforming
+   - Test level playability validation
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create basic test level following Section 1.3 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All test level tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 ### Task 2.18: Add Collectible Coins
 **Objective**: Create basic collectibles for testing
-- Create `client/src/entities/collectibles/Coin.js`
-- Add coin sprites to level
-- Set up coin-player collision
-- Add coin collection feedback
-- **Test**: Player can collect coins and see feedback
-- [x] Task 2.18: Add Collectible Coins - Completed on 2024-07-29
+**IMPLEMENTATION REFERENCE**: See Section 1.3 "Creating Game Objects" in `agent_docs/comprehensive_documentation.md` for collectible creation patterns and Section 1.4 "Collision Detection" for overlap detection.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for collectible coins
+   - Test Coin class instantiation and properties
+   - Test coin sprite creation and positioning
+   - Test coin-player collision detection
+   - Test coin collection feedback and destruction
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Create collectible coins following Section 1.3 patterns
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All collectible coin tests MUST pass before proceeding
+- **After completion**: Mark task as completed only after all tests pass
 
 **Phase 2 Completion**: Merge `feature/phase-2-player-movement` into `main`
-
----
-
-## Phase 2.5: Unit Testing & Validation
-
-**Branch**: `feature/phase-2-5-unit-testing`
-
-**IMPORTANT**: All tests in this phase MUST pass before proceeding to the next task. If tests fail, you MUST fix all bugs and ensure tests pass before moving forward.
-
-### Task 2.5.1: Set Up Testing Framework
-**Objective**: Configure testing environment for the project
-- Install Jest testing framework
-- Configure Jest for Phaser.js testing
-- Set up test directory structure
-- Create test utilities and mocks
-- **REQUIRED**: Run `npm test` and verify Jest can execute basic tests
-- **CRITICAL**: If tests fail, fix all issues before proceeding
-- [x] Task 2.5.1: Set Up Testing Framework - Completed on 2024-07-29 - Jest, jsdom, config, and test utilities/mocks created and verified
-
-### Task 2.5.2: Test Entity Base Class
-**Objective**: Validate Entity class functionality
-- Create comprehensive unit tests for Entity class
-- Test Entity instantiation with valid parameters
-- Test Entity health management (takeDamage, heal)
-- Test Entity lifecycle methods (destroy, activate, deactivate)
-- Test Entity physics body setup
-- **REQUIRED**: Run tests and verify all Entity tests pass
-- **CRITICAL**: If any Entity tests fail, fix the Entity class until all tests pass
-- [x] Task 2.5.2: Test Entity Base Class - Completed on 2024-07-29 - All comprehensive unit tests for Entity class passing
-
-### Task 2.5.3: Test Player Class
-**Objective**: Validate Player class functionality
-- Create comprehensive unit tests for Player class
-- Test Player instantiation and initialization
-- Test Player physics properties (speed, jumpPower, gravity)
-- Test Player state machine integration
-- Test Player input manager integration
-- **REQUIRED**: Run tests and verify all Player tests pass
-- **CRITICAL**: If any Player tests fail, fix the Player class until all tests pass
-- [x] Task 2.5.3: Test Player Class - Completed on 2024-07-29 - All comprehensive unit tests for Player class passing
-
-### Task 2.5.4: Test StateMachine System
-**Objective**: Validate state management functionality
-- Create comprehensive unit tests for StateMachine
-- Test StateMachine instantiation and state registration
-- Test state transitions (valid and invalid)
-- Test state lifecycle methods (enter, execute, exit)
-- Test state data passing between transitions
-- **REQUIRED**: Run tests and verify all StateMachine tests pass
-- **CRITICAL**: If any StateMachine tests fail, fix the StateMachine until all tests pass
-- [x] Task 2.5.4: Test StateMachine System - Completed on 2024-07-29 - All comprehensive unit tests for StateMachine system passing
-
-### Task 2.5.5: Test InputManager System
-**Objective**: Validate input handling functionality
-- Create comprehensive unit tests for InputManager
-- Test keyboard input detection (arrows, WASD, space)
-- Test input state tracking (isDown, isUp, JustDown)
-- Test input validation and edge cases
-- Test input manager integration with player
-- **REQUIRED**: Run tests and verify all InputManager tests pass
-- **CRITICAL**: If any InputManager tests fail, fix the InputManager until all tests pass
-- **After completion**: Mark task as completed only after all InputManager tests pass
-- [x] Task 2.5.5: Test InputManager System - Completed on 2024-07-29 - All comprehensive unit tests for InputManager system passing
-
-### Task 2.5.6: Test CollisionManager System
-**Objective**: Validate collision detection functionality
-- Create comprehensive unit tests for CollisionManager
-- Test collider creation between objects
-- Test overlap detection setup
-- Test collision callback execution
-- Test collision filtering and groups
-- **REQUIRED**: Run tests and verify all CollisionManager tests pass
-- **CRITICAL**: If any CollisionManager tests fail, fix the CollisionManager until all tests pass
-- **After completion**: Mark task as completed only after all CollisionManager tests pass
-- [x] Task 2.5.6: Test CollisionManager System - Completed on 2024-07-29 - All comprehensive unit tests for CollisionManager system passing
-
-### Task 2.5.7: Test Scene Management
-**Objective**: Validate scene system functionality
-- Create comprehensive unit tests for scene system
-- Test BaseScene lifecycle methods
-- Test scene transitions (BootScene → MenuScene → GameScene)
-- Test scene cleanup and memory management
-- Test scene-specific functionality
-- **REQUIRED**: Run tests and verify all scene tests pass
-- **CRITICAL**: If any scene tests fail, fix the scene classes until all tests pass
-- **After completion**: Mark task as completed only after all scene tests pass
-- [x] Task 2.5.7: Test Scene Management - Completed on 2024-07-29 - All comprehensive unit tests for scene system passing
-
-### Task 2.5.8: Test Asset Loading System
-**Objective**: Validate asset management functionality
-- Create comprehensive unit tests for asset loading
-- Test spritesheet loading and parsing
-- Test animation creation from spritesheets
-- Test asset preloading in BootScene
-- Test asset error handling
-- **REQUIRED**: Run tests and verify all asset loading tests pass
-- **CRITICAL**: If any asset loading tests fail, fix the asset system until all tests pass
-- **After completion**: Mark task as completed only after all asset loading tests pass
-- [x] Task 2.5.8: Test Asset Loading System - Completed on 2024-07-29 - All comprehensive unit tests for asset loading system passing
-
-### Task 2.5.9: Test Physics System
-**Objective**: Validate physics functionality
-- Create comprehensive unit tests for physics system
-- Test gravity application to objects
-- Test collision detection between objects
-- Test world boundaries enforcement
-- Test physics body properties and constraints
-- **REQUIRED**: Run tests and verify all physics tests pass
-- **CRITICAL**: If any physics tests fail, fix the physics configuration until all tests pass
-- **After completion**: Mark task as completed only after all physics tests pass
-- [x] Task 2.5.9: Test Physics System - Completed on 2024-07-29 - All comprehensive unit tests for physics system passing
-
-### Task 2.5.10: Test Collectible System
-**Objective**: Validate collectible functionality
-- Create comprehensive unit tests for collectible system
-- Test Coin instantiation and properties
-- Test coin-player collision detection
-- Test coin collection callback execution
-- Test coin destruction after collection
-- **REQUIRED**: Run tests and verify all collectible tests pass
-- **CRITICAL**: If any collectible tests fail, fix the collectible system until all tests pass
-- **After completion**: Mark task as completed only after all collectible tests pass
-- [x] Task 2.5.10: Test Collectible System - Completed on 2024-07-29 - All comprehensive unit tests for collectible system passing
-
-### Task 2.5.11: Test Animation System
-**Objective**: Validate animation functionality
-- Create comprehensive unit tests for animation system
-- Test GSAP integration and basic animations
-- Test character animation playback (idle, walk, jump, fall)
-- Test animation state management
-- Test animation performance and memory usage
-- **REQUIRED**: Run tests and verify all animation tests pass
-- **CRITICAL**: If any animation tests fail, fix the animation system until all tests pass
-- **After completion**: Mark task as completed only after all animation tests pass
-
-### Task 2.5.12: Test Object Pool System
-**Objective**: Validate object pooling functionality
-- Create comprehensive unit tests for ObjectPool
-- Test object creation and recycling
-- Test pool size management
-- Test object reset functionality
-- Test memory usage optimization
-- **REQUIRED**: Run tests and verify all ObjectPool tests pass
-- **CRITICAL**: If any ObjectPool tests fail, fix the ObjectPool until all tests pass
-- **After completion**: Mark task as completed only after all ObjectPool tests pass
-
-### Task 2.5.13: Test Integration Testing
-**Objective**: Validate complete system integration
-- Create comprehensive integration tests
-- Test complete player movement flow (input → state → physics → collision)
-- Test scene transition flow (boot → menu → game)
-- Test asset loading and game initialization
-- Test error handling and recovery
-- **REQUIRED**: Run integration tests and verify all tests pass
-- **CRITICAL**: If any integration tests fail, fix the integration issues until all tests pass
-- **After completion**: Mark task as completed only after all integration tests pass
-
-### Task 2.5.14: Performance Testing
-**Objective**: Validate system performance
-- Create comprehensive performance tests
-- Test frame rate consistency during gameplay
-- Test memory usage over time
-- Test collision detection performance
-- Test animation system performance
-- **REQUIRED**: Run performance tests and verify all tests pass
-- **CRITICAL**: If any performance tests fail, optimize the system until all tests pass
-- **After completion**: Mark task as completed only after all performance tests pass
-
-**Phase 2.5 Completion**: Merge `feature/phase-2-5-unit-testing` into `main`
 
 ---
 
