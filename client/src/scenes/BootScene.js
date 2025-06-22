@@ -22,6 +22,9 @@ export class BootScene extends BaseScene {
         
         // Load placeholder assets for now
         this.loadPlaceholderAssets();
+        
+        // Create basic character animations (idle, walk, jump, fall)
+        this.createCharacterAnimations();
     }
 
     create() {
@@ -73,6 +76,8 @@ export class BootScene extends BaseScene {
         this.load.on('complete', () => {
             this.progressText.setText('100%');
             this.loadingText.setText('Ready!');
+            console.log('Main assets loaded, transitioning to MenuScene...');
+            this.scene.start('MenuScene');
         });
     }
 
@@ -130,58 +135,46 @@ export class BootScene extends BaseScene {
     }
 
     /**
-     * Create character animations
+     * Create character animations from the spritesheet
      */
     createCharacterAnimations() {
+        const anims = this.anims;
+
         // Idle animation
-        this.anims.create({
-            key: 'character_idle',
-            frames: this.anims.generateFrameNames('characters', {
-                prefix: 'character_beige_',
-                start: 1,
-                end: 1,
-                suffix: '.png'
-            }),
-            frameRate: 10,
+        anims.create({
+            key: 'idle',
+            frames: [{ key: 'characters', frame: 'character_beige_idle.png' }],
+            frameRate: 1,
             repeat: -1
         });
 
         // Walk animation
-        this.anims.create({
-            key: 'character_walk',
-            frames: this.anims.generateFrameNames('characters', {
+        anims.create({
+            key: 'walk',
+            frames: anims.generateFrameNames('characters', {
                 prefix: 'character_beige_walk_',
+                suffix: '.png',
                 start: 1,
                 end: 2,
-                suffix: '.png'
+                zeroPad: 1
             }),
             frameRate: 8,
             repeat: -1
         });
 
         // Jump animation
-        this.anims.create({
-            key: 'character_jump',
-            frames: this.anims.generateFrameNames('characters', {
-                prefix: 'character_beige_',
-                start: 1,
-                end: 1,
-                suffix: '.png'
-            }),
-            frameRate: 10,
+        anims.create({
+            key: 'jump',
+            frames: [{ key: 'characters', frame: 'character_beige_jump.png' }],
+            frameRate: 1,
             repeat: 0
         });
 
-        // Fall animation
-        this.anims.create({
-            key: 'character_fall',
-            frames: this.anims.generateFrameNames('characters', {
-                prefix: 'character_beige_',
-                start: 1,
-                end: 1,
-                suffix: '.png'
-            }),
-            frameRate: 10,
+        // Fall animation (using jump frame for now)
+        anims.create({
+            key: 'fall',
+            frames: [{ key: 'characters', frame: 'character_beige_jump.png' }],
+            frameRate: 1,
             repeat: 0
         });
     }

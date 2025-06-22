@@ -1,4 +1,8 @@
 import BaseScene from './BaseScene.js';
+import Player from '../entities/Player.js';
+import InputManager from '../systems/InputManager.js';
+import CollisionManager from '../systems/CollisionManager.js';
+import { Coin } from '../entities/collectibles/Coin.js';
 
 /**
  * GameScene - Main gameplay scene
@@ -9,6 +13,11 @@ export class GameScene extends BaseScene {
         super('GameScene');
         this.backButton = null;
         this.gameObjects = [];
+        this.player = null;
+        this.inputManager = null;
+        this.collisionManager = null;
+        this.platforms = null;
+        this.coins = null;
     }
 
     create() {
@@ -20,6 +29,26 @@ export class GameScene extends BaseScene {
         // Create basic game world
         this.createGameWorld();
         
+        // Setup input manager
+        this.inputManager = new InputManager(this);
+        
+        // Setup collision manager
+        this.collisionManager = new CollisionManager(this);
+
+        // Add player to the scene
+        this.player = new Player(this, 100, 450, this.inputManager);
+        this.gameObjects.push(this.player);
+
+        // Add coins
+        this.coins = this.physics.add.group({ classType: Coin });
+        this.coins.get(200, 400);
+        this.coins.get(600, 350);
+        this.coins.get(750, 150);
+
+        // Setup collisions
+        this.collisionManager.addCollider(this.player, this.platforms);
+        this.collisionManager.addOverlap(this.player, this.coins, this.handlePlayerCoinOverlap, null, this);
+
         // Create UI elements
         this.createGameUI();
     }
@@ -42,31 +71,22 @@ export class GameScene extends BaseScene {
      * Create placeholder game elements
      */
     createPlaceholderElements() {
-        const width = this.cameras.main.width;
-        const height = this.cameras.main.height;
+        // Add a simple platform group
+        this.platforms = this.physics.add.staticGroup();
         
-        // Add a simple platform
-        const platform = this.add.rectangle(width / 2, height - 100, 400, 20, 0x4a90e2);
-        platform.setStrokeStyle(2, 0xffffff);
+        // Ground
+        const ground = this.add.rectangle(400, 580, 800, 40, 0x4a90e2).setStrokeStyle(2, 0xffffff);
+        this.platforms.add(ground, true);
+
+        // Platforms
+        const plat1 = this.add.rectangle(600, 450, 250, 20, 0x4a90e2).setStrokeStyle(2, 0xffffff);
+        this.platforms.add(plat1, true);
+
+        const plat2 = this.add.rectangle(250, 350, 250, 20, 0x4a90e2).setStrokeStyle(2, 0xffffff);
+        this.platforms.add(plat2, true);
         
-        // Add a placeholder player (will be replaced in Phase 2)
-        const player = this.add.rectangle(width / 2, height - 150, 32, 32, 0xff6b6b);
-        player.setStrokeStyle(2, 0xffffff);
-        
-        // Add some decorative elements
-        for (let i = 0; i < 5; i++) {
-            const decoration = this.add.rectangle(
-                100 + i * 150, 
-                height - 200, 
-                20, 
-                20, 
-                0x95a5a6
-            );
-            decoration.setStrokeStyle(1, 0xffffff);
-        }
-        
-        // Store game objects for cleanup
-        this.gameObjects.push(platform, player);
+        const plat3 = this.add.rectangle(750, 250, 250, 20, 0x4a90e2).setStrokeStyle(2, 0xffffff);
+        this.platforms.add(plat3, true);
     }
 
     /**
@@ -141,6 +161,10 @@ export class GameScene extends BaseScene {
             }
         });
         this.gameObjects = [];
+    }
+
+    handlePlayerCoinOverlap(player, coin) {
+        coin.collect();
     }
 }
 

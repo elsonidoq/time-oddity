@@ -183,6 +183,7 @@ Before merging each phase branch:
 - Add common entity properties (health, active state)
 - Add common entity methods (takeDamage, destroy)
 - **Test**: Entity class can be instantiated without errors
+- [x] Task 2.1: Create Entity Base Class - Completed on 2024-07-29
 
 ### Task 2.2: Create Player Class
 **Objective**: Create the main player character class
@@ -190,6 +191,7 @@ Before merging each phase branch:
 - Add player-specific properties (speed, jumpPower)
 - Add basic constructor with sprite setup
 - **Test**: Player instance can be created without errors
+- [x] Task 2.2: Create Player Class - Completed on 2024-07-29
 
 ### Task 2.3: Add Player to GameScene
 **Objective**: Integrate player into the game world
@@ -197,6 +199,7 @@ Before merging each phase branch:
 - Position player at starting location
 - Add player to scene's display list
 - **Test**: Player sprite appears in game world
+- [x] Task 2.3: Add Player to GameScene - Completed on 2024-07-29
 
 ### Task 2.4: Enable Player Physics
 **Objective**: Add physics body to player
@@ -204,6 +207,7 @@ Before merging each phase branch:
 - Set collision bounds
 - Configure physics properties (bounce, friction)
 - **Test**: Player has physics body (can be verified in debug mode)
+- [x] Task 2.4: Enable Player Physics - Completed on 2024-07-29
 
 ### Task 2.5: Create StateMachine Class
 **Objective**: Implement state management system
@@ -211,6 +215,7 @@ Before merging each phase branch:
 - Add state management methods (changeState, getCurrentState)
 - Add state transition validation
 - **Test**: StateMachine can be instantiated and states can be changed
+- [x] Task 2.5: Create StateMachine Class - Completed on 2024-07-29
 
 ### Task 2.6: Create IdleState Class
 **Objective**: Implement player idle state
@@ -219,6 +224,7 @@ Before merging each phase branch:
 - Set up idle animation
 - Handle input detection for state transitions
 - **Test**: Player enters idle state and plays idle animation
+- [x] Task 2.6: Create IdleState Class - Completed on 2024-07-29
 
 ### Task 2.7: Create RunState Class
 **Objective**: Implement player running state
@@ -227,6 +233,7 @@ Before merging each phase branch:
 - Set up run animation
 - Handle horizontal movement
 - **Test**: Player enters run state and moves horizontally
+- [x] Task 2.7: Create RunState Class - Completed on 2024-07-29
 
 ### Task 2.8: Create JumpState Class
 **Objective**: Implement player jumping state
@@ -235,6 +242,7 @@ Before merging each phase branch:
 - Set up jump animation
 - Apply upward velocity
 - **Test**: Player enters jump state and moves upward
+- [x] Task 2.8: Create JumpState Class - Completed on 2024-07-29
 
 ### Task 2.9: Create FallState Class
 **Objective**: Implement player falling state
@@ -243,6 +251,7 @@ Before merging each phase branch:
 - Set up fall animation
 - Handle gravity application
 - **Test**: Player enters fall state and falls with gravity
+- [x] Task 2.9: Create FallState Class - Completed on 2024-07-29
 
 ### Task 2.10: Connect StateMachine to Player
 **Objective**: Integrate state machine with player
@@ -250,6 +259,7 @@ Before merging each phase branch:
 - Initialize with IdleState
 - Update player update method to call current state
 - **Test**: Player starts in idle state and can transition between states
+- [x] Task 2.10: Connect StateMachine to Player - Completed on 2024-07-29
 
 ### Task 2.11: Create InputManager Class
 **Objective**: Centralize input handling
