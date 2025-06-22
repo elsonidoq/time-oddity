@@ -595,6 +595,13 @@ Before merging each phase branch:
 
 **Branch**: `feature/phase-2-player-movement`
 
+**ADAPTATION NOTE**: The Phase 2 tasks have been updated to reflect the current development state after Phase 1 completion. Key adaptations include:
+- Added Task 2.0 to fix the current GameScene physics initialization issue
+- Updated Task 2.3 to work with existing GameScene structure and platform layout
+- Updated Task 2.16 to work with existing platform group in GameScene
+- Updated Task 2.17 to enhance existing test level rather than create a new one
+- All tasks now build upon the solid foundation established in Phase 1
+
 **CRITICAL IMPLEMENTATION REQUIREMENT**: Before implementing any task in this phase, you MUST read the comprehensive documentation file `agent_docs/comprehensive_documentation.md`. This document contains detailed implementation patterns, architectural decisions, and code examples for all systems in this phase. Pay special attention to:
 - Section 1.3: Asset and Sprite Management (for entity creation and sprite setup)
 - Section 1.4: Arcade Physics Engine (for physics body setup and collision detection)
@@ -608,6 +615,32 @@ Before merging each phase branch:
 3. Implement the minimum functionality to make tests pass (Green phase)
 4. Refactor and bugfix until all tests pass (Refactor phase)
 5. Only mark task as complete when ALL tests pass
+
+### Task 2.0: Fix GameScene Physics Initialization
+**Objective**: Resolve the current physics world bounds issue in GameScene
+**IMPLEMENTATION REFERENCE**: See Section 1.4 "Setup and Configuration" in `agent_docs/comprehensive_documentation.md` for proper physics initialization patterns and Section 1.6 for world boundary setup.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for GameScene physics initialization
+   - Test physics world initialization before setting bounds
+   - Test proper physics system setup sequence
+   - Test world bounds configuration validation
+   - Test physics debug mode setup
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Fix GameScene physics initialization following Section 1.4 patterns:
+   - Ensure physics system is properly initialized before accessing world.bounds
+   - Fix the bounds.setTo() call sequence
+   - Validate physics configuration in test environment
+   - Update test mocks if needed
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All GameScene physics tests MUST pass before proceeding
+- **SPECIFIC REQUIREMENTS**:
+  - Fix the "Cannot read properties of undefined (reading 'setTo')" error
+  - Ensure physics world is properly initialized in both runtime and test environments
+  - Maintain existing platform creation functionality
+  - Validate that all existing GameScene tests pass
+- **Expected output**: -
+- **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.1: Create Entity Base Class
 **Objective**: Establish base class for all game entities
@@ -623,6 +656,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All Entity base class tests MUST pass before proceeding
+- **Expected output**: -
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.2: Create Player Class
@@ -639,22 +673,34 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All Player class tests MUST pass before proceeding
+- **Expected output**: -
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.3: Add Player to GameScene
-**Objective**: Integrate player into the game world
+**Objective**: Integrate player into the existing game world
 **IMPLEMENTATION REFERENCE**: See Section 1.3 "Creating Game Objects" in `agent_docs/comprehensive_documentation.md` for sprite positioning and Section 1.4 for physics integration.
 **TDD APPROACH**:
 1. **FIRST**: Write comprehensive unit tests for player integration
-   - Test player instance creation in GameScene
-   - Test player positioning at starting location
+   - Test player instance creation in existing GameScene
+   - Test player positioning at starting location (considering existing platforms)
    - Test player addition to scene display list
    - Test player visibility and rendering
+   - Test player interaction with existing platform layout
 2. **SECOND**: Run tests to confirm they fail (Red phase)
-3. **THIRD**: Add player to GameScene following Section 1.3 patterns
+3. **THIRD**: Add player to existing GameScene following Section 1.3 patterns:
+   - Create player sprite at appropriate starting position
+   - Add player to the existing players physics group
+   - Ensure player doesn't interfere with existing platform layout
+   - Position player on or near existing ground platform
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All player integration tests MUST pass before proceeding
+- **SPECIFIC REQUIREMENTS**:
+  - Work with existing GameScene structure and platform layout
+  - Position player at a logical starting point (e.g., on the ground platform)
+  - Ensure player is added to the existing players physics group
+  - Maintain compatibility with existing scene navigation and cleanup
+- **Expected output**: When navigating to the GameScene, you should see a player character sprite positioned on the ground platform. The player should be visible and rendered using the Kenney character spritesheet (beige character variant). The player should appear as a static sprite that doesn't move yet.
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.4: Enable Player Physics
@@ -671,6 +717,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All player physics tests MUST pass before proceeding
+- **Expected output**: The player character should now fall due to gravity when the GameScene loads. The player will drop from its starting position and fall through the screen until it hits the bottom boundary. This demonstrates that the physics system is working and the player has a physics body attached.
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.5: Create StateMachine Class
@@ -687,6 +734,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All StateMachine tests MUST pass before proceeding
+- **Expected output**: -
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.6: Create IdleState Class
@@ -703,6 +751,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All IdleState tests MUST pass before proceeding
+- **Expected output**: -
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.7: Create RunState Class
@@ -719,6 +768,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All RunState tests MUST pass before proceeding
+- **Expected output**: -
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.8: Create JumpState Class
@@ -735,6 +785,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All JumpState tests MUST pass before proceeding
+- **Expected output**: -
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.9: Create FallState Class
@@ -751,6 +802,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All FallState tests MUST pass before proceeding
+- **Expected output**: -
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.10: Connect StateMachine to Player
@@ -767,6 +819,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All state machine integration tests MUST pass before proceeding
+- **Expected output**: The player should now start in the idle state and display the idle animation. The player will no longer fall through the screen but will remain stationary on the ground platform, showing the idle animation from the Kenney character spritesheet.
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.11: Create InputManager Class
@@ -783,6 +836,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All InputManager tests MUST pass before proceeding
+- **Expected output**: -
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.12: Add Keyboard Controls
@@ -799,6 +853,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All keyboard controls tests MUST pass before proceeding
+- **Expected output**: -
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.13: Connect Input to Player Movement
@@ -815,6 +870,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All input-player connection tests MUST pass before proceeding
+- **Expected output**: The player should now respond to keyboard input. Pressing LEFT ARROW or A should make the player move left and show the walk animation. Pressing RIGHT ARROW or D should make the player move right and show the walk animation. Pressing UP ARROW, W, or SPACE should make the player jump and show the jump animation. The player should transition between idle, walk, jump, and fall animations based on input and physics state.
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.14: Implement Variable Jump Height
@@ -831,6 +887,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All variable jump height tests MUST pass before proceeding
+- **Expected output**: The jump mechanic should now be more responsive. Tapping the jump key (UP ARROW, W, or SPACE) should result in a small hop, while holding the jump key should make the player jump higher. The longer you hold the jump key, the higher the player should jump, up to a maximum height. Releasing the jump key early should cut the jump short, creating a more responsive and controllable jumping experience.
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.15: Create CollisionManager Class
@@ -847,38 +904,62 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All CollisionManager tests MUST pass before proceeding
+- **Expected output**: -
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.16: Add Player-Platform Collision
-**Objective**: Enable player to stand on platforms
+**Objective**: Enable player to stand on existing platforms
 **IMPLEMENTATION REFERENCE**: See Section 1.4 "Collision Detection" in `agent_docs/comprehensive_documentation.md` for collision setup patterns and Section 1.4 "Static vs. Dynamic Bodies" for platform collision.
 **TDD APPROACH**:
 1. **FIRST**: Write comprehensive unit tests for player-platform collision
-   - Test collision setup between player and platform group
+   - Test collision setup between player and existing platform group
    - Test collision callback execution
    - Test player landing detection and handling
    - Test collision response validation
+   - Test collision with existing ground and floating platforms
 2. **SECOND**: Run tests to confirm they fail (Red phase)
-3. **THIRD**: Add player-platform collision following Section 1.4 patterns
+3. **THIRD**: Add player-platform collision following Section 1.4 patterns:
+   - Set up collider between player and existing platforms group
+   - Configure collision callbacks for landing detection
+   - Test collision with existing ground platform layout
+   - Test collision with existing floating platforms
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All player-platform collision tests MUST pass before proceeding
+- **SPECIFIC REQUIREMENTS**:
+  - Work with existing platforms group in GameScene
+  - Ensure player can land on existing ground platform
+  - Test collision with existing floating platforms
+  - Maintain existing platform physics properties
+- **Expected output**: The player should now be able to land on and stand on platforms. When the player falls, they should stop falling when they hit the ground platform or any floating platform. The player should be able to jump from platform to platform, and the collision detection should prevent the player from falling through platforms. The player should transition to the idle state when landing on a platform.
 - **After completion**: Mark task as completed only after all project tests pass
 
-### Task 2.17: Create Basic Test Level
-**Objective**: Build a simple level for testing
+### Task 2.17: Enhance Basic Test Level
+**Objective**: Improve the existing test level for better player testing
 **IMPLEMENTATION REFERENCE**: See Section 1.3 "Creating Game Objects" in `agent_docs/comprehensive_documentation.md` for level building patterns and Section 1.4 for platform positioning.
 **TDD APPROACH**:
-1. **FIRST**: Write comprehensive unit tests for test level
-   - Test multiple platform creation and positioning
-   - Test ground level setup and validation
-   - Test platform positioning for basic platforming
-   - Test level playability validation
+1. **FIRST**: Write comprehensive unit tests for enhanced test level
+   - Test additional platform creation and positioning
+   - Test enhanced level layout validation
+   - Test platform positioning for improved platforming experience
+   - Test level playability validation with player movement
+   - Test level enhancement without breaking existing functionality
 2. **SECOND**: Run tests to confirm they fail (Red phase)
-3. **THIRD**: Create basic test level following Section 1.3 patterns
+3. **THIRD**: Enhance existing test level following Section 1.3 patterns:
+   - Add more floating platforms for better platforming
+   - Improve platform spacing and positioning
+   - Add platforms that test player jumping abilities
+   - Maintain existing ground platform layout
+   - Ensure level remains playable and fun
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
-- **CRITICAL**: All test level tests MUST pass before proceeding
+- **CRITICAL**: All enhanced test level tests MUST pass before proceeding
+- **SPECIFIC REQUIREMENTS**:
+  - Build upon existing GameScene platform layout
+  - Add platforms that test different player abilities (jumping, movement)
+  - Ensure level provides good testing environment for player mechanics
+  - Maintain existing scene structure and navigation
+- **Expected output**: The GameScene should now have additional floating platforms positioned at various heights and distances. These platforms should be spaced to test the player's jumping abilities - some should be reachable with a single jump, others might require precise timing or multiple jumps. The level should provide a more engaging platforming experience while maintaining the existing ground platform and scene navigation.
 - **After completion**: Mark task as completed only after all project tests pass
 
 ### Task 2.18: Add Collectible Coins
@@ -895,6 +976,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All collectible coin tests MUST pass before proceeding
+- **Expected output**: The GameScene should now contain collectible coins scattered throughout the level. These coins should be visible as animated sprites (using the Kenney coin assets) that the player can collect by touching them. When the player touches a coin, it should disappear and provide some form of feedback (visual effect, sound, or score increase). The coins should be positioned on platforms and in areas that require the player to use their movement abilities to reach them.
 - **After completion**: Mark task as completed only after all project tests pass
 
 **Phase 2 Completion**: Merge `feature/phase-2-player-movement` into `main`
