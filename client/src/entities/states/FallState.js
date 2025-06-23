@@ -21,14 +21,16 @@ export default class FallState {
     }
 
     // Handle horizontal movement
-    if (inputManager && inputManager.isLeftPressed) {
-      body.setVelocityX(-speed);
-      this.player.flipX = true;
-    } else if (inputManager && inputManager.isRightPressed) {
-      body.setVelocityX(speed);
-      this.player.flipX = false;
-    } else {
-      body.setVelocityX(0);
+    if (!this.player.isDashing) {
+      if (inputManager && inputManager.isLeftPressed) {
+        body.setVelocityX(-speed);
+        this.player.flipX = true;
+      } else if (inputManager && inputManager.isRightPressed) {
+        body.setVelocityX(speed);
+        this.player.flipX = false;
+      } else {
+        body.setVelocityX(0);
+      }
     }
   }
 } 

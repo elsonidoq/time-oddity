@@ -4,6 +4,7 @@ import IdleState from './states/IdleState.js';
 import RunState from './states/RunState.js';
 import JumpState from './states/JumpState.js';
 import FallState from './states/FallState.js';
+import DashState from './states/DashState.js';
 
 /**
  * Player class for the main player character
@@ -33,7 +34,8 @@ export default class Player extends Entity {
       .addState('idle', new IdleState(this))
       .addState('run', new RunState(this))
       .addState('jump', new JumpState(this))
-      .addState('fall', new FallState(this));
+      .addState('fall', new FallState(this))
+      .addState('dash', new DashState(this));
       
     this.stateMachine.setState('idle');
   }
@@ -47,6 +49,8 @@ export default class Player extends Entity {
     if (this.scene.timeManager && this.scene.timeManager.isRewinding) {
       return;
     }
-    this.stateMachine.update(time, delta);
+    if (this.inputManager) {
+      this.stateMachine.update(time, delta);
+    }
   }
 } 

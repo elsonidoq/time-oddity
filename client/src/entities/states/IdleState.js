@@ -17,6 +17,12 @@ export default class IdleState {
   execute() {
     const { inputManager, body } = this.player;
 
+    // PRIORITIZE DASH
+    if (inputManager && inputManager.isDashPressed) {
+      this.player.stateMachine.setState('dash');
+      return;
+    }
+
     // Transition to FallState if not on the ground
     if (!body.onFloor()) {
       this.player.stateMachine.setState('fall');
@@ -31,7 +37,9 @@ export default class IdleState {
     
     // Transition to RunState if moving left or right
     if (inputManager && (inputManager.isLeftPressed || inputManager.isRightPressed)) {
-      this.player.stateMachine.setState('run');
+      if (!this.player.isDashing) {
+        this.player.stateMachine.setState('run');
+      }
       return;
     }
   }

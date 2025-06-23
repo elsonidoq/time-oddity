@@ -12,30 +12,41 @@ export default class RunState {
   }
 
   execute() {
-    const { inputManager, body, speed, stateMachine } = this.player;
+    const { inputManager, body } = this.player;
+
+    // PRIORITIZE DASH
+    if (inputManager && inputManager.isDashPressed) {
+      this.player.stateMachine.setState('dash');
+      return;
+    }
 
     // Transition to FallState if not on the ground
     if (!body.onFloor()) {
-      stateMachine.setState('fall');
+      this.player.stateMachine.setState('fall');
+      return;
+    }
+
+    // Transition to IdleState if not moving
+    if (inputManager && !inputManager.isLeftPressed && !inputManager.isRightPressed) {
+      this.player.stateMachine.setState('idle');
       return;
     }
 
     // Transition to JumpState if jump is pressed
     if (inputManager && inputManager.isUpPressed) {
-      stateMachine.setState('jump');
+      this.player.stateMachine.setState('jump');
       return;
     }
 
     // Handle horizontal movement
-    if (inputManager && inputManager.isLeftPressed) {
-      body.setVelocityX(-speed);
-      this.player.flipX = true;
-    } else if (inputManager && inputManager.isRightPressed) {
-      body.setVelocityX(speed);
-      this.player.flipX = false;
-    } else {
-      // Transition to IdleState if no horizontal movement
-      stateMachine.setState('idle');
+    if (!this.player.isDashing) {
+      if (inputManager && inputManager.isLeftPressed) {
+        body.setVelocityX(-this.player.speed);
+        this.player.flipX = true;
+      } else if (inputManager && inputManager.isRightPressed) {
+        body.setVelocityX(this.player.speed);
+        this.player.flipX = false;
+      }
     }
   }
 } 

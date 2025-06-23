@@ -152,6 +152,17 @@ Before merging each phase branch:
 - **Expected output**: The player can now dash a short distance by pressing a key (e.g., Shift). The player should move instantly and not be able to pass through platforms.
 - **After completion**: Mark task as completed only after ALL project tests pass.
 - **CRITICAL**: After completion, all changes must be committed to git and pushed to the remote repository.
+- [x] Completed on 2024-06-12 - Dash ability implemented, tested, and integrated. All tests pass. Awaiting in-game validation.
+
+### Task 3.7.bis: Refine Dash Ability with Duration and Quadratic Velocity
+**Objective**: Make dash have a maximum duration and quadratic velocity profile
+**IMPLEMENTATION REFERENCE**: See Section 7.2 "Platformer Character Controller" in `agent_docs/comprehensive_documentation.md`.
+**TDD APPROACH**:
+1.  FIRST: Write a new test for dash duration and quadratic velocity.
+2.  SECOND: Update `DashState.js` to limit dash duration and apply a quadratic velocity curve (accelerate, then decelerate).
+- **Expected output**: The player can dash for a maximum time, and the dash velocity follows a quadratic curve (fastest in the middle, slowest at start/end). The dash still cannot pass through platforms.
+- **After completion**: Mark task as completed only after ALL project tests pass.
+- **CRITICAL**: After completion, all changes must be committed to git and pushed to the remote repository.
 
 ### Task 3.8: Add Dash Ghost Trail
 **Objective**: Create visual trail effect for dash

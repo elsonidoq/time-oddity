@@ -24,7 +24,6 @@ export default class StateMachine {
    */
   setState(name) {
     if (!this.states.has(name)) {
-      console.warn(`State '${name}' not found in state machine.`);
       return;
     }
 
@@ -45,7 +44,7 @@ export default class StateMachine {
    * @param {number} delta - The delta time in ms since the last frame.
    */
   update(time, delta) {
-    if (this.currentState && typeof this.currentState.execute === 'function') {
+    if (this.currentState && this.currentState.execute) {
       this.currentState.execute(time, delta);
     }
   }

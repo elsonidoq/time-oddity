@@ -1,3 +1,5 @@
+import Phaser from 'phaser';
+
 /**
  * Centralized input handling system.
  * See Section 1.5 "Input Handling" in the comprehensive documentation.
@@ -23,6 +25,9 @@ export default class InputManager {
     
     // R key for rewinding
     this.r = scene.input.keyboard.addKey('R');
+
+    // Shift key for dash
+    this.shift = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
   }
 
   /**
@@ -75,5 +80,14 @@ export default class InputManager {
    */
   get isRewindPressed() {
     return this.r.isDown;
+  }
+
+  /**
+   * Check if the dash key is pressed (SHIFT)
+   */
+  get isDashPressed() {
+    const pressed = this.shift.isDown;
+    if (pressed) console.log('[InputManager] Dash key pressed');
+    return pressed;
   }
 } 
