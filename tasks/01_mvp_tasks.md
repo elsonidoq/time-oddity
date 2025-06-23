@@ -63,7 +63,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All project structure tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-06-09 - All project structure tests pass
 
 ### Task 1.2: Set Up Vite Build Pipeline
@@ -80,7 +80,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All Vite configuration tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-06-09 - All Vite configuration tests pass
 
 ### Task 1.3: Install and Configure Phaser 3.90.0
@@ -97,7 +97,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All Phaser configuration tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-06-09 - All Phaser configuration tests pass
 
 ### Task 1.4: Install GSAP for Animations
@@ -114,7 +114,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All GSAP integration tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-06-09 - All GSAP integration tests pass
 
 ### Task 1.5: Create BaseScene Abstract Class
@@ -131,7 +131,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All BaseScene tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-06-09 - All BaseScene tests pass
 
 ### Task 1.6: Implement BootScene
@@ -148,7 +148,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All BootScene tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-06-09 - All BootScene tests pass
 
 ### Task 1.7: Implement MenuScene
@@ -165,7 +165,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All MenuScene tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-06-09 - All MenuScene tests pass
 
 ### Task 1.8: Create index.html Entry Point
@@ -182,7 +182,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All index.html tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-12-19 - All index.html tests pass
 
 ### Task 1.9: Fix Scene Registration in Game Configuration
@@ -199,7 +199,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All scene registration tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-12-19 - All scene registration tests pass
 
 ### Task 1.10: Create Basic GameScene
@@ -216,7 +216,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All GameScene tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-12-19 - GameScene created with basic structure and navigation
 
 ### Task 1.10.bis: Establish Phaser Testing Infrastructure
@@ -241,7 +241,7 @@ Before merging each phase branch:
   - Add graceful fallbacks for Phaser components in test environment
   - Ensure tests can validate class structure without Phaser runtime
   - Document testing patterns for future LLM-assisted development
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-12-19 - Phaser testing infrastructure and utilities established, all tests pass
 
 ### Task 1.11: Add Placeholder Assets
@@ -258,7 +258,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All placeholder asset tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-12-19 - Placeholder assets present and loaded, all tests pass
 
 ### Task 1.12: Configure Vite Entry Point
@@ -275,7 +275,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All Vite entry point tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-12-19 - Vite entry point configured, all tests pass
 
 ### Task 1.13: Create Main Entry Point Script
@@ -292,7 +292,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All main entry point tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-12-19 - Main entry point script created, all tests pass
 
 ### Task 1.13.bis: Refactor Scene Files to ESM and Remove Top-Level Await
@@ -309,7 +309,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All ESM compatibility and import/export tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-06-10 - All scene files refactored to ESM, top-level await removed, all ESM compatibility tests pass
 
 ### Task 1.14: Implement Basic GameScene
@@ -326,7 +326,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All GameScene tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-12-19 - GameScene created with basic structure and navigation
 
 ### Task 1.15: Set Up Scene Management
@@ -343,7 +343,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All scene management tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-12-19 - Scene management configured with proper transitions
 
 ### Task 1.15.bis: Organize Kenney Assets for Game Integration
@@ -372,7 +372,7 @@ Before merging each phase branch:
   - Organize assets in appropriate subdirectories (sprites/, audio/)
   - Validate that all copied files are accessible and not corrupted
   - Update any existing asset references to use the new Kenney assets
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-12-19 - Kenney assets organized and copied successfully, all tests pass
 
 ### Task 1.16: Load Kenney Character Spritesheet
@@ -398,7 +398,7 @@ Before merging each phase branch:
   - Create animations for idle, walk, jump, and fall states
   - Ensure proper frame timing and loop settings
   - Handle XML parsing errors gracefully
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-06-10 - Kenney character spritesheet loaded and animations created, all tests pass
 
 ### Task 1.17: Load Kenney Tile Assets
@@ -424,7 +424,7 @@ Before merging each phase branch:
   - Create animations for coin blocks and other animated tiles
   - Organize tiles by category (ground, platforms, collectibles, hazards)
   - Handle XML parsing errors gracefully
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-06-10 - Kenney tile assets loaded and coin block animation created, all tests pass
 
 ### Task 1.18: Load Kenney Enemy Assets
@@ -450,7 +450,7 @@ Before merging each phase branch:
   - Create animations for idle, walk, and attack states
   - Organize enemies by type and behavior
   - Handle XML parsing errors gracefully
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-06-10 - All enemy asset tests passed, and animations for slime, fly, and mouse were created.
 
 ### Task 1.19: Configure Arcade Physics in GameScene
@@ -476,7 +476,7 @@ Before merging each phase branch:
   - Enable physics debug mode only in development
   - Initialize physics groups for platforms, players, enemies
   - Ensure physics system is properly integrated with scene lifecycle
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 - [x] Completed on 2024-06-10 - Arcade Physics system configured in GameScene, all tests pass.
 
 ### Task 1.20: Create Basic Platform Group in GameScene
@@ -595,13 +595,6 @@ Before merging each phase branch:
 
 **Branch**: `feature/phase-2-player-movement`
 
-**ADAPTATION NOTE**: The Phase 2 tasks have been updated to reflect the current development state after Phase 1 completion. Key adaptations include:
-- Added Task 2.0 to fix the current GameScene physics initialization issue
-- Updated Task 2.3 to work with existing GameScene structure and platform layout
-- Updated Task 2.16 to work with existing platform group in GameScene
-- Updated Task 2.17 to enhance existing test level rather than create a new one
-- All tasks now build upon the solid foundation established in Phase 1
-
 **CRITICAL IMPLEMENTATION REQUIREMENT**: Before implementing any task in this phase, you MUST read the comprehensive documentation file `agent_docs/comprehensive_documentation.md`. This document contains detailed implementation patterns, architectural decisions, and code examples for all systems in this phase. Pay special attention to:
 - Section 1.3: Asset and Sprite Management (for entity creation and sprite setup)
 - Section 1.4: Arcade Physics Engine (for physics body setup and collision detection)
@@ -640,7 +633,8 @@ Before merging each phase branch:
   - Maintain existing platform creation functionality
   - Validate that all existing GameScene tests pass
 - **Expected output**: -
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-10 
 
 ### Task 2.1: Create Entity Base Class
 **Objective**: Establish base class for all game entities
@@ -657,7 +651,8 @@ Before merging each phase branch:
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All Entity base class tests MUST pass before proceeding
 - **Expected output**: -
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-10 
 
 ### Task 2.2: Create Player Class
 **Objective**: Create the main player character class
@@ -674,7 +669,8 @@ Before merging each phase branch:
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All Player class tests MUST pass before proceeding
 - **Expected output**: -
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-10 
 
 ### Task 2.3: Add Player to GameScene
 **Objective**: Integrate player into the existing game world
@@ -701,7 +697,38 @@ Before merging each phase branch:
   - Ensure player is added to the existing players physics group
   - Maintain compatibility with existing scene navigation and cleanup
 - **Expected output**: When navigating to the GameScene, you should see a player character sprite positioned on the ground platform. The player should be visible and rendered using the Kenney character spritesheet (beige character variant). The player should appear as a static sprite that doesn't move yet.
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-10 
+
+### Task 2.3.bis: Fix Entity/Player Physics Integration
+**Objective**: Resolve Entity and Player classes to properly extend Phaser physics sprites
+**IMPLEMENTATION REFERENCE**: See Section 1.4 "Physics Bodies" in `agent_docs/comprehensive_documentation.md` for physics body setup and Section 1.3 "Creating Game Objects" for sprite creation patterns.
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for Entity/Player physics integration
+   - Test Entity class extends Phaser.Physics.Arcade.Sprite correctly
+   - Test Entity constructor properly registers with scene and physics system
+   - Test Player class inherits physics capabilities from Entity
+   - Test Player can be added to physics groups and use physics methods
+   - Test setCollideWorldBounds and other physics methods work on Player
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Fix Entity and Player classes following Section 1.4 patterns:
+   - Refactor Entity to extend Phaser.Physics.Arcade.Sprite
+   - Ensure Entity constructor calls super() and registers with scene
+   - Update Player to inherit physics capabilities properly
+   - Fix GameScene player creation and physics group integration
+   - Add proper error handling for physics method calls
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All Entity/Player physics integration tests MUST pass before proceeding
+- **SPECIFIC REQUIREMENTS**:
+  - Fix the "Cannot read properties of null (reading 'setCollideWorldBounds')" error
+  - Ensure Entity and Player are actual Phaser GameObjects with physics bodies
+  - Maintain existing health management and lifecycle methods
+  - Ensure Player can be added to physics groups in GameScene
+  - Validate that all existing Entity and Player tests pass
+- **Expected output**: The Start button should work without errors. When navigating to the GameScene, you should see a player character sprite positioned on the ground platform. The player should be a proper Phaser physics sprite that can use physics methods like setCollideWorldBounds without errors.
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - Fixed the `setCollideWorldBounds` error by ensuring Entity/Player are proper Phaser physics sprites.
 
 ### Task 2.4: Enable Player Physics
 **Objective**: Add physics body to player
@@ -718,7 +745,8 @@ Before merging each phase branch:
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All player physics tests MUST pass before proceeding
 - **Expected output**: The player character should now fall due to gravity when the GameScene loads. The player will drop from its starting position and fall through the screen until it hits the bottom boundary. This demonstrates that the physics system is working and the player has a physics body attached.
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - Player now correctly falls due to world gravity, confirming physics body attachment.
 
 ### Task 2.5: Create StateMachine Class
 **Objective**: Implement state management system
@@ -735,7 +763,8 @@ Before merging each phase branch:
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All StateMachine tests MUST pass before proceeding
 - **Expected output**: -
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - StateMachine class created and all tests pass.
 
 ### Task 2.6: Create IdleState Class
 **Objective**: Implement player idle state
@@ -752,7 +781,8 @@ Before merging each phase branch:
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All IdleState tests MUST pass before proceeding
 - **Expected output**: -
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - IdleState class created and all tests pass.
 
 ### Task 2.7: Create RunState Class
 **Objective**: Implement player running state
@@ -769,7 +799,8 @@ Before merging each phase branch:
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All RunState tests MUST pass before proceeding
 - **Expected output**: -
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - RunState class created and all tests pass.
 
 ### Task 2.8: Create JumpState Class
 **Objective**: Implement player jumping state
@@ -786,7 +817,8 @@ Before merging each phase branch:
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All JumpState tests MUST pass before proceeding
 - **Expected output**: -
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - JumpState class created and all tests pass.
 
 ### Task 2.9: Create FallState Class
 **Objective**: Implement player falling state
@@ -803,7 +835,8 @@ Before merging each phase branch:
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All FallState tests MUST pass before proceeding
 - **Expected output**: -
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - FallState class created and all tests pass.
 
 ### Task 2.10: Connect StateMachine to Player
 **Objective**: Integrate state machine with player
@@ -820,7 +853,8 @@ Before merging each phase branch:
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All state machine integration tests MUST pass before proceeding
 - **Expected output**: The player should now start in the idle state and display the idle animation. The player will no longer fall through the screen but will remain stationary on the ground platform, showing the idle animation from the Kenney character spritesheet.
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - StateMachine connected to Player, all tests pass.
 
 ### Task 2.11: Create InputManager Class
 **Objective**: Centralize input handling
@@ -837,7 +871,8 @@ Before merging each phase branch:
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All InputManager tests MUST pass before proceeding
 - **Expected output**: -
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - InputManager class created and all tests pass.
 
 ### Task 2.12: Add Keyboard Controls
 **Objective**: Implement basic keyboard input
@@ -854,7 +889,8 @@ Before merging each phase branch:
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All keyboard controls tests MUST pass before proceeding
 - **Expected output**: -
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - Keyboard controls integrated with InputManager and player state machine.
 
 ### Task 2.13: Connect Input to Player Movement
 **Objective**: Link input to player actions
@@ -871,7 +907,44 @@ Before merging each phase branch:
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All input-player connection tests MUST pass before proceeding
 - **Expected output**: The player should now respond to keyboard input. Pressing LEFT ARROW or A should make the player move left and show the walk animation. Pressing RIGHT ARROW or D should make the player move right and show the walk animation. Pressing UP ARROW, W, or SPACE should make the player jump and show the jump animation. The player should transition between idle, walk, jump, and fall animations based on input and physics state.
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - Input connected to player movement through state machine system.
+
+### Task 2.13.bis: Fine-tune Physics Hitboxes
+**Objective**: Adjust player, floor, and platform hitboxes to match their visual sprites
+**IMPLEMENTATION REFERENCE**: See Section 1.4 "Physics Bodies" in `agent_docs/comprehensive_documentation.md` for hitbox manipulation patterns (`setSize`, `setOffset`).
+**TDD APPROACH**:
+1. **FIRST**: Write comprehensive unit tests for hitbox validation
+   - Test player hitbox dimensions and offset
+   - Test floor tile hitbox dimensions to cover grass and dirt
+   - Test floating platform hitbox dimensions
+   - Use physics debug view to visually confirm alignment
+2. **SECOND**: Run tests to confirm they fail (Red phase)
+3. **THIRD**: Implement hitbox adjustments in `Player.js` and `GameScene.js`'s `configurePlatform` method.
+4. **FOURTH**: Implement functionality until all tests pass (Green phase)
+5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
+- **CRITICAL**: All hitbox validation tests MUST pass before proceeding
+- **SPECIFIC REQUIREMENTS**:
+  - **Player**: Reduce the physics body height to more closely match the character sprite, ignoring some of the helmet's empty space.
+  - **Floor Tiles**: The hitbox should cover the full 64x64 tile, including the dirt part, not just the 20px of grass.
+  - **Floating Blocks**: The hitbox should match the visual size of the block sprites.
+- **Expected output**: When physics debug is enabled, the hitboxes for the player, ground, and platforms should perfectly align with their visible sprites. The player should stand on the very top of the grass, and collisions should feel precise.
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - Hitboxes for player and platforms adjusted for better collision accuracy.
+
+### Task 2.13.bis2: Adjust Ground Platform Vertical Position
+**Objective**: Move the ground platform up so the full tile is visible
+**IMPLEMENTATION REFERENCE**: See Section 1.3 "Creating Game Objects" in `agent_docs/comprehensive_documentation.md` for sprite positioning patterns.
+**TDD APPROACH**:
+1. **FIRST**: Visually inspect the ground tiles with the physics debugger on.
+2. **SECOND**: Adjust the `groundY` value in `GameScene.js` to move the platform up.
+3. **THIRD**: Modify the loop that creates the ground tiles to use the new `groundY` value.
+4. **FOURTH**: The goal is to move the entire ground platform up so that the bottom of the tile is aligned with the bottom of the game canvas.
+5. **FIFTH**: Refactor and bugfix until the platform is positioned correctly.
+- **CRITICAL**: The ground must be fully visible and collision must work correctly.
+- **Expected output**: The ground tiles are no longer cut off at the bottom of the screen. The full 64x64 sprite for each ground tile is visible, and the player correctly collides with its top surface.
+- **After completion**: Mark task as completed only after visual confirmation.
+- [x] Completed on 2024-06-11 - Ground tiles repositioned to be fully visible at the bottom of the screen.
 
 ### Task 2.14: Implement Variable Jump Height
 **Objective**: Add responsive jumping mechanics
@@ -888,7 +961,8 @@ Before merging each phase branch:
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All variable jump height tests MUST pass before proceeding
 - **Expected output**: The jump mechanic should now be more responsive. Tapping the jump key (UP ARROW, W, or SPACE) should result in a small hop, while holding the jump key should make the player jump higher. The longer you hold the jump key, the higher the player should jump, up to a maximum height. Releasing the jump key early should cut the jump short, creating a more responsive and controllable jumping experience.
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - Implemented variable jump height by cutting velocity on early key release.
 
 ### Task 2.15: Create CollisionManager Class
 **Objective**: Centralize collision detection
@@ -905,7 +979,8 @@ Before merging each phase branch:
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All CollisionManager tests MUST pass before proceeding
 - **Expected output**: -
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - Created CollisionManager to centralize collision logic.
 
 ### Task 2.16: Add Player-Platform Collision
 **Objective**: Enable player to stand on existing platforms
@@ -932,7 +1007,8 @@ Before merging each phase branch:
   - Test collision with existing floating platforms
   - Maintain existing platform physics properties
 - **Expected output**: The player should now be able to land on and stand on platforms. When the player falls, they should stop falling when they hit the ground platform or any floating platform. The player should be able to jump from platform to platform, and the collision detection should prevent the player from falling through platforms. The player should transition to the idle state when landing on a platform.
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - Refactored to use CollisionManager and increased jump height.
 
 ### Task 2.17: Enhance Basic Test Level
 **Objective**: Improve the existing test level for better player testing
@@ -960,7 +1036,7 @@ Before merging each phase branch:
   - Ensure level provides good testing environment for player mechanics
   - Maintain existing scene structure and navigation
 - **Expected output**: The GameScene should now have additional floating platforms positioned at various heights and distances. These platforms should be spaced to test the player's jumping abilities - some should be reachable with a single jump, others might require precise timing or multiple jumps. The level should provide a more engaging platforming experience while maintaining the existing ground platform and scene navigation.
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 2.18: Add Collectible Coins
 **Objective**: Create basic collectibles for testing
@@ -976,8 +1052,10 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All collectible coin tests MUST pass before proceeding
-- **Expected output**: The GameScene should now contain collectible coins scattered throughout the level. These coins should be visible as animated sprites (using the Kenney coin assets) that the player can collect by touching them. When the player touches a coin, it should disappear and provide some form of feedback (visual effect, sound, or score increase). The coins should be positioned on platforms and in areas that require the player to use their movement abilities to reach them.
-- **After completion**: Mark task as completed only after all project tests pass
+- **Expected output**: The GameScene should now contain collectible coins scattered throughout the level. These coins should be visible as animated sprites. When the player touches a coin, the coin sprite should be destroyed and disappear. More advanced feedback (sounds, score) will be added in later phases (Tasks 4.18 and 5.22).
+- **After completion**: Mark task as completed only after ALL project tests pass
+- [x] Completed on 2024-06-11 - Basic coin collectible created and integrated.
+- **CRITICAL**: After completion, all changes must be committed to git and pushed to the remote repository.
 
 **Phase 2 Completion**: Merge `feature/phase-2-player-movement` into `main`
 
@@ -1015,7 +1093,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All TimeManager tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.2: Create TemporalState Object
 **Objective**: Define the data structure for recorded states
@@ -1031,7 +1109,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All TemporalState tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.3: Implement State Recording for Player
 **Objective**: Record player states over time
@@ -1047,7 +1125,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All state recording tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.4: Add Rewind Trigger
 **Objective**: Enable time rewind activation
@@ -1063,7 +1141,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All rewind trigger tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.5: Implement Basic Rewind for Player
 **Objective**: Apply recorded states to player
@@ -1079,7 +1157,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All player rewind tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.6: Add Rewind Visual Effects
 **Objective**: Enhance rewind with visual feedback
@@ -1095,7 +1173,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All rewind visual effect tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.7: Create Phase Dash Ability
 **Objective**: Implement short-range teleportation
@@ -1111,7 +1189,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All dash ability tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.8: Add Dash Ghost Trail
 **Objective**: Create visual trail effect for dash
@@ -1127,7 +1205,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All dash ghost trail tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.9: Implement Dash Cooldown
 **Objective**: Balance dash ability with cooldown
@@ -1143,7 +1221,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All dash cooldown tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.10: Create Chrono Pulse Ability
 **Objective**: Implement time freeze shockwave
@@ -1159,7 +1237,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All chrono pulse tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.11: Add Enemy Freeze Effect
 **Objective**: Make enemies freeze when hit by pulse
@@ -1175,7 +1253,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All enemy freeze effect tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.12: Create Enemy Base Class
 **Objective**: Establish foundation for all enemies
@@ -1191,7 +1269,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All Enemy base class tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.13: Implement LoopHound Enemy
 **Objective**: Create the first enemy type
@@ -1207,7 +1285,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All LoopHound tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.14: Add Enemy-Player Collision
 **Objective**: Enable combat between player and enemies
@@ -1223,7 +1301,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All enemy-player collision tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.15: Implement Enemy Respawn
 **Objective**: Make enemies respawn after defeat
@@ -1239,7 +1317,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All enemy respawn tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 3.16: Implement State Recording for Enemies
 **Objective**: Record enemy states for rewind
@@ -1255,7 +1333,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All enemy state recording tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 **Phase 3 Completion**: Merge `feature/phase-3-gameplay-mechanics` into `main`
 
@@ -1293,7 +1371,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All level data structure tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.2: Implement Level Loading System
 **Objective**: Create modular level loading
@@ -1309,7 +1387,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All level loading tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.3: Design Level 1
 **Objective**: Create the first tutorial level
@@ -1325,7 +1403,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All Level 1 tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.4: Design Level 2
 **Objective**: Create second level with increased difficulty
@@ -1341,7 +1419,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All Level 2 tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.5: Design Level 3
 **Objective**: Create third level with time mechanics focus
@@ -1357,7 +1435,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All Level 3 tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.6: Create TimeShard Collectible
 **Objective**: Implement the main collectible system
@@ -1373,7 +1451,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All TimeShard tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.7: Add Shard Counter to UI
 **Objective**: Display collected shards to player
@@ -1389,7 +1467,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All shard counter UI tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.8: Implement Shard-Based Progression
 **Objective**: Use shards to unlock content
@@ -1405,7 +1483,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All shard-based progression tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.9: Create Paradox Zone Detection
 **Objective**: Identify when player enters paradox zones
@@ -1421,7 +1499,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All paradox zone detection tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.10: Implement Reverse Gravity Rule
 **Objective**: Create first paradox zone effect
@@ -1437,7 +1515,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All reverse gravity rule tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.11: Add Paradox Zone Visual Effects
 **Objective**: Make paradox zones visually distinct
@@ -1453,7 +1531,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All paradox zone visual effect tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.12: Create UIScene Class
 **Objective**: Separate UI from game logic
@@ -1469,7 +1547,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All UIScene tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.13: Add Health Bar to UI
 **Objective**: Display player health
@@ -1485,7 +1563,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All health bar UI tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.14: Add Ability Cooldown Indicators
 **Objective**: Show ability availability
@@ -1501,7 +1579,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All ability cooldown indicator tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.15: Create Pause Menu
 **Objective**: Allow game pausing
@@ -1517,7 +1595,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All pause menu tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.16: Set Up Howler.js Audio Manager
 **Objective**: Initialize audio system
@@ -1533,7 +1611,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All audio manager tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.17: Load Kenney Sound Effects
 **Objective**: Integrate audio assets
@@ -1549,7 +1627,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All sound effect loading tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.18: Add Basic Sound Effects
 **Objective**: Connect sounds to game actions
@@ -1565,7 +1643,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All basic sound effect tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.19: Implement Background Music
 **Objective**: Add ambient music
@@ -1581,7 +1659,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All background music tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.20: Add Audio Controls
 **Objective**: Allow player to control audio
@@ -1597,7 +1675,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All audio control tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.21: Implement Level Completion Detection
 **Objective**: Detect when player completes a level
@@ -1613,7 +1691,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All level completion detection tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 4.22: Create Level Transition System
 **Objective**: Handle transitions between levels
@@ -1629,7 +1707,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All level transition tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 **Phase 4 Completion**: Merge `feature/phase-4-level-design` into `main`
 
@@ -1666,7 +1744,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All dash particle effect tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.2: Add Particle Effects for Chrono Pulse
 **Objective**: Enhance chrono pulse visual feedback
@@ -1682,7 +1760,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All chrono pulse particle effect tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.3: Add Particle Effects for Rewind
 **Objective**: Enhance rewind visual feedback
@@ -1698,7 +1776,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All rewind particle effect tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.4: Implement Screen Shake on Damage
 **Objective**: Add impact feedback for player damage
@@ -1714,7 +1792,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All screen shake on damage tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.5: Implement Screen Shake on Enemy Defeat
 **Objective**: Add impact feedback for enemy defeat
@@ -1730,7 +1808,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All screen shake on enemy defeat tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.6: Implement Screen Shake on Level Completion
 **Objective**: Add celebration feedback
@@ -1746,7 +1824,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All screen shake on level completion tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.7: Add Camera Zoom Effects
 **Objective**: Enhance visual presentation
@@ -1762,7 +1840,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All camera zoom effect tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.8: Add Camera Pan Effects
 **Objective**: Enhance visual presentation
@@ -1778,7 +1856,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All camera pan effect tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.9: Add Camera Fade Transitions
 **Objective**: Enhance scene transitions
@@ -1794,7 +1872,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All camera fade transition tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.10: Tune Player Movement Speed
 **Objective**: Optimize player feel
@@ -1810,7 +1888,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All player movement speed tuning tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.11: Tune Player Jump Height
 **Objective**: Optimize jump feel
@@ -1825,7 +1903,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All player jump height tuning tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.12: Tune Dash Distance and Cooldown
 **Objective**: Balance dash ability
@@ -1840,7 +1918,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All dash distance and cooldown tuning tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.13: Balance Enemy Speed and Damage
 **Objective**: Create fair challenge
@@ -1855,7 +1933,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All enemy speed and damage tuning tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.14: Balance Enemy Spawn Rates
 **Objective**: Create appropriate enemy density
@@ -1870,7 +1948,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All enemy spawn rate tuning tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.15: Tune Enemy AI Behavior
 **Objective**: Create engaging enemy behavior
@@ -1885,7 +1963,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All enemy AI behavior tuning tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.16: Tune Rewind Duration and Cooldown
 **Objective**: Balance time rewind
@@ -1900,7 +1978,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All rewind duration and cooldown tuning tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.17: Tune Chrono Pulse Range and Duration
 **Objective**: Balance chrono pulse ability
@@ -1915,7 +1993,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All chrono pulse range and duration tuning tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.18: Tune Paradox Zone Effects
 **Objective**: Balance paradox zone mechanics
@@ -1930,7 +2008,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All paradox zone effect tuning tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.19: Create Game Over Scene
 **Objective**: Handle player death
@@ -1945,7 +2023,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All game over scene tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.20: Add Restart Functionality
 **Objective**: Allow quick restart
@@ -1960,7 +2038,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All restart functionality tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.21: Create Level Completion Scene
 **Objective**: Celebrate level completion
@@ -1975,7 +2053,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All level completion scene tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.22: Implement Basic Scoring System
 **Objective**: Add score tracking
@@ -1990,7 +2068,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All scoring system tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.23: Add Object Pooling for Dash Particles
 **Objective**: Optimize dash particle performance
@@ -2006,7 +2084,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All dash particle object pooling tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.24: Add Object Pooling for Pulse Particles
 **Objective**: Optimize pulse particle performance
@@ -2022,7 +2100,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All pulse particle object pooling tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.25: Add Object Pooling for Rewind Particles
 **Objective**: Optimize rewind particle performance
@@ -2038,7 +2116,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All rewind particle object pooling tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.26: Optimize Asset Loading
 **Objective**: Improve load times
@@ -2054,7 +2132,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All asset loading optimization tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.27: Add FPS Counter
 **Objective**: Track game performance
@@ -2069,7 +2147,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All FPS counter tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.28: Add Memory Usage Monitoring
 **Objective**: Track memory performance
@@ -2084,7 +2162,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All memory usage monitoring tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.29: Add Render Call Monitoring
 **Objective**: Track rendering performance
@@ -2099,7 +2177,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All render call monitoring tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.30: Test on Different Screen Sizes
 **Objective**: Ensure responsive design
@@ -2114,7 +2192,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All responsive design tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.31: Fix Critical Gameplay Bugs
 **Objective**: Ensure stability
@@ -2129,7 +2207,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All critical gameplay bug tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.32: Optimize Render Performance
 **Objective**: Ensure smooth gameplay
@@ -2144,7 +2222,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All render performance optimization tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.33: Reduce Memory Usage
 **Objective**: Optimize memory efficiency
@@ -2159,7 +2237,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All memory usage optimization tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.34: Ensure Consistent 60 FPS
 **Objective**: Maintain smooth performance
@@ -2174,7 +2252,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All consistent frame timing tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.35: Validate All Player Abilities
 **Objective**: Ensure all features work
@@ -2189,7 +2267,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All player ability tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.36: Validate Time Mechanics
 **Objective**: Ensure time systems work
@@ -2204,7 +2282,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All time mechanics tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.37: Validate Level Progression
 **Objective**: Ensure progression works
@@ -2219,7 +2297,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All level progression tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.38: Create Final MVP Demo Level
 **Objective**: Showcase all features
@@ -2234,7 +2312,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All MVP demo level tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.39: Add Error Handling to Critical Systems
 **Objective**: Ensure robust error handling
@@ -2250,7 +2328,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All error handling tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.40: Add Error Logging System
 **Objective**: Track and log errors
@@ -2266,7 +2344,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All error logging tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.41: Add Graceful Degradation
 **Objective**: Handle system failures
@@ -2282,7 +2360,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All graceful degradation tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 ### Task 5.42: Test Complete Game Flow
 **Objective**: Ensure end-to-end functionality
@@ -2298,7 +2376,7 @@ Before merging each phase branch:
 4. **FOURTH**: Implement functionality until all tests pass (Green phase)
 5. **FIFTH**: Refactor and bugfix until all tests pass (Refactor phase)
 - **CRITICAL**: All complete game flow tests MUST pass before proceeding
-- **After completion**: Mark task as completed only after all project tests pass
+- **After completion**: Mark task as completed only after ALL project tests pass
 
 **Phase 5 Completion**: Merge `feature/phase-5-polish` into `main`
 
@@ -2362,4 +2440,5 @@ Before merging each phase branch:
 ### Task Completion Tracking:
 - Mark each task as completed by changing `- [ ]` to `- [x]`
 - Add completion date and notes: `- [x] Completed on 2024-01-15 - Added error handling`
+- Update progress regularly to track development status
 - Update progress regularly to track development status

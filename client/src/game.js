@@ -18,7 +18,7 @@ const config = {
     default: 'arcade',
     arcade: {
       gravity: { y: 980 },
-      debug: false
+      debug: true
     }
   },
   audio: {

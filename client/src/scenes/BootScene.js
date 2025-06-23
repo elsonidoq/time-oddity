@@ -73,6 +73,17 @@ export default class BootScene extends BaseScene {
       frameRate: 4,
       repeat: -1
     });
+
+    // Spinning coin animation
+    this.anims.create({
+      key: 'coin_spin',
+      frames: [
+        { key: 'tiles', frame: 'coin_gold' },
+        { key: 'tiles', frame: 'coin_bronze' }
+      ],
+      frameRate: 8,
+      repeat: -1
+    });
   }
 
   createEnemyAnimations() {
