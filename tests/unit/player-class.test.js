@@ -68,6 +68,7 @@ describe('Task 2.2: Player Class', () => {
         }
       }
     };
+    mockScene.time = { now: 0 };
     player = new Player(mockScene, 100, 200, 'player', 0, 100);
   });
 

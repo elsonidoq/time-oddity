@@ -12,7 +12,8 @@ export default class FallState {
   }
 
   execute() {
-    const { inputManager, body, speed, stateMachine } = this.player;
+    const { inputManager, body, speed, stateMachine, dashTimer } = this.player;
+    const now = this.player.scene.time.now;
 
     // Transition to IdleState when on the ground
     if (body.onFloor()) {
@@ -31,6 +32,11 @@ export default class FallState {
       } else {
         body.setVelocityX(0);
       }
+    }
+
+    // Dash cooldown invariant: allow dash again after cooldown
+    if (now >= dashTimer) {
+      this.player.canDash = true;
     }
   }
 } 

@@ -1,8 +1,15 @@
 import Phaser from 'phaser';
 
 class BaseScene extends Phaser.Scene {
-  constructor(key) {
-    super(key);
+  constructor(key, mockScene = null) {
+    if (mockScene) {
+      super(mockScene.key);
+      Object.assign(this, mockScene);
+      this.key = mockScene.key;
+    } else {
+      super(key);
+      this.key = key;
+    }
   }
 
   // Core lifecycle methods (to be overridden by subclasses)

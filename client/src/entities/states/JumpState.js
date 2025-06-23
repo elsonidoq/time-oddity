@@ -13,7 +13,13 @@ export default class JumpState {
   }
 
   execute() {
-    const { inputManager, body, speed, stateMachine } = this.player;
+    const { inputManager, body, speed, stateMachine, dashTimer } = this.player;
+    const now = this.player.scene.time.now;
+
+    // Dash cooldown invariant: allow dash again after cooldown
+    if (now >= dashTimer) {
+      this.player.canDash = true;
+    }
 
     // Transition to FallState when moving downwards
     if (body.velocity.y >= 0) {

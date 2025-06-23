@@ -5,9 +5,10 @@
 export default class CollisionManager {
   /**
    * @param {Phaser.Scene} scene The scene to which this manager belongs.
+   * @param {Phaser.Scene} [mockScene=null] The mock scene to use for testing.
    */
-  constructor(scene) {
-    this.scene = scene;
+  constructor(scene, mockScene = null) {
+    this.scene = mockScene || scene;
   }
 
   /**

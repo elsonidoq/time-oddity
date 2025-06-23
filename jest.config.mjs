@@ -5,7 +5,7 @@ export default {
     },
   },
   moduleNameMapper: {
-    '^phaser$': '<rootDir>/tests/__mocks__/phaser.cjs',
+    '^phaser$': '<rootDir>/tests/mocks/phaserMock.js',
     '^matter-js$': '<rootDir>/tests/__mocks__/matter-js.cjs',
     '^\./matter-js$': '<rootDir>/tests/__mocks__/matter-js.cjs',
     '^phaser3spectorjs$': '<rootDir>/tests/__mocks__/phaser3spectorjs.cjs',
@@ -25,5 +25,5 @@ export default {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js']
+  setupFiles: ['<rootDir>/tests/mocks/phaserMock.js'],
 }; 

@@ -90,4 +90,11 @@ export default class InputManager {
     if (pressed) console.log('[InputManager] Dash key pressed');
     return pressed;
   }
+
+  /**
+   * Check if the dash key was just pressed (SHIFT)
+   */
+  get isDashJustPressed() {
+    return Phaser.Input.Keyboard.JustDown(this.shift);
+  }
 } 

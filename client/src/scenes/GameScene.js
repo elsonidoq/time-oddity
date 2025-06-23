@@ -6,8 +6,9 @@ import Coin from '../entities/Coin.js';
 import TimeManager from '../systems/TimeManager.js';
 
 export default class GameScene extends BaseScene {
-  constructor() {
-    super('GameScene');
+  constructor(mockScene = null) {
+    super('GameScene', mockScene);
+    this._mockScene = mockScene;
   }
 
   init(data) {
@@ -45,8 +46,8 @@ export default class GameScene extends BaseScene {
       this.coins = this.physics.add.group();
     }
 
-    this.collisionManager = new CollisionManager(this);
-    this.timeManager = new TimeManager(this);
+    this.collisionManager = new CollisionManager(this, this._mockScene);
+    this.timeManager = new TimeManager(this, this._mockScene);
 
     // Create a basic platform layout
     // Ground platform - using a looping tile
@@ -73,9 +74,9 @@ export default class GameScene extends BaseScene {
 
     // Create coins
     if (this.coins) {
-        new Coin(this, 200, 450, 'tiles');
-        new Coin(this, 1000, 500, 'tiles');
-        new Coin(this, 640, 350, 'tiles');
+        new Coin(this, 200, 450, 'tiles', this._mockScene);
+        new Coin(this, 1000, 500, 'tiles', this._mockScene);
+        new Coin(this, 640, 350, 'tiles', this._mockScene);
     }
 
     // --- Player Integration ---
@@ -84,7 +85,7 @@ export default class GameScene extends BaseScene {
     
     // Create player at logical starting position (on ground platform)
     // A small offset upwards (e.g., 2 pixels) ensures a clean initial collision.
-    this.player = new Player(this, 100, groundY - 2, 'characters', 'character_beige_idle');
+    this.player = new Player(this, 100, groundY - 2, 'characters', 'character_beige_idle', 100, this._mockScene);
     this.player.inputManager = new InputManager(this);
     
     // Add player to physics group

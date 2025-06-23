@@ -8,9 +8,10 @@ export default class Coin {
    * @param {number} x The x-coordinate of the coin.
    * @param {number} y The y-coordinate of the coin.
    * @param {string} texture The texture key for the coin animation.
+   * @param {Phaser.Scene} mockScene Optional mock scene for testing.
    */
-  constructor(scene, x, y, texture) {
-    this.scene = scene;
+  constructor(scene, x, y, texture, mockScene = null) {
+    this.scene = mockScene || scene;
     
     // Create the physics sprite for the coin
     this.sprite = this.scene.physics.add.sprite(x, y, texture);

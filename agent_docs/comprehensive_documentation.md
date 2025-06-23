@@ -1545,3 +1545,662 @@ The core conclusions of this analysis are:
     
 
 By adhering to the principles, patterns, and blueprints laid out in this guide, the "Time Oddity" development team is equipped to build the game efficiently, consistently, and to the highest technical standard.
+
+# Testing and Mocking in Time Oddity
+
+This document serves as the authoritative guide for writing and maintaining tests within the "Time Oddity" codebase. A robust testing strategy is crucial for our project's success, enabling confident refactoring, reducing regressions, and supporting our modular architecture. Adherence to these principles and patterns is essential for all contributors.
+
+## General Principles of Testing in "Time Oddity"
+
+Our testing philosophy is built on two core pillars: a commitment to Test-Driven Development (TDD) as a design practice and a clear classification of test types to ensure we apply the right tool for the right job.
+
+### The Role of Test-Driven Development (TDD)
+
+In this project, Test-Driven Development is not merely a testing strategy but a fundamental design methodology. We follow the "Red-Green-Refactor" cycle for all new features and bug fixes. This process involves:
+
+1.  **Red:** Write a failing automated test that defines a new function or improvement.
+    
+2.  **Green:** Write the minimum amount of code necessary to make the test pass.
+    
+3.  **Refactor:** Clean up and optimize the code while ensuring all tests continue to pass.
+    
+
+Adopting TDD provides several critical benefits to the "Time Oddity" project:
+
+-   **Supporting Modularity:** TDD naturally leads to cleaner, more modular, and loosely coupled code. By writing a test first, developers are forced to consider a component's public API and its dependencies upfront, which aligns perfectly with our modular architecture.
+    
+-   **Enabling Confident Refactoring:** The comprehensive test suite created through TDD acts as a safety net. This allows the team to improve and refactor the codebase without the fear of introducing breaking changes, which is vital for long-term maintainability and reducing technical debt.
+    
+-   **Reducing Regression and Bugs:** TDD provides a rapid feedback loop, catching defects at the earliest and least expensive stage of development. As the codebase grows, our automated test suite ensures the integrity of existing features and prevents unintended side effects from new code.
+    
+-   **Living Documentation:** The test suite serves as a form of executable documentation. A well-written test clearly articulates the intended behavior of a module, making it an invaluable resource for onboarding new contributors and understanding system functionality.
+    
+
+### Test Classification: Unit, Integration, and Beyond
+
+To ensure our testing efforts are efficient and effective, we adhere to the principles of the testing pyramid. This means we prioritize a large base of fast, isolated unit tests, supplemented by a smaller, more focused layer of integration tests.
+
+#### Unit Tests
+
+-   **Definition:** A unit test verifies the smallest testable piece of our application—such as a single function, method, or class—in complete isolation from its dependencies. All external modules (Phaser, GSAP, etc.) and internal collaborators are replaced with mocks.
+    
+-   **Application in _Time Oddity_:** Unit tests are the default and most common type of test. They are required for all new business logic, including:
+    
+    -   Utility functions (e.g., math calculations, data transformations).
+        
+    -   State machine logic (transitions, guards, and actions).
+        
+    -   Individual classes or components where dependencies can be effectively mocked.
+        
+-   **Characteristics:** Unit tests are extremely fast, reliable, and easy to debug. A failing unit test points directly to the specific piece of code that is broken.
+    
+
+#### Integration Tests
+
+-   **Definition:** An integration test verifies the interaction and data flow _between_ multiple modules. It ensures that different components of the game work together as a cohesive system.
+    
+-   **Application in _Time Oddity_:** Integration tests are used sparingly for critical workflows where mocking would be overly complex or would obscure potential interface bugs. Examples include:
+    
+    -   Verifying that a physics collision event correctly triggers a state transition in the player's state machine.
+        
+    -   Testing the full flow from a keyboard input event to a resulting change in player velocity.
+        
+-   **Characteristics:** Integration tests are slower and can be more brittle than unit tests. A failure might indicate an issue in any of the integrated components or in the interface between them.
+    
+
+Game development often blurs the line between unit and integration testing, as systems like physics and rendering are tightly coupled with game logic. Our strategy is to always favor **unit tests with high-fidelity mocks**. For instance, instead of running a full physics engine, we will unit test a player controller against a mock physics body that simulates the required API (`setVelocity`, `body.touching`, etc.). This provides the speed of a unit test while still verifying the logic against the physics system's _contract_. True integration tests are reserved for cases where we must validate the actual library integrations.
+
+Test Type
+
+Purpose
+
+Scope
+
+Speed
+
+When to Use in "Time Oddity"
+
+**Unit Test**
+
+Verify a single function/class works correctly in isolation.
+
+One module, all dependencies mocked.
+
+Very Fast (<50ms)
+
+State machine transitions, utility functions, component logic, time-based cooldowns.
+
+**Integration Test**
+
+Verify multiple modules interact correctly.
+
+Two or more real or partially-mocked modules.
+
+Slower (>100ms)
+
+Physics collision callbacks, input-to-state-machine flow, complex animation sequences.
+
+Export to Sheets
+
+## Mocking External Libraries
+
+Our tests run in a Node.js environment via Jest, which lacks the browser-specific APIs (like canvas rendering and audio playback) that our core libraries depend on. Therefore, effective mocking is not optional—it is essential for our entire testing strategy.
+
+### Mocking Phaser 3
+
+Phaser is a browser-native framework that requires a `<canvas>` element and a game loop to function. Direct instantiation of Phaser objects in Jest will fail. Our approach is to use manual mocks to provide lightweight, test-friendly fakes for Phaser's complex systems.
+
+#### Initial Setup: `jest-canvas-mock`
+
+The most common initial error when testing a Phaser project is `TypeError: getContext is not a function`. This is because `jsdom` does not implement the Canvas API. We solve this globally by using the `jest-canvas-mock` library, which is configured once in our `jest.setup.js` file.
+
+#### Mocking Scenes and the Scene Lifecycle
+
+A `Phaser.Scene` is the heart of any game screen, managing game objects and the core `preload`, `create`, and `update` lifecycle methods. To test a class that extends `Phaser.Scene`, we must provide mocks for the properties and methods it inherits. Our shared `phaserMock.js` provides a reusable mock scene object.
+
+JavaScript
+
+```
+// tests/mocks/phaserMock.js
+
+// A mock GameObject with chainable methods and mock properties
+export const mockGameObject = {
+  // Mock properties
+  x: 0,
+  y: 0,
+  active: true,
+  // Mock methods that return `this` to be chainable
+  setOrigin: jest.fn().mockReturnThis(),
+  setDepth: jest.fn().mockReturnThis(),
+  // Mock animation and physics properties
+  anims: {
+    play: jest.fn(),
+    isPlaying: false,
+    currentAnim: null,
+  },
+  body: {
+    setVelocityX: jest.fn(),
+    setVelocityY: jest.fn(),
+    setBounce: jest.fn(),
+    setCollideWorldBounds: jest.fn(),
+    setAllowGravity: jest.fn(),
+    touching: { down: false, up: false, left: false, right: false },
+    blocked: { down: false, up: false, left: false, right: false },
+  },
+  // Mock other common GameObject methods
+  destroy: jest.fn(),
+};
+
+// A mock Scene with mock systems
+export const mockScene = {
+  add: {
+    sprite: jest.fn(() => mockGameObject),
+    text: jest.fn(() => ({...mockGameObject, setText: jest.fn() })),
+  },
+  physics: {
+    add: {
+      sprite: jest.fn(() => mockGameObject),
+      collider: jest.fn(),
+    },
+    world: {
+      enable: jest.fn(),
+    },
+  },
+  input: {
+    keyboard: {
+      addKey: jest.fn(() => ({ isDown: false, isUp: true })),
+      on: jest.fn(),
+      keys:,
+    },
+    on: jest.fn(),
+  },
+  anims: {
+    create: jest.fn(),
+    generateFrameNumbers: jest.fn(),
+  },
+  time: {
+    addEvent: jest.fn(),
+  },
+  // Lifecycle methods for spying
+  preload: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+};
+
+```
+
+To use this in a test, you mock the `phaser` module and instruct it to use your mock implementation.
+
+JavaScript
+
+```
+// In a test file, e.g., MyScene.test.js
+import { Scene } from 'phaser';
+import { mockScene } from '../mocks/phaserMock';
+import MyScene from '../../src/scenes/MyScene';
+
+// Mock the entire phaser module
+jest.mock('phaser', () => ({
+  Scene: jest.fn().mockImplementation(() => mockScene),
+  // Add any other Phaser constants or classes needed
+  Input: {
+    Keyboard: {
+      KeyCodes: {
+        W: 87,
+        A: 65,
+        S: 83,
+        D: 68,
+        SPACE: 32,
+      },
+    },
+  },
+}));
+
+describe('MyScene', () => {
+  beforeEach(() => {
+    // Reset mocks before each test to ensure isolation
+    jest.clearAllMocks();
+  });
+
+  test('should create a player sprite on create', () => {
+    const scene = new MyScene();
+    scene.create();
+    expect(mockScene.physics.add.sprite).toHaveBeenCalledWith(100, 100, 'player');
+  });
+});
+
+```
+
+#### Mocking the Physics System
+
+Our game relies heavily on Arcade Physics. To test logic that controls movement or checks collisions, we need to simulate the physics body's API without running a full simulation. The `mockGameObject` in our `phaserMock.js` includes a `body` object with `jest.fn()` spies for methods like `setVelocityX` and properties like `touching.down` that can be manually set in tests to simulate different physical states.
+
+#### Mocking Input Handlers
+
+Input logic must be tested without requiring a physical keyboard or mouse. Our mock scene's `input.keyboard` object provides a mock `addKey` method. In a test, you can control the `isDown` property of the returned mock key to simulate a key press and verify that the `update` loop responds correctly.
+
+#### Mocking the Animation Manager
+
+We need to confirm that our code calls `sprite.anims.play()` with the correct animation key, not actually see the animation. The `anims` property on our `mockGameObject` contains a `play` spy, allowing for assertions like `expect(player.anims.play).toHaveBeenCalledWith('player-run', true);`.
+
+### Mocking GSAP for Animation Testing
+
+GSAP animations are asynchronous and time-dependent, making them unsuitable for direct execution in a test environment. Our strategy is to mock GSAP's API to test the _logic that initiates animations_ and to use Jest's fake timers to control the animation "timeline" deterministically.
+
+#### Testing `gsap.to()` and Callbacks
+
+A simple `gsap.to()` call can be mocked with a `jest.fn()`. For animations with `onComplete` callbacks, the mock implementation can be configured to invoke the callback immediately, allowing for verification of post-animation logic.
+
+JavaScript
+
+```
+// tests/mocks/gsapMock.js
+export const mockTimeline = {
+  to: jest.fn().mockReturnThis(),
+  from: jest.fn().mockReturnThis(),
+  add: jest.fn().mockReturnThis(),
+  play: jest.fn().mockReturnThis(),
+  kill: jest.fn(),
+  eventCallback: jest.fn((type, callback, params) => {
+    if (type === 'onComplete' && callback) {
+      callback(...(params ||));
+    }
+  }),
+};
+
+export const gsapMock = {
+  to: jest.fn((target, vars) => {
+    if (vars.onComplete) {
+      vars.onComplete(...(vars.onCompleteParams ||));
+    }
+    return { kill: jest.fn() }; // Return a mock tween
+  }),
+  timeline: jest.fn(() => mockTimeline),
+};
+
+```
+
+#### Mocking Timelines and Chained Calls
+
+GSAP's timelines use a chainable API (e.g., `tl.to(...).to(...)`). Our mock timeline object must support this pattern by having its methods return `this`. Jest's `mockReturnThis()` is perfect for this.
+
+JavaScript
+
+```
+// In a test file
+import { gsap } from 'gsap';
+import { gsapMock } from '../mocks/gsapMock';
+
+jest.mock('gsap');
+
+// Apply the mock implementation
+gsap.to.mockImplementation(gsapMock.to);
+gsap.timeline.mockImplementation(gsapMock.timeline);
+
+describe('Animation Sequence', () => {
+  test('should create a timeline with two sequential tweens', () => {
+    const sequence = new MyAnimationSequence();
+    sequence.start();
+
+    expect(gsap.timeline).toHaveBeenCalled();
+    // Assuming mockTimeline was returned and is accessible or spied upon
+    expect(mockTimeline.to).toHaveBeenCalledTimes(2);
+  });
+});
+
+```
+
+### Mocking Howler.js for Audio Triggers
+
+Audio playback is a browser-only feature that we must bypass in tests. The goal is to verify that our code attempts to create and play sounds correctly. We achieve this by mocking the `howler` module, specifically replacing the `Howl` class constructor with a spy that returns a mock instance.
+
+JavaScript
+
+```
+// tests/mocks/howlerMock.js
+export const mockHowlInstance = {
+  play: jest.fn().mockReturnValue(Math.random()), // Return a unique sound ID
+  stop: jest.fn(),
+  volume: jest.fn(),
+  on: jest.fn(),
+  off: jest.fn(),
+  state: jest.fn().mockReturnValue('loaded'),
+};
+
+export const HowlMock = jest.fn().mockImplementation(() => mockHowlInstance);
+
+```
+
+This setup allows tests to assert that a `new Howl()` was called with the correct sound file and that the `.play()` method was subsequently invoked on the instance.
+
+JavaScript
+
+```
+// In a test file
+import { Howl } from 'howler';
+import { HowlMock, mockHowlInstance } from '../mocks/howlerMock';
+
+jest.mock('howler', () => ({
+  Howl: HowlMock,
+  Howler: { // Also mock the global Howler object if used
+    volume: jest.fn(),
+  },
+}));
+
+describe('Audio Triggers', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('should create and play the jump sound', () => {
+    const audioManager = new AudioManager();
+    audioManager.playSound('jump');
+
+    expect(HowlMock).toHaveBeenCalledWith({ src: ['sounds/jump.wav'] });
+    expect(mockHowlInstance.play).toHaveBeenCalledTimes(1);
+  });
+});
+
+```
+
+## Testing Core Gameplay Systems
+
+With robust mocking strategies in place, we can now effectively test our project's most complex internal systems: state machines and time-based mechanics.
+
+### Testing Player and Enemy State Machines
+
+Our state machines are designed to be deterministic: a given state receiving a specific event will always produce the same new state and side effects. This makes them ideal candidates for unit testing. We test them as pure logic, independent of the game loop.
+
+#### Asserting State Transitions and Guard Conditions
+
+We write tests to verify every possible transition from every state. This includes sending both valid events that should cause a transition and invalid events that should be ignored (often due to a guard condition).
+
+JavaScript
+
+```
+import { playerMachine } from '../../src/entities/player/playerMachine';
+
+describe('playerMachine', () => {
+  describe('from "idle" state', () => {
+    it('should transition to "running" on MOVE event', () => {
+      const nextState = playerMachine.transition('idle', { type: 'MOVE' });
+      expect(nextState.matches('running')).toBe(true);
+    });
+
+    it('should transition to "jumping" on JUMP event', () => {
+      const nextState = playerMachine.transition('idle', { type: 'JUMP' });
+      expect(nextState.matches('jumping')).toBe(true);
+    });
+  });
+
+  describe('from "dashing" state', () => {
+    it('should NOT transition to "jumping" on JUMP event due to guard', () => {
+      // Force the machine into the 'dashing' state for the test
+      const dashingState = playerMachine.transition('idle', 'DASH');
+      
+      // Attempt an invalid transition
+      const nextState = playerMachine.transition(dashingState, { type: 'JUMP' });
+      
+      // Assert that the state has not changed
+      expect(nextState.matches('dashing')).toBe(true);
+      expect(nextState.changed).toBe(false);
+    });
+  });
+});
+
+```
+
+#### Verifying Entry/Exit Side Effects
+
+State machines trigger actions (side effects) upon entering or exiting a state, such as playing an animation or a sound. We test these by injecting mocked services into our state machine logic and asserting that the correct methods are called.
+
+JavaScript
+
+```
+// Assume a factory function for the machine that accepts services
+import { createPlayerMachine } from '../../src/entities/player/playerMachine';
+
+describe('Player Machine Side Effects', () => {
+  const mockAnimationManager = { play: jest.fn() };
+  const mockAudioService = { playSound: jest.fn() };
+  const machine = createPlayerMachine({
+    animManager: mockAnimationManager,
+    audioService: mockAudioService,
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should play the "dash" sound and animation on entering "dashing" state', () => {
+    // The transition triggers the 'entry' actions for the 'dashing' state
+    machine.transition('idle', { type: 'DASH' });
+
+    expect(mockAudioService.playSound).toHaveBeenCalledWith('dash');
+    expect(mockAnimationManager.play).toHaveBeenCalledWith('player-dash');
+  });
+});
+
+```
+
+### Testing Time-Based Mechanics with Fake Timers
+
+Game mechanics like ability cooldowns or our core time-rewind feature rely on timers. Using Jest's fake timers allows us to test this logic instantly and deterministically, without waiting for real time to pass.
+
+#### Validating Cooldowns and Delays
+
+To test a cooldown, we enable fake timers with `jest.useFakeTimers()`. After triggering the ability, we assert that it is on cooldown. We then use `jest.advanceTimersByTime(ms)` to fast-forward the clock and assert that the ability is available again.
+
+JavaScript
+
+```
+// In a Player class test file
+jest.useFakeTimers();
+
+describe('Player Dash Cooldown', () => {
+  it('should prevent dashing again until the 1-second cooldown has passed', () => {
+    const player = new Player(); // Assume Player has a dash method with a 1000ms cooldown
+    
+    // First dash
+    const didDash1 = player.dash();
+    expect(didDash1).toBe(true); // The first dash should succeed
+    expect(player.canDash()).toBe(false);
+
+    // Advance time by less than the cooldown
+    jest.advanceTimersByTime(999);
+    expect(player.canDash()).toBe(false);
+    const didDash2 = player.dash();
+    expect(didDash2).toBe(false); // Second dash should fail
+
+    // Advance time to exactly the cooldown duration
+    jest.advanceTimersByTime(1);
+    expect(player.canDash()).toBe(true);
+    const didDash3 = player.dash();
+    expect(didDash3).toBe(true); // Third dash should succeed
+  });
+});
+
+```
+
+#### Synchronizing GSAP Effects with Fake Timers
+
+Fake timers are essential for testing GSAP animations that have a `delay`. By combining our GSAP mock with fake timers, we can precisely verify that animations start at the correct time.
+
+JavaScript
+
+```
+jest.useFakeTimers();
+jest.mock('gsap');
+import { gsap } from 'gsap';
+
+describe('Delayed Effects', () => {
+  it('should trigger a fade-in animation after a 500ms delay', () => {
+    const effect = new FadeInEffect(); // Assumes this calls gsap.to with a delay
+    effect.trigger();
+
+    // Immediately after, the animation should not have been called
+    expect(gsap.to).not.toHaveBeenCalled();
+
+    // Advance time just before the delay expires
+    jest.advanceTimersByTime(499);
+    expect(gsap.to).not.toHaveBeenCalled();
+
+    // Advance time past the delay
+    jest.advanceTimersByTime(1);
+    expect(gsap.to).toHaveBeenCalledTimes(1);
+    expect(gsap.to).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ opacity: 1 }));
+  });
+});
+
+```
+
+## Test Suite Architecture and Utilities
+
+A well-organized test suite is scalable, maintainable, and easy for all contributors to navigate. We follow specific conventions for directory structure and the creation of reusable test utilities.
+
+### Recommended Directory Structure
+
+To balance discoverability with a clean separation of concerns, we use a hybrid approach: tests are co-located with the code they test, while shared mocks and utilities reside in a dedicated `tests` directory.
+
+```
+src/
+└── components/
+    └── Player/
+        ├── Player.js
+        └── Player.test.js      # Test file co-located with its source
+tests/
+├── mocks/                    # Centralized, reusable mocks
+│   ├── phaserMock.js
+│   ├── gsapMock.js
+│   └── howlerMock.js
+└── utils/
+    ├── testHelpers.js        # Reusable helper functions
+    └── setup.js              # Global Jest setup file (for jest-canvas-mock)
+
+```
+
+-   **Co-located Tests (`*.test.js`):** This is our default pattern. Placing a test file next to its source file makes it easy to find and encourages testing as an integral part of development.
+    
+-   **`tests/mocks/`:** This directory contains our manual mocks for external libraries. Centralizing them promotes reuse and ensures a consistent mock foundation across the entire test suite.
+    
+-   **`tests/utils/`:** This directory houses global setup files and reusable helper functions, such as a factory for creating a fully mocked player instance.
+    
+
+### Creating Reusable Test Utilities and Shared Mocks
+
+To keep tests clean and avoid repetitive setup code, we create helper functions for common tasks. The `tests/utils/testHelpers.js` file is the designated location for these utilities.
+
+Contributors should feel empowered to extend the shared mocks in `tests/mocks/` whenever new functionality from a library is introduced. This collaborative maintenance ensures our mocks evolve with the codebase.
+
+## Automation and Continuous Integration
+
+Our tests are automated to provide rapid feedback and act as a quality gate, ensuring that only high-quality, working code is merged into our main branches.
+
+### Test Execution in the CI Pipeline
+
+Our Continuous Integration (CI) pipeline, managed via GitHub Actions, executes the entire test suite in a headless Node.js environment on every push and pull request. This is made possible by our comprehensive mocking strategy, which removes dependencies on browser-specific rendering and audio engines.
+
+The CI workflow (`.github/workflows/tests.yml`) executes the following core steps:
+
+1.  **Checkout Code:** Fetches the latest version of the branch.
+    
+2.  **Setup Node.js:** Configures the correct Node.js version.
+    
+3.  **Install Dependencies:** Runs `npm install` to get all required packages.
+    
+4.  **Run Tests:** Executes the test suite with `npm test`.
+    
+
+For larger test suites, performance can be optimized by adjusting the number of parallel workers (`--maxWorkers`) or by sharding tests across multiple CI runners.
+
+### Enforcing Quality with Pre-Commit Hooks (Husky & lint-staged)
+
+To catch issues before they are even committed, we use Git hooks. This provides the fastest possible feedback loop for developers.
+
+-   **Tooling:** We use **Husky** to manage the Git hooks and **lint-staged** to run commands only on files that have been staged for a commit.
+    
+-   **Configuration:** The `.husky/pre-commit` script is configured to run `npx lint-staged`. The `lint-staged` configuration in `package.json` is set to run our linter/formatter and execute Jest on the staged files. We use `jest --bail --findRelatedTests` to ensure maximum performance by only running tests relevant to the changed files and stopping immediately on the first failure.
+    
+
+## Troubleshooting and Common Gotchas
+
+This section serves as a first-stop diagnostic guide for developers encountering common testing issues.
+
+### Frequent Contributor Issues and Solutions
+
+Cryptic error messages are a common source of frustration when working with a complex, mocked environment. The following table maps frequent errors to their likely causes and solutions.
+
+Error Message
+
+Likely Cause
+
+Solution
+
+`TypeError: Cannot read property 'add' of undefined`
+
+The Phaser Scene mock is incomplete or not being used. The test is trying to call `scene.add` but `scene` is undefined.
+
+Ensure your test file correctly mocks the `phaser` module. Verify that the mock scene object provides an `add` property which is an object containing mock methods (e.g., `sprite: jest.fn()`).
+
+`TypeError: (0 , _gsap.gsap).to is not a function`
+
+GSAP has not been mocked, or the mock is not being applied correctly. Jest is trying to call the real `gsap.to`.
+
+Place `jest.mock('gsap');` at the top of your test file. Ensure you are providing a mock implementation for `gsap.to` if needed.
+
+`Test suite failed to run: TypeError: Cannot read property 'position' of undefined`
+
+A known issue with Phaser's Matter.js `Transform` component being accessed without a mock `body` object.
+
+Ensure your mock `GameObject` (and any mock physics sprite) provides a default `body` object, even if it's empty, e.g., `body: { position: { x: 0, y: 0 } }`.
+
+`Timeout - Async callback was not invoked`
+
+An asynchronous test is not resolving. This is often due to a forgotten `await` or `return` statement for a promise-based assertion.
+
+Always `await` promises within an `async` test function. If asserting a promise resolution/rejection, `return expect(myPromise)...`.
+
+Export to Sheets
+
+### Best Practices for Avoiding Flaky Tests
+
+Flaky tests, which pass or fail intermittently, undermine confidence in the test suite. Follow these practices to ensure reliability:
+
+-   **Isolate Tests:** Always reset mocks between tests. Use `jest.clearAllMocks()` in a global `afterEach` block (configured in `jest.setup.js`). For tests that mutate a module, use `jest.resetModules()` to ensure a clean state for the next test.
+    
+-   **Handle Asynchronous Code Correctly:** A test involving a promise that lacks `async/await` or a `return` statement will always pass synchronously, regardless of whether the promise resolves or rejects. This creates dangerous false positives.
+    
+-   **Avoid Barrel File Imports:** Do not use "barrel" files (`index.js` that re-export multiple modules) for imports within test files. This can dramatically slow down Jest's startup time by forcing it to resolve a large dependency graph, even for a simple test. Always favor direct imports: `import { Player } from '../components/Player/Player';`.
+
+## New Testing Patterns (Phase 3.bis)
+
+### Centralized Mocks
+All manual mocks for Phaser, GSAP, and Howler.js are now located in `tests/mocks/`. Test files should import and use these mocks, not define their own or use inline mocks.
+
+**Example:**
+```js
+import '../tests/mocks/phaserMock.js';
+import '../tests/mocks/gsapMock.js';
+import '../tests/mocks/howlerMock.js';
+```
+
+### Test Isolation
+A global `afterEach` block in `tests/setup.js` ensures all Jest mocks are cleared and modules reset after every test, preventing test pollution and flaky results.
+
+**Example:**
+```js
+afterEach(() => {
+  jest.clearAllMocks();
+  jest.resetModules();
+});
+```
+
+### Fake Timers for Time-Based Logic
+All tests for time-based logic (cooldowns, GSAP animations, etc.) use Jest fake timers for deterministic, fast, and reliable results.
+
+**Example:**
+```js
+jest.useFakeTimers();
+// ... test code that triggers time-based logic ...
+jest.advanceTimersByTime(1000); // Fast-forward time
+```

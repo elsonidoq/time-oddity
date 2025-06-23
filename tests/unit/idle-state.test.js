@@ -23,10 +23,11 @@ describe('Task 2.6: IdleState Class', () => {
   beforeEach(() => {
     player = {
       anims: { play: jest.fn() },
-      body: { 
-        velocity: { x: 0, y: 0 }, 
-        onFloor: jest.fn().mockReturnValue(true),
+      body: {
         setVelocityX: jest.fn(),
+        setVelocityY: jest.fn(),
+        setAllowGravity: jest.fn(),
+        onFloor: jest.fn(() => true),
       },
       inputManager: {
         left: false,
@@ -37,6 +38,11 @@ describe('Task 2.6: IdleState Class', () => {
         get isUpPressed() { return this.up; },
       },
       stateMachine: { setState: jest.fn() },
+      flipX: false,
+      speed: 200,
+      canDash: true,
+      dashTimer: 0,
+      scene: { time: { now: 0 } },
     };
     state = new IdleState(player);
   });

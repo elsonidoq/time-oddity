@@ -12,10 +12,16 @@ export default class RunState {
   }
 
   execute() {
-    const { inputManager, body } = this.player;
+    const { inputManager, body, dashTimer } = this.player;
+    const now = this.player.scene.time.now;
+
+    // Dash cooldown invariant: allow dash again after cooldown
+    if (now >= dashTimer) {
+      this.player.canDash = true;
+    }
 
     // PRIORITIZE DASH
-    if (inputManager && inputManager.isDashPressed) {
+    if (inputManager && inputManager.isDashJustPressed && this.player.canDash) {
       this.player.stateMachine.setState('dash');
       return;
     }

@@ -25,8 +25,10 @@ describe('Task 2.7: RunState Class', () => {
       anims: { play: jest.fn() },
       body: { 
         velocity: { x: 0, y: 0 }, 
-        onFloor: jest.fn().mockReturnValue(true),
+        onFloor: jest.fn(() => true),
         setVelocityX: jest.fn(),
+        setVelocityY: jest.fn(),
+        setAllowGravity: jest.fn(),
       },
       inputManager: {
         left: false,
@@ -39,6 +41,9 @@ describe('Task 2.7: RunState Class', () => {
       stateMachine: { setState: jest.fn() },
       speed: 200,
       flipX: false,
+      canDash: true,
+      dashTimer: 0,
+      scene: { time: { now: 0 } },
     };
     state = new RunState(player);
   });

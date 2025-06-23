@@ -25,8 +25,10 @@ describe('Task 2.9: FallState Class', () => {
       anims: { play: jest.fn() },
       body: { 
         velocity: { x: 0, y: 100 }, 
-        onFloor: jest.fn().mockReturnValue(false),
+        onFloor: jest.fn(() => false),
         setVelocityX: jest.fn(),
+        setVelocityY: jest.fn(),
+        setAllowGravity: jest.fn(),
       },
       inputManager: {
         left: false,
@@ -37,6 +39,9 @@ describe('Task 2.9: FallState Class', () => {
       stateMachine: { setState: jest.fn() },
       speed: 200,
       flipX: false,
+      canDash: true,
+      dashTimer: 0,
+      scene: { time: { now: 0 } },
     };
     state = new FallState(player);
   });

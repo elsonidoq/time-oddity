@@ -1,6 +1,12 @@
+// This test file uses centralized mocks from tests/mocks for Phaser, GSAP, and Howler.js.
+// It also uses jest.useFakeTimers() to ensure all time-based and animation logic is tested deterministically.
+// See agent_docs/comprehensive_documentation.md for best practices.
+
 import { jest } from '@jest/globals';
 import { gsap } from 'gsap';
 import TimeManager from '../../client/src/systems/TimeManager.js';
+
+jest.useFakeTimers();
 
 // Assign jest.fn() mocks to gsap methods
 beforeEach(() => {
@@ -133,4 +139,9 @@ describe('TimeManager Visual Effects', () => {
       expect(mockScene.cameras.main.clearTint).toHaveBeenCalled();
     });
   });
+});
+
+afterEach(() => {
+  jest.runOnlyPendingTimers();
+  jest.clearAllTimers();
 }); 

@@ -8,9 +8,10 @@ import { gsap } from 'gsap';
 export default class TimeManager {
   /**
    * @param {Phaser.Scene} scene The scene to which this manager belongs.
+   * @param {Phaser.Scene} mockScene Optional mock scene for testing.
    */
-  constructor(scene) {
-    this.scene = scene;
+  constructor(scene, mockScene = null) {
+    this.scene = mockScene || scene;
     this.stateBuffer = [];
     this.isRewinding = false;
     this.managedObjects = new Set();

@@ -1,126 +1,104 @@
+import '../mocks/phaserMock.js';
 import { jest } from '@jest/globals';
 import { readFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { SceneMock, validateSceneClass } from './phaser-test-utils.js';
+import { Scene as MockScene } from '../mocks/phaserMock.js';
+let BaseScene;
+let GameScene;
+
+// Phaser KeyCodes mock for ESM/Jest
+if (!globalThis.Phaser) globalThis.Phaser = {};
+if (!globalThis.Phaser.Input) globalThis.Phaser.Input = {};
+if (!globalThis.Phaser.Input.Keyboard) globalThis.Phaser.Input.Keyboard = {};
+if (!globalThis.Phaser.Input.Keyboard.KeyCodes) {
+  globalThis.Phaser.Input.Keyboard.KeyCodes = {
+    LEFT: 'LEFT',
+    RIGHT: 'RIGHT',
+    UP: 'UP',
+    DOWN: 'DOWN',
+    A: 'A',
+    D: 'D',
+    W: 'W',
+    S: 'S',
+    SPACE: 'SPACE',
+    SHIFT: 'SHIFT',
+    R: 'R',
+  };
+}
 
 describe('GameScene', () => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
-  let BaseScene;
-  let GameScene;
   let scene;
   const gameScenePath = join(dirname(fileURLToPath(import.meta.url)), '../../client/src/scenes/GameScene.js');
 
-  beforeAll(async () => {
-    // Import scene classes using dynamic import to handle potential Phaser issues
-    try {
-      const baseModule = await import('../../client/src/scenes/BaseScene.js');
-      BaseScene = baseModule.default;
-      
-      const gameModule = await import('../../client/src/scenes/GameScene.js');
-      GameScene = gameModule.default;
-    } catch (error) {
-      // If import fails, create mock classes for testing
-      BaseScene = class BaseScene extends SceneMock {
-        constructor(key) {
-          super(key);
-        }
-      };
-      
-      GameScene = class GameScene extends BaseScene {
-        constructor() {
-          super('GameScene');
-        }
-        create() {}
-        update() {}
-      };
+  beforeAll(() => {
+    if (!global.Phaser || !global.Phaser.Input || !global.Phaser.Input.Keyboard || !global.Phaser.Input.Keyboard.KeyCodes) {
+      require('../mocks/phaserMock.js');
     }
   });
 
+  beforeAll(async () => {
+    // Import scene classes using dynamic import to handle potential Phaser issues
+    const baseModule = await import('../../client/src/scenes/BaseScene.js');
+    BaseScene = baseModule.default;
+    
+    const gameModule = await import('../../client/src/scenes/GameScene.js');
+    GameScene = gameModule.default;
+  });
+
   beforeEach(() => {
-    scene = new GameScene();
-    
-    // Simple mock setup for basic functionality testing
-    scene.physics = {
-      world: { 
-        gravity: { y: 0 },
-        bounds: { setTo: jest.fn() }
-      },
-      config: { debug: false },
-      add: {
-        group: jest.fn(() => {
-          const group = {
-            create: jest.fn((...args) => ({
-              setOrigin: jest.fn().mockReturnThis(),
-              setImmovable: jest.fn().mockReturnThis(),
-              setAllowGravity: jest.fn().mockReturnThis(),
-              setSize: jest.fn().mockReturnThis(),
-              setOffset: jest.fn().mockReturnThis(),
-              play: jest.fn().mockReturnThis(),
-              width: 64,
-              height: 64,
-              body: {
-                setImmovable: jest.fn(),
-                setAllowGravity: jest.fn(),
-                setSize: jest.fn(),
-                setOffset: jest.fn(),
-                width: 64,
-                height: 64
-              }
-            })),
-            add: jest.fn(),
-            getChildren: jest.fn(() => [])
-          };
-          return group;
-        }),
-        sprite: jest.fn((x, y, texture) => ({
-          setOrigin: jest.fn().mockReturnThis(),
-          setImmovable: jest.fn().mockReturnThis(),
-          setAllowGravity: jest.fn().mockReturnThis(),
-          setSize: jest.fn().mockReturnThis(),
-          setOffset: jest.fn().mockReturnThis(),
-          play: jest.fn().mockReturnThis(),
-          width: 32,
-          height: 32,
-          body: {
-            setAllowGravity: jest.fn(),
-            setImmovable: jest.fn(),
-            setSize: jest.fn(),
-            setOffset: jest.fn(),
-            width: 32,
-            height: 32
-          }
-        })),
-        collider: jest.fn(),
-        existing: jest.fn(),
-        overlap: jest.fn(),
-      },
-    };
-
-    scene.sys = { 
-      game: { 
-        config: { 
-          physics: { arcade: { debug: false } }, 
-          width: 1280,
-          height: 720
-        } 
-      } 
-    };
-    
-    scene.add = {
-      text: () => ({ setOrigin: () => ({ setInteractive: () => ({ on: () => {} }) }) }),
-      existing: jest.fn(),
-    };
-    scene.events = { on: () => {} };
-    scene.cameras = { main: { setBounds: jest.fn() } };
-
+    if (!globalThis.Phaser) globalThis.Phaser = {};
+    if (!globalThis.Phaser.Input) globalThis.Phaser.Input = {};
+    if (!globalThis.Phaser.Input.Keyboard) globalThis.Phaser.Input.Keyboard = {};
+    const mockScene = new MockScene('GameScene');
+    // Spy on the mock scene's collider method since CollisionManager uses it
+    jest.spyOn(mockScene.physics.add, 'collider');
+    scene = new GameScene(mockScene);
     scene.input = {
       keyboard: {
-        addKey: jest.fn(() => ({ isDown: false }))
+        addKey: jest.fn((key) => ({ isDown: false, isUp: true, isPressed: false, keyCode: key }))
       }
     };
+    scene.time = { now: 0 };
+    scene.physics = {
+      world: { gravity: { y: 0 }, tileBias: 0, bounds: { setTo: jest.fn() } },
+      config: { debug: false },
+      add: { 
+        group: jest.fn(() => ({ create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) })), 
+        sprite: jest.fn(() => ({ body: { setAllowGravity: jest.fn() }, play: jest.fn().mockReturnThis(), parentCoin: null })), 
+        existing: jest.fn(),
+        collider: jest.fn(),
+      },
+    };
+    scene.cameras = { main: { setBounds: jest.fn() } };
+    scene.sys = {
+      game: {
+        config: {
+          physics: { arcade: { debug: false } },
+          width: 1280,
+          height: 720,
+        }
+      },
+      events: { on: jest.fn(), off: jest.fn() }
+    };
+    scene.platforms = { create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) };
+    scene.players = { create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) };
+    scene.enemies = { create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) };
+    scene.coins = { create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) };
   });
+
+  // Helper to patch all scene references after create
+  function patchAllSceneRefs() {
+    if (scene.collisionManager) scene.collisionManager.scene = scene;
+    if (scene.timeManager) scene.timeManager.scene = scene;
+    if (scene.player) scene.player.scene = scene;
+    if (scene.players && scene.players.children) {
+      scene.players.children.forEach && scene.players.children.forEach(p => p.scene = scene);
+    }
+  }
 
   test('should exist and be importable', () => {
     expect(GameScene).toBeDefined();
@@ -145,7 +123,7 @@ describe('GameScene', () => {
   });
 
   test('should create basic scene content in create()', () => {
-    expect(() => scene.create()).not.toThrow();
+    expect(() => { scene.create(); patchAllSceneRefs(); }).not.toThrow();
   });
 
   test('should handle game loop in update()', () => {
@@ -182,12 +160,12 @@ describe('GameScene', () => {
   });
 
   test('should initialize physics groups', () => {
-    scene.create();
+    scene.create(); patchAllSceneRefs();
     expect(scene.physics.add.group).toHaveBeenCalled();
   });
 
   test('should set up collision detection', () => {
-    scene.create();
-    expect(scene.physics.add.collider).toHaveBeenCalled();
+    scene.create(); patchAllSceneRefs();
+    expect(scene._mockScene.physics.add.collider).toHaveBeenCalled();
   });
 }); 

@@ -23,21 +23,21 @@ describe('Task 2.8: JumpState Class', () => {
   beforeEach(() => {
     player = {
       anims: { play: jest.fn() },
-      body: { 
-        velocity: { x: 0, y: -100 },
-        onFloor: jest.fn().mockReturnValue(false),
-        setVelocityY: jest.fn(),
+      body: {
         setVelocityX: jest.fn(),
+        setVelocityY: jest.fn(),
+        setAllowGravity: jest.fn(),
+        onFloor: jest.fn(() => false),
+        velocity: { y: -1 },
       },
-      inputManager: {
-        isLeftPressed: false,
-        isRightPressed: false,
-        isJumpJustReleased: false,
-      },
+      inputManager: {},
       stateMachine: { setState: jest.fn() },
-      speed: 200,
-      jumpPower: 400,
       flipX: false,
+      speed: 200,
+      canDash: true,
+      dashTimer: 0,
+      scene: { time: { now: 0 } },
+      jumpPower: 400,
     };
     state = new JumpState(player);
   });

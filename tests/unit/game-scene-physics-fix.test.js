@@ -1,115 +1,81 @@
+// Phaser KeyCodes mock for ESM/Jest
+if (!globalThis.Phaser) globalThis.Phaser = {};
+if (!globalThis.Phaser.Input) globalThis.Phaser.Input = {};
+if (!globalThis.Phaser.Input.Keyboard) globalThis.Phaser.Input.Keyboard = {};
+if (!globalThis.Phaser.Input.Keyboard.KeyCodes) {
+  globalThis.Phaser.Input.Keyboard.KeyCodes = {
+    LEFT: 'LEFT',
+    RIGHT: 'RIGHT',
+    UP: 'UP',
+    DOWN: 'DOWN',
+    A: 'A',
+    D: 'D',
+    W: 'W',
+    S: 'S',
+    SPACE: 'SPACE',
+    SHIFT: 'SHIFT',
+    R: 'R',
+  };
+}
+
+import '../mocks/phaserMock.js';
 import { jest } from '@jest/globals';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { SceneMock, validateSceneClass } from './phaser-test-utils.js';
+import GameScene from '../../client/src/scenes/GameScene.js';
+import BaseScene from '../../client/src/scenes/BaseScene.js';
+import { Scene as MockScene } from '../mocks/phaserMock.js';
 
 describe('Task 2.0: GameScene Physics Initialization Fix', () => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
-  let BaseScene;
-  let GameScene;
   let scene;
   const gameScenePath = join(dirname(fileURLToPath(import.meta.url)), '../../client/src/scenes/GameScene.js');
 
-  beforeAll(async () => {
-    // Import scene classes using dynamic import to handle potential Phaser issues
-    try {
-      const baseModule = await import('../../client/src/scenes/BaseScene.js');
-      BaseScene = baseModule.default;
-      
-      const gameModule = await import('../../client/src/scenes/GameScene.js');
-      GameScene = gameModule.default;
-    } catch (error) {
-      // If import fails, create mock classes for testing
-      BaseScene = class BaseScene extends SceneMock {
-        constructor(key) {
-          super(key);
-        }
-      };
-      
-      GameScene = class GameScene extends BaseScene {
-        constructor() {
-          super('GameScene');
-        }
-        create() {}
-        update() {}
-      };
-    }
-  });
-
   beforeEach(() => {
-    scene = new GameScene();
-    
-    // Mock physics world with proper bounds object
-    scene.physics = {
-      world: { 
-        gravity: { y: 0 },
-        bounds: {
-          setTo: jest.fn()
-        }
-      },
-      config: { debug: false },
-      add: {
-        group: jest.fn(() => ({
-          create: jest.fn().mockReturnThis(),
-          setScale: jest.fn().mockReturnThis(),
-          setOrigin: jest.fn().mockReturnThis(),
-          refreshBody: jest.fn().mockReturnThis(),
-        })),
-        sprite: jest.fn(() => ({
-          setOrigin: jest.fn().mockReturnThis(),
-          setScale: jest.fn().mockReturnThis(),
-          setCollideWorldBounds: jest.fn().mockReturnThis(),
-          play: jest.fn().mockReturnThis(),
-          body: {
-            setBounce: jest.fn().mockReturnThis(),
-            setGravityY: jest.fn().mockReturnThis(),
-            setCollideWorldBounds: jest.fn().mockReturnThis(),
-            setAllowGravity: jest.fn().mockReturnThis(),
-          }
-        })),
-        existing: jest.fn(),
-        collider: jest.fn(),
-        overlap: jest.fn(),
-      },
-    };
-    
-    scene.sys = { 
-      game: { 
-        config: { 
-          physics: { arcade: { debug: false } }, 
-          width: 1280,
-          height: 720
-        } 
-      } 
-    };
-    
-    scene.cameras = {
-      main: {
-        setBounds: jest.fn()
-      }
-    };
-    
-    scene.add = { 
-      text: () => ({ 
-        setOrigin: () => ({ 
-          setInteractive: () => ({ 
-            on: () => {} 
-          }) 
-        }) 
-      }),
-      existing: jest.fn()
-    };
-    
-    scene.events = { on: () => {} };
-
+    scene = new GameScene(new MockScene('GameScene'));
     scene.input = {
       keyboard: {
-        addKey: jest.fn(() => ({ isDown: false }))
+        addKey: jest.fn((key) => ({ isDown: false, isUp: true, isPressed: false, keyCode: key }))
       }
     };
+    scene.time = { now: 0 };
+    scene.physics = {
+      world: { gravity: { y: 0 }, tileBias: 0, bounds: { setTo: jest.fn() } },
+      config: { debug: false },
+      add: { group: jest.fn(() => ({ create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) })), sprite: jest.fn(() => ({ body: { setAllowGravity: jest.fn() }, play: jest.fn().mockReturnThis(), parentCoin: null })), existing: jest.fn() },
+    };
+    scene.cameras = { main: { setBounds: jest.fn() } };
+    scene.sys = {
+      game: {
+        config: {
+          physics: { arcade: { debug: false } },
+          width: 1280,
+          height: 720,
+        }
+      },
+      events: { on: jest.fn(), off: jest.fn() }
+    };
+    scene.add = { text: () => ({ setOrigin: () => ({ setInteractive: () => ({ on: () => {} }) }) }), existing: jest.fn() };
+    scene.events = { on: () => {} };
+    const mockGroup = { create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) };
+    scene.platforms = mockGroup;
+    scene.players = mockGroup;
+    scene.enemies = mockGroup;
+    scene.coins = mockGroup;
   });
+
+  // Helper to patch all scene references after create
+  function patchAllSceneRefs() {
+    if (scene.collisionManager) scene.collisionManager.scene = scene;
+    if (scene.timeManager) scene.timeManager.scene = scene;
+    if (scene.player) scene.player.scene = scene;
+    if (scene.players && scene.players.children) {
+      scene.players.children.forEach && scene.players.children.forEach(p => p.scene = scene);
+    }
+  }
 
   test('should exist and be importable', () => {
     expect(GameScene).toBeDefined();
@@ -128,51 +94,48 @@ describe('Task 2.0: GameScene Physics Initialization Fix', () => {
 
   describe('Physics World Initialization', () => {
     test('should properly initialize physics world before setting bounds', () => {
-      expect(() => scene.create()).not.toThrow();
+      expect(() => { scene.create(); patchAllSceneRefs(); }).not.toThrow();
       expect(scene.physics.world).toBeDefined();
     });
 
     test('should set gravity correctly', () => {
-      scene.create();
+      scene.create(); patchAllSceneRefs();
       expect(scene.physics.world.gravity.y).toBe(980);
     });
 
     test('should configure physics debug mode from game config', () => {
       scene.sys.game.config.physics.arcade.debug = true;
-      scene.create();
+      scene.create(); patchAllSceneRefs();
       expect(scene.physics.config.debug).toBe(true);
     });
 
     test('should set world bounds without errors', () => {
-      expect(() => scene.create()).not.toThrow();
+      expect(() => { scene.create(); patchAllSceneRefs(); }).not.toThrow();
       expect(scene.physics.world.bounds.setTo).toHaveBeenCalledWith(0, 0, 1280, 720);
     });
 
     test('should set camera bounds without errors', () => {
-      expect(() => scene.create()).not.toThrow();
+      expect(() => { scene.create(); patchAllSceneRefs(); }).not.toThrow();
       expect(scene.cameras.main.setBounds).toHaveBeenCalledWith(0, 0, 1280, 720);
     });
   });
 
   describe('Physics Groups Initialization', () => {
     test('should create platforms physics group', () => {
-      scene.create();
+      scene.create(); patchAllSceneRefs();
       expect(scene.physics.add.group).toHaveBeenCalled();
-      // Should be called 4 times: platforms, players, enemies, coins
       expect(scene.physics.add.group).toHaveBeenCalledTimes(4);
     });
 
     test('should create players physics group', () => {
-      scene.create();
+      scene.create(); patchAllSceneRefs();
       expect(scene.physics.add.group).toHaveBeenCalled();
-      // Should be called 4 times: platforms, players, enemies, coins
       expect(scene.physics.add.group).toHaveBeenCalledTimes(4);
     });
 
     test('should create enemies physics group', () => {
-      scene.create();
+      scene.create(); patchAllSceneRefs();
       expect(scene.physics.add.group).toHaveBeenCalled();
-      // Should be called 4 times: platforms, players, enemies, coins
       expect(scene.physics.add.group).toHaveBeenCalledTimes(4);
     });
   });
@@ -180,17 +143,17 @@ describe('Task 2.0: GameScene Physics Initialization Fix', () => {
   describe('Error Handling', () => {
     test('should handle missing physics world gracefully', () => {
       scene.physics.world = null;
-      expect(() => scene.create()).not.toThrow();
+      expect(() => { scene.create(); patchAllSceneRefs(); }).not.toThrow();
     });
 
     test('should handle missing bounds object gracefully', () => {
       scene.physics.world.bounds = null;
-      expect(() => scene.create()).not.toThrow();
+      expect(() => { scene.create(); patchAllSceneRefs(); }).not.toThrow();
     });
 
     test('should handle missing camera gracefully', () => {
       scene.cameras = null;
-      expect(() => scene.create()).not.toThrow();
+      expect(() => { scene.create(); patchAllSceneRefs(); }).not.toThrow();
     });
   });
 

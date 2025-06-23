@@ -6,13 +6,14 @@ import Phaser from 'phaser';
  * Extends Phaser.Physics.Arcade.Sprite for proper physics integration
  */
 export default class Entity extends Phaser.Physics.Arcade.Sprite {
-  constructor(scene, x, y, texture, frame, health = 100) {
-    super(scene, x, y, texture, frame);
+  constructor(scene, x, y, texture, frame, health = 100, mockScene = null) {
+    const useScene = mockScene || scene;
+    super(useScene, x, y, texture, frame);
     
     // An entity needs to be added to the scene's display list to be visible
-    scene.add.existing(this);
+    useScene.add.existing(this);
     // It also needs to be added to the physics world to have a body
-    scene.physics.add.existing(this);
+    useScene.physics.add.existing(this);
     
     // Entity-specific properties
     this.health = health;

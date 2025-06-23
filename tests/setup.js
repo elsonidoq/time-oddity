@@ -1,3 +1,31 @@
+import { jest } from '@jest/globals';
+import '../tests/mocks/phaserMock.js';
+import '../tests/mocks/gsapMock.js';
+import '../tests/mocks/howlerMock.js';
+
+// Phaser global mock for all tests
+if (typeof global.Phaser === 'undefined') {
+  global.Phaser = {
+    Input: {
+      Keyboard: {
+        KeyCodes: {
+          LEFT: 'LEFT',
+          RIGHT: 'RIGHT',
+          UP: 'UP',
+          DOWN: 'DOWN',
+          A: 'A',
+          D: 'D',
+          W: 'W',
+          S: 'S',
+          SPACE: 'SPACE',
+          SHIFT: 'SHIFT',
+        },
+        JustDown: jest.fn(),
+      },
+    },
+  };
+}
+
 // Global test setup
 const mockFn = () => {};
 mockFn.mock = { calls: [] };
@@ -159,4 +187,9 @@ global.HTMLCanvasElement = function() {
     width: 1280,
     height: 720,
   };
-}; 
+};
+
+afterEach(() => {
+  jest.clearAllMocks();
+  jest.resetModules();
+}); 
