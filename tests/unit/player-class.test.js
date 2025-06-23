@@ -49,6 +49,9 @@ describe('Task 2.2: Player Class', () => {
 
   beforeEach(() => {
     const mockScene = {
+      add: {
+        existing: jest.fn()
+      },
       physics: {
         add: {
           sprite: jest.fn(() => ({
@@ -60,7 +63,8 @@ describe('Task 2.2: Player Class', () => {
               setGravityY: jest.fn().mockReturnThis(),
               setCollideWorldBounds: jest.fn().mockReturnThis(),
             }
-          }))
+          })),
+          existing: jest.fn()
         }
       }
     };

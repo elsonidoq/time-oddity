@@ -99,12 +99,9 @@ export default class GameScene extends BaseScene {
 
     // Set up collision detection
     if (this.collisionManager && this.platforms && this.player && this.coins) {
-      this.collisionManager.addPlayerPlatformCollision(this.player, this.platforms);
-      this.collisionManager.addPlayerCoinCollision(this.player, this.coins);
+      this.collisionManager.addCollider(this.player, this.platforms);
+      this.collisionManager.addOverlap(this.player, this.coins, this.handlePlayerCoinOverlap, null, this);
     }
-
-    // Listen for rewind state changes to apply visual effects
-    this.game.events.on('rewindStateChanged', this.handleRewindStateChange, this);
 
     // Add basic content (e.g., a label)
     this.add.text(640, 100, 'Game Scene', { font: '32px Arial', fill: '#fff' }).setOrigin(0.5);
@@ -156,27 +153,19 @@ export default class GameScene extends BaseScene {
     }
   }
 
-  handleRewindStateChange({ isRewinding }) {
-    const rewindTint = 0xADD8E6; // A light blue color
-
-    if (isRewinding) {
-      // Apply a tint to the camera during rewind
-      this.cameras.main.tint = rewindTint;
-      this.cameras.main.alpha = 0.9;
-    } else {
-      // Clear the tint when rewind stops
-      this.cameras.main.clearTint();
-      this.cameras.main.alpha = 1.0;
-    }
-  }
-
-  shutdown() {
-      this.game.events.off('rewindStateChanged', this.handleRewindStateChange, this);
-  }
-
   update(time, delta) {
-    this.player.update(this.inputManager, time, delta);
-    this.timeManager.update(time, delta);
+    // Update game objects
+    if (this.player) {
+      this.player.update(time, delta);
+    }
+    if (this.timeManager) {
+        this.timeManager.update(time, delta);
+        // Toggle rewind based on input
+        const isRewindActive = this.player.inputManager.isRewindPressed;
+        if (isRewindActive !== this.timeManager.isRewinding) {
+            this.timeManager.toggleRewind(isRewindActive);
+        }
+    }
   }
 
   // Cleanup resources on shutdown

@@ -8,7 +8,22 @@ jest.unstable_mockModule('phaser', () => ({
   default: {
     Physics: {
       Arcade: {
-        Sprite: class {},
+        Sprite: class {
+          constructor(scene, x, y, texture, frame) {
+            this.scene = scene;
+            this.x = x;
+            this.y = y;
+            this.texture = texture;
+            this.frame = frame;
+            this.body = {
+              setSize: jest.fn(),
+              setOffset: jest.fn()
+            };
+            this.setOrigin = jest.fn();
+            this.setActive = jest.fn();
+            this.setVisible = jest.fn();
+          }
+        },
       },
     },
   },

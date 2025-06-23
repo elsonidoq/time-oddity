@@ -31,6 +31,8 @@ describe('Task 2.9: FallState Class', () => {
       inputManager: {
         left: false,
         right: false,
+        get isLeftPressed() { return this.left; },
+        get isRightPressed() { return this.right; },
       },
       stateMachine: { setState: jest.fn() },
       speed: 200,

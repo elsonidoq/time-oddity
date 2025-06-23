@@ -32,6 +32,9 @@ describe('Task 2.6: IdleState Class', () => {
         left: false,
         right: false,
         up: false,
+        get isLeftPressed() { return this.left; },
+        get isRightPressed() { return this.right; },
+        get isUpPressed() { return this.up; },
       },
       stateMachine: { setState: jest.fn() },
     };

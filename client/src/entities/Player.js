@@ -45,12 +45,8 @@ export default class Player extends Entity {
    */
   update(time, delta) {
     if (this.scene.timeManager && this.scene.timeManager.isRewinding) {
-      // If time is rewinding, do not run the state machine
       return;
     }
-    
-    if (this.stateMachine) {
-      this.stateMachine.update(time, delta);
-    }
+    this.stateMachine.update(time, delta);
   }
 } 

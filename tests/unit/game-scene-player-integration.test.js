@@ -46,8 +46,16 @@ describe('Task 2.3: Add Player to GameScene', () => {
     scene.players = { add: jest.fn() };
     scene.platforms = { getChildren: jest.fn(() => [{ x: 0, y: 700 }]) };
     scene.sys = { game: { config: { width: 1280, height: 720 } } };
-    scene.add = { text: jest.fn() };
-    scene.physics = { add: { group: jest.fn() } };
+    scene.add = { 
+      text: jest.fn(),
+      existing: jest.fn()
+    };
+    scene.physics = { 
+      add: { 
+        group: jest.fn(),
+        existing: jest.fn()
+      } 
+    };
   });
 
   test('should import Player class', () => {

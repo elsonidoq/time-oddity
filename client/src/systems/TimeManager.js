@@ -1,4 +1,5 @@
 import TemporalState from './TemporalState.js';
+import { gsap } from 'gsap';
 
 /**
  * Core time manipulation system.
@@ -14,8 +15,12 @@ export default class TimeManager {
     this.isRewinding = false;
     this.managedObjects = new Set();
     this.lastRecordTime = 0;
-    this.recordInterval = 100; // ms
-    this.lastRewindTime = 0;
+    this.recordInterval = 50; // Record state every 50ms for smoother playback
+    this.playbackTimestamp = 0;
+
+    // Visual effect state
+    this._rewindOverlay = null;
+    this._rewindActive = false;
   }
 
   /**
@@ -31,17 +36,26 @@ export default class TimeManager {
    * @param {boolean} isRewinding Whether to enable or disable rewind.
    */
   toggleRewind(isRewinding) {
+    if (isRewinding === this.isRewinding) return;
     this.isRewinding = isRewinding;
 
-    // Announce the state change globally
-    this.scene.game.events.emit('rewindStateChanged', { isRewinding: this.isRewinding });
-
-    if (!isRewinding) {
-      for (const object of this.managedObjects) {
-        if (object.body) {
-          object.body.setAllowGravity(true);
-        }
+    if (this.isRewinding) {
+      if (this.stateBuffer.length > 0) {
+        this.playbackTimestamp = this.stateBuffer[this.stateBuffer.length - 1].timestamp;
       }
+      for (const object of this.managedObjects) {
+        if (object.body) object.body.setAllowGravity(false);
+      }
+      this._activateRewindVisuals();
+    } else {
+      const resumeIndex = this.stateBuffer.findIndex(record => record.timestamp >= this.playbackTimestamp);
+      if (resumeIndex > -1) {
+        this.stateBuffer.length = resumeIndex;
+      }
+      for (const object of this.managedObjects) {
+        if (object.body) object.body.setAllowGravity(true);
+      }
+      this._deactivateRewindVisuals();
     }
   }
 
@@ -52,58 +66,155 @@ export default class TimeManager {
    */
   update(time, delta) {
     if (this.isRewinding) {
-      if (time - this.lastRewindTime > this.recordInterval) {
-        this.lastRewindTime = time;
-
-        if (this.stateBuffer.length > 0) {
-          const record = this.stateBuffer.pop();
-          const { target, state } = record;
-
-          target.x = state.x;
-          target.y = state.y;
-          
-          if (target.body) {
-            target.body.setAllowGravity(false);
-            target.body.setVelocity(state.velocityX, state.velocityY);
-          }
-          
-          if (target.anims && state.animation) {
-            target.anims.play(state.animation, true);
-          }
-          
-          target.setActive(state.isAlive);
-          target.setVisible(state.isVisible);
-        }
-      }
+      this.handleRewind(delta);
     } else {
-        // When not rewinding, ensure lastRewindTime is reset for the next rewind activation.
-        this.lastRewindTime = 0;
+      this.handleRecord(time);
+    }
+  }
+  
+  handleRewind(delta) {
+    if (this.stateBuffer.length < 2) {
+      this.toggleRewind(false);
+      return;
+    }
 
-        if (time - this.lastRecordTime > this.recordInterval) {
-        this.lastRecordTime = time;
-        for (const object of this.managedObjects) {
-          // Re-enable physics for objects that were being rewound
-          if (object.body && !object.body.allowGravity) {
-            object.body.setAllowGravity(true);
-          }
+    this.playbackTimestamp -= delta;
 
-          const state = new TemporalState({
-            x: object.x,
-            y: object.y,
-            velocityX: object.body.velocity.x,
-            velocityY: object.body.velocity.y,
-            animation: object.anims.currentAnim ? object.anims.currentAnim.key : null,
-            isAlive: object.active,
-            isVisible: object.visible,
-          });
+    const futureIndex = this.stateBuffer.findIndex(record => record.timestamp >= this.playbackTimestamp);
 
-          this.stateBuffer.push({
-            timestamp: time,
-            target: object,
-            state: state,
-          });
-        }
+    if (futureIndex <= 0) {
+      this.applyFrame(this.stateBuffer[0]);
+      this.stateBuffer.length = 1;
+      this.toggleRewind(false);
+      return;
+    }
+
+    const frameA = this.stateBuffer[futureIndex];
+    const frameB = this.stateBuffer[futureIndex - 1];
+    
+    const t = (this.playbackTimestamp - frameB.timestamp) / (frameA.timestamp - frameB.timestamp);
+    
+    this.interpolateFrame(frameA, frameB, t);
+  }
+
+  handleRecord(time) {
+    if (time - this.lastRecordTime > this.recordInterval) {
+      this.lastRecordTime = time;
+      const frameStates = [];
+      for (const object of this.managedObjects) {
+        const state = new TemporalState({
+          x: object.x,
+          y: object.y,
+          velocityX: object.body.velocity.x,
+          velocityY: object.body.velocity.y,
+          animation: object.anims.currentAnim ? object.anims.currentAnim.key : null,
+          isAlive: object.active,
+          isVisible: object.visible,
+        });
+        frameStates.push({ target: object, state: state });
       }
+      this.stateBuffer.push({ timestamp: time, states: frameStates });
+    }
+  }
+
+  applyFrame(frame) {
+    for(const record of frame.states) {
+        this.applyState(record.target, record.state);
+    }
+  }
+
+  interpolateFrame(frameA, frameB, t) {
+    for (const recordA of frameA.states) {
+        const recordB = frameB.states.find(r => r.target === recordA.target);
+        if(recordB) {
+            const interpolatedState = this.interpolateState(recordA.state, recordB.state, t);
+            this.applyState(recordA.target, interpolatedState);
+        }
+    }
+  }
+  
+  lerp(start, end, t) {
+      return start * (1 - t) + end * t;
+  }
+  
+  interpolateState(stateA, stateB, t) {
+      const x = this.lerp(stateB.x, stateA.x, t);
+      const y = this.lerp(stateB.y, stateA.y, t);
+      const velocityX = this.lerp(stateB.velocityX, stateA.velocityX, t);
+      const velocityY = this.lerp(stateB.velocityY, stateA.velocityY, t);
+      
+      return { ...stateA, x, y, velocityX, velocityY };
+  }
+
+  applyState(target, state) {
+    target.x = state.x;
+    target.y = state.y;
+    
+    if (target.body) {
+      target.body.setVelocity(state.velocityX, state.velocityY);
+    }
+    
+    if (target.anims && state.animation) {
+      target.anims.play(state.animation, true);
+    }
+    
+    target.setActive(state.isAlive);
+    target.setVisible(state.isVisible);
+  }
+
+  // --- Visual Effects for Rewind ---
+  _activateRewindVisuals() {
+    if (this._rewindActive) return;
+    this._rewindActive = true;
+    // Camera tint
+    if (this.scene.cameras && this.scene.cameras.main && this.scene.cameras.main.setTint) {
+      this.scene.cameras.main.setTint(0x4444ff);
+    }
+    // Overlay
+    if (!this._rewindOverlay && this.scene.add && this.scene.add.graphics) {
+      const overlay = this.scene.add.graphics();
+      overlay.fillStyle(0x4444ff, 1);
+      overlay.fillRect(0, 0, this.scene.sys.game.config.width, this.scene.sys.game.config.height);
+      overlay.setAlpha(0);
+      overlay.setScrollFactor && overlay.setScrollFactor(0);
+      overlay.setDepth && overlay.setDepth(1000);
+      overlay.setVisible(true);
+      this._rewindOverlay = overlay;
+      gsap.to(overlay, { alpha: 0.3, duration: 0.2, overwrite: true });
+    }
+  }
+
+  _deactivateRewindVisuals() {
+    if (!this._rewindActive) return;
+    this._rewindActive = false;
+    // Remove camera tint
+    if (this.scene.cameras && this.scene.cameras.main && this.scene.cameras.main.clearTint) {
+      this.scene.cameras.main.clearTint();
+    }
+    // Fade out and destroy overlay
+    if (this._rewindOverlay) {
+      gsap.killTweensOf(this._rewindOverlay);
+      gsap.to(this._rewindOverlay, {
+        alpha: 0,
+        duration: 0.3,
+        onComplete: () => {
+          if (this._rewindOverlay) {
+            this._rewindOverlay.destroy();
+            this._rewindOverlay = null;
+          }
+        }
+      });
+    }
+  }
+
+  destroy() {
+    this._deactivateRewindVisuals();
+    if (this._rewindOverlay) {
+      this._rewindOverlay.destroy();
+      this._rewindOverlay = null;
+    }
+    if (this.scene.cameras && this.scene.cameras.main && this.scene.cameras.main.clearTint) {
+      this.scene.cameras.main.clearTint();
     }
   }
 } 

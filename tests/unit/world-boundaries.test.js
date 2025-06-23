@@ -24,6 +24,21 @@ describe('Task 1.21: Set Up World Boundaries in GameScene', () => {
           setOrigin: jest.fn().mockReturnThis(),
           refreshBody: jest.fn().mockReturnThis(),
         })),
+        sprite: jest.fn(() => ({
+          setOrigin: jest.fn().mockReturnThis(),
+          setScale: jest.fn().mockReturnThis(),
+          setCollideWorldBounds: jest.fn().mockReturnThis(),
+          play: jest.fn().mockReturnThis(),
+          body: {
+            setBounce: jest.fn().mockReturnThis(),
+            setGravityY: jest.fn().mockReturnThis(),
+            setCollideWorldBounds: jest.fn().mockReturnThis(),
+            setAllowGravity: jest.fn().mockReturnThis(),
+          }
+        })),
+        existing: jest.fn(),
+        collider: jest.fn(),
+        overlap: jest.fn(),
       },
       config: {},
     };
@@ -62,10 +77,17 @@ describe('Task 1.21: Set Up World Boundaries in GameScene', () => {
             setInteractive: jest.fn().mockReturnThis(),
             on: jest.fn()
         })),
+        existing: jest.fn()
     };
 
     // Mock the registerShutdown method as it's not relevant to this test
     scene.registerShutdown = jest.fn();
+
+    scene.input = {
+      keyboard: {
+        addKey: jest.fn(() => ({ isDown: false }))
+      }
+    };
   });
 
   afterEach(() => {

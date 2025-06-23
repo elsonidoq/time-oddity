@@ -49,12 +49,52 @@ describe('GameScene', () => {
       },
       config: { debug: false },
       add: {
-        group: jest.fn(() => ({
-          create: jest.fn().mockReturnThis(),
-          add: jest.fn(),
-          getChildren: jest.fn(() => [])
+        group: jest.fn(() => {
+          const group = {
+            create: jest.fn((...args) => ({
+              setOrigin: jest.fn().mockReturnThis(),
+              setImmovable: jest.fn().mockReturnThis(),
+              setAllowGravity: jest.fn().mockReturnThis(),
+              setSize: jest.fn().mockReturnThis(),
+              setOffset: jest.fn().mockReturnThis(),
+              play: jest.fn().mockReturnThis(),
+              width: 64,
+              height: 64,
+              body: {
+                setImmovable: jest.fn(),
+                setAllowGravity: jest.fn(),
+                setSize: jest.fn(),
+                setOffset: jest.fn(),
+                width: 64,
+                height: 64
+              }
+            })),
+            add: jest.fn(),
+            getChildren: jest.fn(() => [])
+          };
+          return group;
+        }),
+        sprite: jest.fn((x, y, texture) => ({
+          setOrigin: jest.fn().mockReturnThis(),
+          setImmovable: jest.fn().mockReturnThis(),
+          setAllowGravity: jest.fn().mockReturnThis(),
+          setSize: jest.fn().mockReturnThis(),
+          setOffset: jest.fn().mockReturnThis(),
+          play: jest.fn().mockReturnThis(),
+          width: 32,
+          height: 32,
+          body: {
+            setAllowGravity: jest.fn(),
+            setImmovable: jest.fn(),
+            setSize: jest.fn(),
+            setOffset: jest.fn(),
+            width: 32,
+            height: 32
+          }
         })),
         collider: jest.fn(),
+        existing: jest.fn(),
+        overlap: jest.fn(),
       },
     };
 
@@ -68,9 +108,18 @@ describe('GameScene', () => {
       } 
     };
     
-    scene.add = { text: () => ({ setOrigin: () => ({ setInteractive: () => ({ on: () => {} }) }) }) };
+    scene.add = {
+      text: () => ({ setOrigin: () => ({ setInteractive: () => ({ on: () => {} }) }) }),
+      existing: jest.fn(),
+    };
     scene.events = { on: () => {} };
     scene.cameras = { main: { setBounds: jest.fn() } };
+
+    scene.input = {
+      keyboard: {
+        addKey: jest.fn(() => ({ isDown: false }))
+      }
+    };
   });
 
   test('should exist and be importable', () => {
@@ -119,16 +168,17 @@ describe('GameScene', () => {
 
   test('should set up collision detection between player and platforms', () => {
     const fileContent = readFileSync(gameScenePath, 'utf8');
-    // Look for collision detection setup
-    expect(fileContent).toMatch(/this\.physics\.add\.collider/);
-    expect(fileContent).toMatch(/handlePlayerPlatformCollision/);
+    // Look for collision detection setup using CollisionManager
+    expect(fileContent).toMatch(/CollisionManager/);
+    expect(fileContent).toMatch(/addCollider/);
+    expect(fileContent).toMatch(/addOverlap/);
   });
 
   test('should have a collision handler method', () => {
     const fileContent = readFileSync(gameScenePath, 'utf8');
     // Look for collision handler method
-    expect(fileContent).toMatch(/handlePlayerPlatformCollision/);
-    expect(typeof scene.handlePlayerPlatformCollision).toBe('function');
+    expect(fileContent).toMatch(/handlePlayerCoinOverlap/);
+    expect(typeof scene.handlePlayerCoinOverlap).toBe('function');
   });
 
   test('should initialize physics groups', () => {

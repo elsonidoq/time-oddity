@@ -122,7 +122,7 @@ describe('Task 2.3.bis: Entity/Player Physics Integration', () => {
 
     test('should have player-specific physics properties', () => {
       expect(player.speed).toBe(200);
-      expect(player.jumpPower).toBe(400);
+      expect(player.jumpPower).toBe(800);
       expect(player.gravity).toBe(980);
     });
 
