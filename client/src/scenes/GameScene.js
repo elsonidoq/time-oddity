@@ -3,6 +3,7 @@ import Player from '../entities/Player.js';
 import InputManager from '../systems/InputManager.js';
 import CollisionManager from '../systems/CollisionManager.js';
 import Coin from '../entities/Coin.js';
+import TimeManager from '../systems/TimeManager.js';
 
 export default class GameScene extends BaseScene {
   constructor() {
@@ -45,6 +46,7 @@ export default class GameScene extends BaseScene {
     }
 
     this.collisionManager = new CollisionManager(this);
+    this.timeManager = new TimeManager(this);
 
     // Create a basic platform layout
     // Ground platform - using a looping tile
@@ -88,6 +90,11 @@ export default class GameScene extends BaseScene {
     // Add player to physics group
     if (this.players && this.players.add) {
       this.players.add(this.player);
+    }
+
+    // Register player with TimeManager
+    if (this.timeManager && this.player) {
+        this.timeManager.register(this.player);
     }
 
     // Set up collision detection
@@ -150,6 +157,9 @@ export default class GameScene extends BaseScene {
     // Update game objects
     if (this.player) {
       this.player.update(time, delta);
+    }
+    if (this.timeManager) {
+        this.timeManager.update(time, delta);
     }
   }
 
