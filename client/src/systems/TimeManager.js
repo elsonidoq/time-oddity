@@ -15,6 +15,7 @@ export default class TimeManager {
     this.managedObjects = new Set();
     this.lastRecordTime = 0;
     this.recordInterval = 100; // ms
+    this.lastRewindTime = 0;
   }
 
   /**
@@ -31,6 +32,17 @@ export default class TimeManager {
    */
   toggleRewind(isRewinding) {
     this.isRewinding = isRewinding;
+
+    // Announce the state change globally
+    this.scene.game.events.emit('rewindStateChanged', { isRewinding: this.isRewinding });
+
+    if (!isRewinding) {
+      for (const object of this.managedObjects) {
+        if (object.body) {
+          object.body.setAllowGravity(true);
+        }
+      }
+    }
   }
 
   /**
@@ -39,24 +51,58 @@ export default class TimeManager {
    * @param {number} delta - The delta time in ms since the last frame.
    */
   update(time, delta) {
-    if (time - this.lastRecordTime > this.recordInterval) {
-      this.lastRecordTime = time;
-      for (const object of this.managedObjects) {
-        const state = new TemporalState({
-          x: object.x,
-          y: object.y,
-          velocityX: object.body.velocity.x,
-          velocityY: object.body.velocity.y,
-          animation: object.anims.currentAnim ? object.anims.currentAnim.key : null,
-          isAlive: object.active,
-          isVisible: object.visible,
-        });
+    if (this.isRewinding) {
+      if (time - this.lastRewindTime > this.recordInterval) {
+        this.lastRewindTime = time;
 
-        this.stateBuffer.push({
-          timestamp: time,
-          target: object,
-          state: state,
-        });
+        if (this.stateBuffer.length > 0) {
+          const record = this.stateBuffer.pop();
+          const { target, state } = record;
+
+          target.x = state.x;
+          target.y = state.y;
+          
+          if (target.body) {
+            target.body.setAllowGravity(false);
+            target.body.setVelocity(state.velocityX, state.velocityY);
+          }
+          
+          if (target.anims && state.animation) {
+            target.anims.play(state.animation, true);
+          }
+          
+          target.setActive(state.isAlive);
+          target.setVisible(state.isVisible);
+        }
+      }
+    } else {
+        // When not rewinding, ensure lastRewindTime is reset for the next rewind activation.
+        this.lastRewindTime = 0;
+
+        if (time - this.lastRecordTime > this.recordInterval) {
+        this.lastRecordTime = time;
+        for (const object of this.managedObjects) {
+          // Re-enable physics for objects that were being rewound
+          if (object.body && !object.body.allowGravity) {
+            object.body.setAllowGravity(true);
+          }
+
+          const state = new TemporalState({
+            x: object.x,
+            y: object.y,
+            velocityX: object.body.velocity.x,
+            velocityY: object.body.velocity.y,
+            animation: object.anims.currentAnim ? object.anims.currentAnim.key : null,
+            isAlive: object.active,
+            isVisible: object.visible,
+          });
+
+          this.stateBuffer.push({
+            timestamp: time,
+            target: object,
+            state: state,
+          });
+        }
       }
     }
   }

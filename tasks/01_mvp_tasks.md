@@ -1131,6 +1131,7 @@ Before merging each phase branch:
 - **Expected output**: While holding the 'R' key, the player character visibly moves backward along their recent path. Releasing the key returns normal control to the player.
 - **After completion**: Mark task as completed only after ALL project tests pass.
 - **CRITICAL**: After completion, all changes must be committed to git and pushed to the remote repository.
+- [x] Completed on 2024-06-12 - Implemented player state restoration from buffer.
 
 ### Task 3.6: Add Rewind Visual Effects
 **Objective**: Enhance rewind with visual feedback
@@ -1141,6 +1142,7 @@ Before merging each phase branch:
 - **Expected output**: When the rewind is active, the screen should have a distinct visual effect (e.g., a color tint or shader effect) to give feedback to the player.
 - **After completion**: Mark task as completed only after ALL project tests pass.
 - **CRITICAL**: After completion, all changes must be committed to git and pushed to the remote repository.
+- [x] Completed on 2024-06-12 - Added camera tint effect during rewind.
 
 ### Task 3.7: Create Phase Dash Ability
 **Objective**: Implement short-range teleportation

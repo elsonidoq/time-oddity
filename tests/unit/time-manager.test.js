@@ -73,4 +73,28 @@ describe('Task 3.1: TimeManager Class', () => {
     manager.toggleRewind(false);
     expect(manager.isRewinding).toBe(false);
   });
+
+  test('update() should apply the last state to the target when rewinding', () => {
+    const manager = new TimeManager(sceneMock);
+    // Manually add a state to the buffer for testing
+    const testState = {
+      x: 50, y: 150, velocityX: -10, velocityY: 5, 
+      animation: 'player-idle', isAlive: true, isVisible: true
+    };
+    manager.stateBuffer.push({ target: playerMock, state: testState });
+
+    // Enable rewind
+    manager.toggleRewind(true);
+    // Mock player's body methods
+    playerMock.body.setAllowGravity = jest.fn();
+    playerMock.body.setVelocity = jest.fn();
+    playerMock.anims.play = jest.fn();
+
+    manager.update(sceneMock.time.now, 16); // Simulate one frame
+
+    expect(playerMock.x).toBe(testState.x);
+    expect(playerMock.y).toBe(testState.y);
+    expect(playerMock.body.setAllowGravity).toHaveBeenCalledWith(false);
+    expect(playerMock.body.setVelocity).toHaveBeenCalledWith(testState.velocityX, testState.velocityY);
+  });
 }); 
