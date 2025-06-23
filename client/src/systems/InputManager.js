@@ -20,6 +20,9 @@ export default class InputManager {
     
     // Space key for jumping
     this.space = scene.input.keyboard.addKey('SPACE');
+    
+    // R key for rewinding
+    this.r = scene.input.keyboard.addKey('R');
   }
 
   /**
@@ -65,5 +68,12 @@ export default class InputManager {
     return Phaser.Input.Keyboard.JustUp(this.up) || 
            Phaser.Input.Keyboard.JustUp(this.w) || 
            Phaser.Input.Keyboard.JustUp(this.space);
+  }
+
+  /**
+   * Check if the rewind key is pressed.
+   */
+  get isRewindPressed() {
+    return this.r.isDown;
   }
 } 

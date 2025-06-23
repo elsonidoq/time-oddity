@@ -160,6 +160,11 @@ export default class GameScene extends BaseScene {
     }
     if (this.timeManager) {
         this.timeManager.update(time, delta);
+        // Toggle rewind based on input
+        const isRewindActive = this.player.inputManager.isRewindPressed;
+        if (isRewindActive !== this.timeManager.isRewinding) {
+            this.timeManager.toggleRewind(isRewindActive);
+        }
     }
   }
 

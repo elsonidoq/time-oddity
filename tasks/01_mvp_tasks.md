@@ -1119,6 +1119,7 @@ Before merging each phase branch:
 2.  SECOND: Update `InputManager` and `TimeManager` to handle the rewind input.
 - **Expected output**: Pressing the 'R' key toggles the rewind mode in the `TimeManager`. This can be verified by logging the state change to the console. The game world will not visually rewind yet.
 - **After completion**: Mark task as completed only after ALL project tests pass.
+- [x] Completed on 2024-06-11 - Added rewind trigger on 'R' key press.
 - **CRITICAL**: After completion, all changes must be committed to git and pushed to the remote repository.
 
 ### Task 3.5: Implement Basic Rewind for Player

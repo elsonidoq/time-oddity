@@ -64,4 +64,13 @@ describe('Task 3.1: TimeManager Class', () => {
     expect(recordedState.target).toBe(playerMock);
     expect(recordedState.state.x).toBe(playerMock.x);
   });
+
+  test('toggleRewind() should switch the isRewinding flag', () => {
+    const manager = new TimeManager(sceneMock);
+    expect(manager.isRewinding).toBe(false);
+    manager.toggleRewind(true);
+    expect(manager.isRewinding).toBe(true);
+    manager.toggleRewind(false);
+    expect(manager.isRewinding).toBe(false);
+  });
 }); 

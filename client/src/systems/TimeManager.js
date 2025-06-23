@@ -26,6 +26,14 @@ export default class TimeManager {
   }
 
   /**
+   * Toggles the rewind state.
+   * @param {boolean} isRewinding Whether to enable or disable rewind.
+   */
+  toggleRewind(isRewinding) {
+    this.isRewinding = isRewinding;
+  }
+
+  /**
    * The update loop for the TimeManager, called by the scene.
    * @param {number} time - The current time.
    * @param {number} delta - The delta time in ms since the last frame.
