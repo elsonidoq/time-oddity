@@ -1,0 +1,21 @@
+# Continue until next task with expected output
+
+Perfect, mark this task as completed, continue with the rest. 
+Mark them as completed as you go along.
+Ask me for validation when you finish a task with expected output
+Do not ask for input unless there is an error you cannot solve
+
+For reference check @comprehensive_documentation.md
+
+
+# Start phase 
+
+Start phase PHASE
+Make sure to create a new branch following the branching model
+
+Execute the phase tasks.
+Mark them as completed as you go along.
+Ask me for validation when you finish a task with expected output
+Do not ask for input unless there is an error you cannot solve
+
+For reference check @comprehensive_documentation.md
