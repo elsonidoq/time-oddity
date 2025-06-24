@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Before writing a new task, perform a deep analysis of the goal you are given. Break it down into the exact steps required to implement the functionality.
+
+Only after understanding the implementation plan, proceed to write the task.
+
+Once the task is written, review the task description critically to ensure it provides all necessary details for another engineer LLM to complete it accurately and without bugs. If needed, refine the description to remove ambiguity or gaps.

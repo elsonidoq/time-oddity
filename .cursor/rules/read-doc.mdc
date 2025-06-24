@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+When executing a task, make sure to use [small_comprehensive_documentation.md](mdc:agent_docs/small_comprehensive_documentation.md) as documentation reference

@@ -101,7 +101,11 @@ describe('GameScene', () => {
     };
     scene.platforms = { create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) };
     scene.players = { create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) };
-    scene.enemies = { create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) };
+    scene.enemies = { 
+      create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
+      getChildren: jest.fn(() => []),
+      add: jest.fn()
+    };
     scene.coins = { create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) };
     mockBody = {
       setVelocity: jest.fn(),
@@ -114,6 +118,7 @@ describe('GameScene', () => {
       velocity: { x: 0, y: 0 },
       onFloor: jest.fn(() => true)
     };
+    scene.physics.world.bounds = { setTo: jest.fn() };
   });
 
   // Helper to patch all scene references after create
@@ -197,29 +202,26 @@ describe('GameScene', () => {
 
   describe('Enemy Management', () => {
     test('should create enemies physics group', () => {
-      const gameScene = new GameScene();
-      gameScene.create();
+      scene.create();
       
-      expect(gameScene.enemies).toBeDefined();
-      expect(typeof gameScene.enemies.getChildren).toBe('function');
+      expect(scene.enemies).toBeDefined();
+      expect(typeof scene.enemies.getChildren).toBe('function');
     });
 
     test('should add LoopHound to enemies group in non-test environment', () => {
-      const gameScene = new GameScene();
-      gameScene.create();
+      scene.create();
       
       // In non-test environment, LoopHound should be created and added to enemies group
-      if (!gameScene._mockScene) {
-        expect(gameScene.loophound).toBeDefined();
-        expect(gameScene.enemies.getChildren()).toContain(gameScene.loophound);
+      if (!scene._mockScene) {
+        expect(scene.loophound).toBeDefined();
+        expect(scene.enemies.getChildren()).toContain(scene.loophound);
       }
     });
 
     test('should not create LoopHound in test environment', () => {
-      const gameScene = new GameScene(true); // mockScene = true
-      gameScene.create();
+      scene.create();
       
-      expect(gameScene.loophound).toBeUndefined();
+      expect(scene.loophound).toBeUndefined();
     });
   });
 }); 

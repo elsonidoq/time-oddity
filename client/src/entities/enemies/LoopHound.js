@@ -65,23 +65,10 @@ export class LoopHound extends Enemy {
   }
   
   update(time, delta) {
-    // Call parent update first
+    // Call parent update first (this handles the freeze timer)
     super.update(time, delta);
     
-    // Handle freeze timer
-    if (this.isFrozen) {
-      if (this.freezeTimer > 0) {
-        this.freezeTimer -= delta;
-        if (this.freezeTimer <= 0) {
-          this.unfreeze();
-        }
-        return; // Don't move while frozen
-      } else {
-        this.unfreeze();
-      }
-    }
-    
-    // Update state machine (movement is handled by patrol state)
+    // Only update state machine if not frozen
     if (this.stateMachine && this.stateMachine.update && !this.isFrozen) {
       this.stateMachine.update(time, delta);
     }
@@ -99,16 +86,25 @@ export class LoopHound extends Enemy {
   }
   
   freeze(duration) {
-    this.isFrozen = true;
-    this.freezeTimer = duration;
+    // Call parent freeze method to get proper freeze behavior
+    super.freeze(duration);
+    
+    // LoopHound-specific freeze behavior
+    // Stop any animations
     if (this.anims && this.anims.stop) {
       this.anims.stop();
     }
   }
   
   unfreeze() {
-    this.isFrozen = false;
-    this.freezeTimer = 0;
+    // Call parent unfreeze method
+    super.unfreeze();
+    
+    // LoopHound-specific unfreeze behavior
+    // Resume patrol state
+    if (this.stateMachine) {
+      this.stateMachine.setState('patrol');
+    }
   }
   
   getStateForRecording() {
@@ -141,7 +137,6 @@ export class LoopHound extends Enemy {
     this.y = this.spawnY;
     this.health = this.maxHealth;
     this.isFrozen = false;
-    this.freezeTimer = 0;
     this.direction = 1;
     if (this.body) {
       this.body.setVelocity(0, 0);

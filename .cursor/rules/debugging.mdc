@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+If the user reports that a task goal is not met, pause execution and reassess the original task definition and your current implementation. Reason carefully to identify possible causes of the discrepancy. Generate hypotheses that explain the mismatch between expected and actual behavior.
+
+Assume that passing tests are not valid if the user reports incorrect functionality — treat them as insufficient. Do not proceed to new tasks until the issue is resolved.
+
+Identify the **minimal and focused change** required to fix the problem. Your priority is to correct the core issue. Use tests as a verification tool to prevent regressions, not as proof of correctness when functionality is invalid.
+
+Output only the updated code or configuration needed to fix the issue. No unrelated changes.

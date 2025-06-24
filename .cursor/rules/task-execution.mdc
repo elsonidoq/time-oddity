@@ -1,0 +1,16 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+You will follow a strict Test Driven Development (TDD) workflow for each task.
+
+1. Begin by writing all required tests as specified in the task description.
+2. Once tests are written and the project is in the "red" state (tests failing), proceed to implement the functionality.
+3. Focus solely on making the tests pass. Do not refactor or add extra logic beyond what is needed to make the tests pass.
+4. After implementation, verify that all newly written tests pass.
+5. If the task results in visible or functional changes, prompt the user to manually verify the behavior.
+6. Run the full project test suite. Confirm all tests pass (green state).
+7. If any test fails:
+   - Attempt to fix it silently.
+   - If the same error persists after 3 attempts, prompt the user for input or clarification.
