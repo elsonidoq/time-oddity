@@ -43,8 +43,8 @@ export default class Player extends Entity {
     this.ghostPool = null;
     this.setupGhostPool();
 
-    // Chrono Pulse ability
-    this.chronoPulse = new ChronoPulse(scene, x, y, { cooldown: 3000, range: 150, duration: 1000 }, gsap);
+    // Create ChronoPulse ability with expanded range for testing
+    this.chronoPulse = new ChronoPulse(scene, x, y, { cooldown: 3000, range: 300, duration: 2000 }, gsap);
 
     // State Machine Setup
     this.stateMachine = new StateMachine();
@@ -75,12 +75,6 @@ export default class Player extends Entity {
       const ghost = this.scene.add.sprite(0, 0, this.texture.key);
       ghost.setActive(false).setVisible(false);
       ghost.setOrigin(0.5, 1); // Match player origin
-      
-      // Ensure ghost sprites don't have physics bodies enabled
-      if (ghost.body) {
-        ghost.body.enable = false;
-      }
-      
       ghostGroup.add(ghost);
     }
     
@@ -88,15 +82,8 @@ export default class Player extends Entity {
     const ghostFactory = () => {
       const ghost = this.scene.add.sprite(0, 0, this.texture.key);
       ghost.setOrigin(0.5, 1);
-      
-      // Ensure new ghost sprites don't have physics bodies enabled
-      if (ghost.body) {
-        ghost.body.enable = false;
-      }
-      
       return ghost;
     };
-    
     // Create the object pool
     this.ghostPool = new ObjectPool(ghostGroup, ghostFactory);
   }

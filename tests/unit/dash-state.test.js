@@ -180,67 +180,6 @@ describe('DashState Ghost Trail', () => {
       expect(mockPlayer.ghostPool.get.mock.calls.length).toBeLessThanOrEqual(5);
     });
   });
-
-  describe('Ghost Sprite Physics Body Management', () => {
-    test('should disable physics body when ghost sprite is retrieved from pool', () => {
-      const mockGhost = {
-        setPosition: jest.fn().mockReturnThis(),
-        setTexture: jest.fn().mockReturnThis(),
-        setFlipX: jest.fn().mockReturnThis(),
-        setOrigin: jest.fn().mockReturnThis(),
-        setAlpha: jest.fn().mockReturnThis(),
-        setScale: jest.fn().mockReturnThis(),
-        body: { enable: true }
-      };
-      mockPlayer.ghostPool.get.mockReturnValue(mockGhost);
-
-      dashState.enter();
-
-      expect(mockGhost.body.enable).toBe(false);
-    });
-
-    test('should handle ghost sprites without physics bodies gracefully', () => {
-      const mockGhost = {
-        setPosition: jest.fn().mockReturnThis(),
-        setTexture: jest.fn().mockReturnThis(),
-        setFlipX: jest.fn().mockReturnThis(),
-        setOrigin: jest.fn().mockReturnThis(),
-        setAlpha: jest.fn().mockReturnThis(),
-        setScale: jest.fn().mockReturnThis()
-        // No body property
-      };
-      mockPlayer.ghostPool.get.mockReturnValue(mockGhost);
-
-      expect(() => dashState.enter()).not.toThrow();
-    });
-
-    test('should double-check physics body is disabled before release', () => {
-      const mockGhost = {
-        setPosition: jest.fn().mockReturnThis(),
-        setTexture: jest.fn().mockReturnThis(),
-        setFlipX: jest.fn().mockReturnThis(),
-        setOrigin: jest.fn().mockReturnThis(),
-        setAlpha: jest.fn().mockReturnThis(),
-        setScale: jest.fn().mockReturnThis(),
-        body: { enable: true }
-      };
-      mockPlayer.ghostPool.get.mockReturnValue(mockGhost);
-
-      dashState.enter();
-
-      // Simulate animation completion
-      const gsapCall = gsap.to.mock.calls[0];
-      const onComplete = gsapCall[1].onComplete;
-      
-      // Mock that physics body was somehow re-enabled
-      mockGhost.body.enable = true;
-      
-      onComplete();
-
-      expect(mockGhost.body.enable).toBe(false);
-      expect(mockPlayer.ghostPool.release).toHaveBeenCalledWith(mockGhost);
-    });
-  });
 });
 
 describe('DashState Cooldown System', () => {

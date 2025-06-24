@@ -358,6 +358,7 @@ function createMockBody() {
     setImmovable: jest.fn().mockReturnThis(),
     setAllowGravity: jest.fn().mockReturnThis(),
     setCollisionGroup: jest.fn().mockReturnThis(),
+    setDrag: jest.fn().mockReturnThis(),
     enable: true,
     velocity: { x: 0, y: 0 },
     offset: { x: 0, y: 0 },

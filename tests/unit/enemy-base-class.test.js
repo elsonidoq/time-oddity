@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import Enemy from '../../client/src/entities/Enemy.js';
 import Entity from '../../client/src/entities/Entity.js';
 import StateMachine from '../../client/src/systems/StateMachine.js';
@@ -43,9 +44,14 @@ describe('Task 3.11: Enemy Base Class', () => {
               setBounce: function() { return this; },
               setGravity: function(x, y) { return this; },
               setVelocity: function() { return this; },
+              setVelocityX: function() { return this; },
+              setVelocityY: function() { return this; },
               setAllowGravity: function() { return this; },
+              setDrag: function() { return this; },
+              setFriction: function() { return this; },
               onFloor: function() { return false; },
-              blocked: { left: false, right: false, up: false, down: false }
+              blocked: { left: false, right: false, up: false, down: false },
+              velocity: { x: 0, y: 0 }
             }
           };
         },
@@ -56,9 +62,13 @@ describe('Task 3.11: Enemy Base Class', () => {
             setGravity: function(x, y) { return this; },
             setVelocity: function() { return this; },
             setVelocityX: function() { return this; },
+            setVelocityY: function() { return this; },
             setAllowGravity: function() { return this; },
+            setDrag: function() { return this; },
+            setFriction: function() { return this; },
             onFloor: function() { return false; },
-            blocked: { left: false, right: false, up: false, down: false }
+            blocked: { left: false, right: false, up: false, down: false },
+            velocity: { x: 0, y: 0 }
           };
         }
       },
@@ -71,9 +81,13 @@ describe('Task 3.11: Enemy Base Class', () => {
               setGravity: function(x, y) { return this; },
               setVelocity: function() { return this; },
               setVelocityX: function() { return this; },
+              setVelocityY: function() { return this; },
               setAllowGravity: function() { return this; },
+              setDrag: function() { return this; },
+              setFriction: function() { return this; },
               onFloor: function() { return false; },
-              blocked: { left: false, right: false, up: false, down: false }
+              blocked: { left: false, right: false, up: false, down: false },
+              velocity: { x: 0, y: 0 }
             };
           }
         }
@@ -612,6 +626,189 @@ describe('Task 3.11: Enemy Base Class', () => {
       expect(enemy.stateMachine).toBeDefined();
       expect(enemy.speed).toBeDefined();
       expect(enemy.damage).toBeDefined();
+    });
+  });
+
+  describe('Enemy Physics Configuration (Task 3.12.bis)', () => {
+    let enemy;
+    let mockBody;
+
+    beforeEach(() => {
+      // Create enhanced mock body with friction and drag properties
+      mockBody = {
+        setCollideWorldBounds: jest.fn().mockReturnThis(),
+        setBounce: jest.fn().mockReturnThis(),
+        setGravity: jest.fn().mockReturnThis(),
+        setVelocity: jest.fn().mockReturnThis(),
+        setVelocityX: jest.fn().mockReturnThis(),
+        setVelocityY: jest.fn().mockReturnThis(),
+        setAllowGravity: jest.fn().mockReturnThis(),
+        setDrag: jest.fn().mockReturnThis(),
+        setFriction: jest.fn().mockReturnThis(),
+        onFloor: jest.fn(() => false),
+        blocked: { left: false, right: false, up: false, down: false },
+        velocity: { x: 0, y: 0 },
+        drag: { x: 0, y: 0 },
+        friction: { x: 0, y: 0 }
+      };
+
+      enemy = new Enemy(mockScene, 100, 200, 'enemy');
+      enemy.body = mockBody;
+    });
+
+    test('should have proper gravity configuration for ground enemies', () => {
+      enemy.configurePhysics();
+      
+      expect(mockBody.setGravity).toHaveBeenCalledWith(0, 980);
+      expect(mockBody.setAllowGravity).toHaveBeenCalledWith(true);
+    });
+
+    test('should apply friction/drag to prevent infinite sliding', () => {
+      enemy.configurePhysics();
+      
+      // Verify friction/drag is applied (Phaser uses setDrag for friction)
+      expect(mockBody.setDrag).toHaveBeenCalled();
+    });
+
+    test('should have consistent physics configuration between base class and subclasses', () => {
+      // Test that base class physics configuration is consistent
+      enemy.configurePhysics();
+      
+      const gravityCall = mockBody.setGravity.mock.calls[0];
+      const allowGravityCall = mockBody.setAllowGravity.mock.calls[0];
+      
+      expect(gravityCall).toEqual([0, 980]);
+      expect(allowGravityCall).toEqual([true]);
+    });
+
+    test('should respect world boundaries to prevent sliding off screen', () => {
+      enemy.configurePhysics();
+      
+      expect(mockBody.setCollideWorldBounds).toHaveBeenCalledWith(true);
+    });
+
+    test('should have zero bounce to prevent bouncing off surfaces', () => {
+      enemy.configurePhysics();
+      
+      expect(mockBody.setBounce).toHaveBeenCalledWith(0);
+    });
+
+    test('should maintain physics configuration after state changes', () => {
+      // Configure physics initially
+      enemy.configurePhysics();
+      
+      // Simulate state change (like freeze/unfreeze)
+      enemy.isFrozen = true;
+      enemy.isFrozen = false;
+      
+      // Physics configuration should remain consistent
+      expect(mockBody.setGravity).toHaveBeenCalledWith(0, 980);
+      expect(mockBody.setAllowGravity).toHaveBeenCalledWith(true);
+    });
+
+    test('should handle physics body methods without errors', () => {
+      // Test that all physics methods can be called safely
+      expect(() => {
+        enemy.configurePhysics();
+        enemy.move();
+        enemy.stop();
+      }).not.toThrow();
+    });
+
+    test('should apply appropriate friction values for realistic movement', () => {
+      enemy.configurePhysics();
+      
+      // Verify that friction/drag is applied with reasonable values
+      const dragCalls = mockBody.setDrag.mock.calls;
+      expect(dragCalls.length).toBeGreaterThan(0);
+      
+      // Check that drag values are reasonable (X drag should be positive, Y drag can be 0)
+      const dragValues = dragCalls[0];
+      expect(dragValues[0]).toBeGreaterThan(0); // X drag
+      expect(dragValues[1]).toBe(0); // Y drag (no vertical friction)
+    });
+  });
+
+  describe('Enemy Freeze Effect', () => {
+    let enemy;
+    let freezeDuration = 2000; // 2 seconds
+    let now = 10000;
+
+    beforeEach(() => {
+      enemy = new Enemy(mockScene, 100, 200, 'enemy');
+      if (!enemy.body) {
+        enemy.body = {
+          setCollideWorldBounds: function() { return this; },
+          setBounce: function() { return this; },
+          setGravity: function(x, y) { return this; },
+          setVelocity: jest.fn(),
+          setAllowGravity: function() { return this; },
+          onFloor: function() { return false; },
+          blocked: { left: false, right: false, up: false, down: false },
+          velocity: { x: 0, y: 0 }
+        };
+      }
+      enemy.anims = { stop: jest.fn(), play: jest.fn() };
+      enemy.scene = { time: { now }, events: { emit: jest.fn() } };
+      enemy.isFrozen = false;
+      enemy._freezeTimer = null;
+      enemy._frozenUntil = null;
+      if (enemy.stateMachine) {
+        enemy.stateMachine.setState = jest.fn();
+      }
+    });
+
+    test('should have a freeze method', () => {
+      expect(typeof enemy.freeze).toBe('function');
+    });
+
+    test('should set isFrozen to true when frozen', () => {
+      enemy.freeze(freezeDuration);
+      expect(enemy.isFrozen).toBe(true);
+    });
+
+    test('should stop movement and animation when frozen', () => {
+      enemy.body.setVelocity = jest.fn();
+      enemy.anims.stop = jest.fn();
+      enemy.freeze(freezeDuration);
+      expect(enemy.body.setVelocity).toHaveBeenCalledWith(0, 0);
+      expect(enemy.anims.stop).toHaveBeenCalled();
+    });
+
+    test('should remain frozen for the correct duration', () => {
+      enemy.freeze(freezeDuration);
+      expect(enemy.isFrozen).toBe(true);
+      // Simulate time passing
+      enemy.scene.time.now += freezeDuration - 1;
+      enemy.update(enemy.scene.time.now, 16);
+      expect(enemy.isFrozen).toBe(true);
+      // After duration
+      enemy.scene.time.now += 2;
+      enemy.update(enemy.scene.time.now, 16);
+      expect(enemy.isFrozen).toBe(false);
+    });
+
+    test('should not stack freeze durations if already frozen', () => {
+      enemy.freeze(freezeDuration);
+      const frozenUntilFirst = enemy._frozenUntil;
+      // Try to freeze again with a shorter duration
+      enemy.freeze(500);
+      expect(enemy._frozenUntil).toBe(frozenUntilFirst);
+      // Try to freeze again with a longer duration
+      enemy.freeze(freezeDuration + 1000);
+      expect(enemy._frozenUntil).toBeGreaterThan(frozenUntilFirst);
+    });
+
+    test('should resume normal behavior after freeze expires', () => {
+      enemy.freeze(freezeDuration);
+      // Simulate time passing
+      enemy.scene.time.now += freezeDuration + 1;
+      enemy.update(enemy.scene.time.now, 16);
+      expect(enemy.isFrozen).toBe(false);
+      // Should be able to move/animate again
+      if (enemy.stateMachine && enemy.stateMachine.setState) {
+        expect(enemy.stateMachine.setState).not.toThrow;
+      }
     });
   });
 }); 

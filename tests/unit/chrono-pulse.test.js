@@ -347,4 +347,109 @@ describe('ChronoPulse', () => {
       expect(player.chronoPulse.y).toBe(200);
     });
   });
+
+  describe('ChronoPulse Freeze Effect', () => {
+    let chronoPulse;
+    let freezeDuration = 2000;
+    let mockEnemyInRange, mockEnemyOutOfRange;
+    let enemies;
+
+    beforeEach(() => {
+      chronoPulse = new ChronoPulse(testScene, 100, 200, { duration: freezeDuration }, gsap);
+      chronoPulse.range = 100;
+      mockEnemyInRange = { x: 120, y: 210, freeze: jest.fn(), isActive: true };
+      mockEnemyOutOfRange = { x: 400, y: 500, freeze: jest.fn(), isActive: true };
+      enemies = [mockEnemyInRange, mockEnemyOutOfRange];
+    });
+
+    test('should call freeze on enemies within range when activated', () => {
+      jest.spyOn(chronoPulse, 'detectOverlaps').mockReturnValue([mockEnemyInRange]);
+      chronoPulse.activate();
+      expect(mockEnemyInRange.freeze).toHaveBeenCalledWith(freezeDuration);
+      expect(mockEnemyOutOfRange.freeze).not.toHaveBeenCalled();
+    });
+
+    test('should not call freeze on enemies out of range', () => {
+      jest.spyOn(chronoPulse, 'detectOverlaps').mockReturnValue([]);
+      chronoPulse.activate();
+      expect(mockEnemyInRange.freeze).not.toHaveBeenCalled();
+      expect(mockEnemyOutOfRange.freeze).not.toHaveBeenCalled();
+    });
+
+    test('should use correct freeze duration for enemies', () => {
+      jest.spyOn(chronoPulse, 'detectOverlaps').mockReturnValue([mockEnemyInRange]);
+      chronoPulse.activate();
+      expect(mockEnemyInRange.freeze).toHaveBeenCalledWith(freezeDuration);
+    });
+
+    test('should handle enemies without freeze method gracefully', () => {
+      const enemyWithoutFreeze = { x: 120, y: 210, isActive: true }; // No freeze method
+      jest.spyOn(chronoPulse, 'detectOverlaps').mockReturnValue([enemyWithoutFreeze]);
+      
+      // Should not throw error
+      expect(() => chronoPulse.activate()).not.toThrow();
+    });
+
+    test('should handle multiple enemies with different freeze methods', () => {
+      const enemy1 = { x: 110, y: 200, freeze: jest.fn(), isActive: true };
+      const enemy2 = { x: 150, y: 200, freeze: jest.fn(), isActive: true };
+      const enemy3 = { x: 300, y: 200, freeze: jest.fn(), isActive: true }; // Out of range
+      
+      jest.spyOn(chronoPulse, 'detectOverlaps').mockReturnValue([enemy1, enemy2]);
+      chronoPulse.activate();
+      
+      expect(enemy1.freeze).toHaveBeenCalledWith(freezeDuration);
+      expect(enemy2.freeze).toHaveBeenCalledWith(freezeDuration);
+      expect(enemy3.freeze).not.toHaveBeenCalled();
+    });
+
+    test('should handle scene.enemies as array', () => {
+      const enemyArray = [
+        { x: 120, y: 200, freeze: jest.fn(), isActive: true },
+        { x: 300, y: 200, freeze: jest.fn(), isActive: true } // Out of range
+      ];
+      
+      // Mock scene.enemies as array
+      chronoPulse.scene.enemies = enemyArray;
+      
+      chronoPulse.activate();
+      
+      expect(enemyArray[0].freeze).toHaveBeenCalledWith(freezeDuration);
+      expect(enemyArray[1].freeze).not.toHaveBeenCalled();
+    });
+
+    test('should handle scene.enemies with children property', () => {
+      const enemyChildren = [
+        { x: 120, y: 200, freeze: jest.fn(), isActive: true },
+        { x: 300, y: 200, freeze: jest.fn(), isActive: true } // Out of range
+      ];
+      
+      // Mock scene.enemies with children property
+      chronoPulse.scene.enemies = { children: enemyChildren };
+      
+      chronoPulse.activate();
+      
+      expect(enemyChildren[0].freeze).toHaveBeenCalledWith(freezeDuration);
+      expect(enemyChildren[1].freeze).not.toHaveBeenCalled();
+    });
+
+    test('should handle missing scene.enemies gracefully', () => {
+      // Remove enemies from scene
+      delete chronoPulse.scene.enemies;
+      
+      // Should not throw error and should still activate
+      expect(() => chronoPulse.activate()).not.toThrow();
+      expect(chronoPulse.isActive).toBe(true);
+    });
+
+    test('should handle empty enemies array', () => {
+      // Mock empty enemies array
+      chronoPulse.scene.enemies = [];
+      
+      chronoPulse.activate();
+      
+      // Should not throw error and should still activate
+      expect(chronoPulse.isActive).toBe(true);
+    });
+  });
 }); 

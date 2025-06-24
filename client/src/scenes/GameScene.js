@@ -116,15 +116,36 @@ export default class GameScene extends BaseScene {
       this.scene.start('MenuScene');
     });
 
+    // Add a debug button to test ChronoPulse
+    const debugButton = this.add.text(640, 650, 'Debug: Test ChronoPulse', { font: '16px Arial', fill: '#0f0', backgroundColor: '#222', padding: { x: 8, y: 4 } })
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
+    debugButton.on('pointerdown', () => {
+      console.log('[Debug] Testing ChronoPulse manually');
+      if (this.player && this.player.chronoPulse) {
+        console.log('[Debug] Player position:', this.player.x, this.player.y);
+        console.log('[Debug] LoopHound position:', this.loophound ? this.loophound.x + ', ' + this.loophound.y : 'Not found');
+        console.log('[Debug] Enemies group:', this.enemies);
+        console.log('[Debug] Enemies count:', this.enemies ? this.enemies.getChildren().length : 0);
+        this.player.chronoPulse.activate();
+      } else {
+        console.log('[Debug] ChronoPulse not found on player');
+      }
+    });
+
     // Example: store references for cleanup
     this._menuButton = menuButton;
+    this._debugButton = debugButton;
 
     // Register shutdown event
     this.registerShutdown();
 
     // Add LoopHound enemy for testing (only in non-test environment)
     if (!this._mockScene) {
-      this.loophound = new LoopHound(this, 400, groundY, 'enemies', 'slime_normal_rest');
+      this.loophound = new LoopHound(this, 250, groundY, 'enemies', 'slime_normal_rest');
+      
+      // Activate the LoopHound to start its movement behavior
+      this.loophound.activate();
       
       // Add collision detection for LoopHound with platforms
       if (this.collisionManager && this.platforms && this.loophound) {
@@ -135,6 +156,18 @@ export default class GameScene extends BaseScene {
       // Add LoopHound to enemies physics group
       if (this.enemies && this.enemies.add) {
         this.enemies.add(this.loophound);
+      }
+
+      // Set up player-enemy collision detection
+      if (this.collisionManager && this.player && this.enemies) {
+        this.collisionManager.setupPlayerEnemyCollision(
+          this.player,
+          this.enemies,
+          (player, enemy) => {
+            // For now, just log the collision event
+            console.log('Player collided with enemy:', player, enemy);
+          }
+        );
       }
     }
   }
@@ -176,6 +209,9 @@ export default class GameScene extends BaseScene {
     if (this.player) {
       this.player.update(time, delta);
     }
+    if (this.loophound) {
+      this.loophound.update(time, delta);
+    }
     if (this.timeManager) {
         this.timeManager.update(time, delta);
         // Toggle rewind based on input
@@ -192,6 +228,11 @@ export default class GameScene extends BaseScene {
       this._menuButton.off('pointerdown');
       this._menuButton.destroy();
       this._menuButton = null;
+    }
+    if (this._debugButton) {
+      this._debugButton.off('pointerdown');
+      this._debugButton.destroy();
+      this._debugButton = null;
     }
   }
 

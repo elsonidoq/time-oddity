@@ -45,11 +45,6 @@ export default class DashState {
       const ghost = this.player.ghostPool.get();
       if (!ghost) continue;
       
-      // Ensure ghost sprite doesn't have physics body enabled
-      if (ghost.body) {
-        ghost.body.enable = false;
-      }
-      
       // Position ghost at player's current position
       ghost.setPosition(this.player.x, this.player.y)
         .setTexture(this.player.texture.key)
@@ -66,12 +61,7 @@ export default class DashState {
         delay: i * staggerDelay,
         ease: 'power2.out',
         onComplete: () => {
-          // Ensure proper cleanup when animation completes
-          if (this.player.ghostPool && ghost) {
-            // Double-check physics body is disabled before release
-            if (ghost.body) {
-              ghost.body.enable = false;
-            }
+          if (this.player.ghostPool) {
             this.player.ghostPool.release(ghost);
           }
         }

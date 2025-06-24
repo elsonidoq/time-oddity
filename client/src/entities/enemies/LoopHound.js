@@ -1,4 +1,5 @@
 import { Enemy } from '../Enemy.js';
+import StateMachine from '../../systems/StateMachine.js';
 
 export class LoopHound extends Enemy {
   /**
@@ -16,9 +17,9 @@ export class LoopHound extends Enemy {
     // Set the physics body to match the Player's hitbox
     this.body.setSize(this.width * 0.5, this.height * 0.7);
     this.body.setOffset(this.width * 0.25, this.height * 0.3);
-    // Disable gravity for platform patrol
-    this.body.setGravity(0, 0);
-    this.body.setAllowGravity(false);
+    
+    // Configure physics properly using parent method
+    this.configurePhysics();
     
     // LoopHound-specific properties
     this.patrolDistance = 200;
@@ -29,33 +30,43 @@ export class LoopHound extends Enemy {
     this.spawnX = x; // Ensure spawnX is set
     this.spawnY = y; // Ensure spawnY is set
     
-    // Configure physics for patrol behavior
-    this.body.setCollideWorldBounds(true);
-    this.body.setBounce(0);
+    // Override state machine completely for LoopHound
+    this.stateMachine = new StateMachine();
+    this.stateMachine.addState('patrol', {
+      enter: () => this.onPatrolEnter(),
+      execute: () => this.onPatrolExecute(),
+      exit: () => this.onPatrolExit()
+    });
+    this.stateMachine.setState('patrol');
     
-    // Create patrol animation
-    this.createPatrolAnimation();
+    // Animation will be added later when proper sprites are available
   }
   
-  createPatrolAnimation() {
-    // Create a simple patrol animation using the enemy sprite
-    // This will be replaced with proper Kenney sprite frames later
-    this.scene.anims.create({
-      key: 'loophound_patrol',
-      frames: this.scene.anims.generateFrameNumbers('enemy_loophound', { start: 0, end: 1 }),
-      frameRate: 4,
-      repeat: -1
-    });
+  onPatrolEnter() {
+    // Start patrol movement
+    this.move();
+  }
+  
+  onPatrolExecute() {
+    // Continue patrol movement and check boundaries
+    this.move();
+    
+    // Check for direction change at patrol boundaries
+    if (this.x >= this.patrolEndX) {
+      this.direction = -1;
+    } else if (this.x <= this.patrolStartX) {
+      this.direction = 1;
+    }
+  }
+  
+  onPatrolExit() {
+    // Stop movement when exiting patrol state
+    this.stop();
   }
   
   update(time, delta) {
     // Call parent update first
     super.update(time, delta);
-    
-    // Update state machine
-    if (this.stateMachine && this.stateMachine.update) {
-      this.stateMachine.update(time, delta);
-    }
     
     // Handle freeze timer
     if (this.isFrozen) {
@@ -67,26 +78,12 @@ export class LoopHound extends Enemy {
         return; // Don't move while frozen
       } else {
         this.unfreeze();
-        return;
       }
     }
     
-    // Patrol movement logic
-    if (!this.isFrozen) {
-      // Move in current direction
-      this.body.setVelocityX(this.speed * this.direction);
-      
-      // Play patrol animation
-      if (this.anims && this.anims.play) {
-        this.anims.play('loophound_patrol', true);
-      }
-      
-      // Check for direction change at patrol boundaries
-      if (this.x >= this.patrolEndX) {
-        this.direction = -1;
-      } else if (this.x <= this.patrolStartX) {
-        this.direction = 1;
-      }
+    // Update state machine (movement is handled by patrol state)
+    if (this.stateMachine && this.stateMachine.update && !this.isFrozen) {
+      this.stateMachine.update(time, delta);
     }
   }
   

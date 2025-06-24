@@ -43,44 +43,12 @@ export default class ObjectPool {
 
   /**
    * Releases an object back to the pool, making it inactive and invisible.
-   * Also cleans up any physics bodies to prevent ghost box artifacts.
    * @param {any} object The object to release.
    */
   release(object) {
     if (object) {
-      // Disable the object
       object.setActive(false);
       object.setVisible(false);
-      
-      // Clean up physics body if it exists
-      if (object.body) {
-        // Disable physics body to prevent ghost box artifacts
-        object.body.enable = false;
-        
-        // Reset physics body properties
-        if (object.body.setVelocity) {
-          object.body.setVelocity(0, 0);
-        }
-        if (object.body.setAllowGravity) {
-          object.body.setAllowGravity(false);
-        }
-        if (object.body.setCollideWorldBounds) {
-          object.body.setCollideWorldBounds(false);
-        }
-      }
-      
-      // Reset position to prevent visual artifacts
-      if (object.setPosition) {
-        object.setPosition(0, 0);
-      }
-      
-      // Reset scale and alpha
-      if (object.setScale) {
-        object.setScale(1);
-      }
-      if (object.setAlpha) {
-        object.setAlpha(1);
-      }
     }
   }
 } 

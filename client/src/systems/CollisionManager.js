@@ -34,4 +34,40 @@ export default class CollisionManager {
   addOverlap(object1, object2, callback = null, processCallback = null, context = null) {
     this.scene.physics.add.overlap(object1, object2, callback, processCallback, context);
   }
+
+  /**
+   * Sets up collision detection between player and enemies group.
+   * @param {Phaser.Physics.Arcade.Sprite} player The player sprite.
+   * @param {Phaser.Physics.Arcade.Group} enemiesGroup The group containing enemy sprites.
+   * @param {Function} [collisionCallback=null] Optional callback function to handle collision events.
+   */
+  setupPlayerEnemyCollision(player, enemiesGroup, collisionCallback = null) {
+    // Validate inputs
+    if (!player || !enemiesGroup) {
+      console.warn('CollisionManager: Invalid player or enemies group provided for collision setup');
+      return;
+    }
+
+    // Create a wrapper callback that handles both the custom callback and event emission
+    const handleCollision = (playerSprite, enemySprite) => {
+      // Emit collision event for other systems to listen to
+      if (this.scene.events && this.scene.events.emit) {
+        this.scene.events.emit('playerEnemyCollision', playerSprite, enemySprite);
+      }
+
+      // Call the custom collision callback if provided
+      if (collisionCallback && typeof collisionCallback === 'function') {
+        collisionCallback(playerSprite, enemySprite);
+      }
+
+      // Log collision for debugging (can be removed in production)
+      console.log('Player-Enemy collision detected:', {
+        player: { x: playerSprite.x, y: playerSprite.y },
+        enemy: { x: enemySprite.x, y: enemySprite.y }
+      });
+    };
+
+    // Set up the collider between player and enemies group
+    this.addCollider(player, enemiesGroup, handleCollision, null, this);
+  }
 } 

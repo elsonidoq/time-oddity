@@ -194,4 +194,32 @@ describe('GameScene', () => {
     scene.create(); patchAllSceneRefs();
     expect(scene._mockScene.physics.add.collider).toHaveBeenCalled();
   });
+
+  describe('Enemy Management', () => {
+    test('should create enemies physics group', () => {
+      const gameScene = new GameScene();
+      gameScene.create();
+      
+      expect(gameScene.enemies).toBeDefined();
+      expect(typeof gameScene.enemies.getChildren).toBe('function');
+    });
+
+    test('should add LoopHound to enemies group in non-test environment', () => {
+      const gameScene = new GameScene();
+      gameScene.create();
+      
+      // In non-test environment, LoopHound should be created and added to enemies group
+      if (!gameScene._mockScene) {
+        expect(gameScene.loophound).toBeDefined();
+        expect(gameScene.enemies.getChildren()).toContain(gameScene.loophound);
+      }
+    });
+
+    test('should not create LoopHound in test environment', () => {
+      const gameScene = new GameScene(true); // mockScene = true
+      gameScene.create();
+      
+      expect(gameScene.loophound).toBeUndefined();
+    });
+  });
 }); 

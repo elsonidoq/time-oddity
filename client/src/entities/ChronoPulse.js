@@ -48,8 +48,12 @@ export default class ChronoPulse extends Entity {
     // Update activation time
     this.lastActivationTime = this.scene.time.now;
     this.isActive = true;
+    
     // Create shockwave visual effect
     this.createShockwaveEffect();
+    
+    // Apply freeze effect to enemies within range
+    this.applyFreezeEffect();
     
     return true;
   }
@@ -122,19 +126,86 @@ export default class ChronoPulse extends Entity {
   }
 
   /**
+   * Apply freeze effect to enemies within range
+   */
+  applyFreezeEffect() {
+    // Get enemies from the scene's enemies group
+    let enemies = [];
+    
+    console.log('[ChronoPulse] Debug: Scene object:', this.scene);
+    console.log('[ChronoPulse] Debug: Scene.enemies:', this.scene.enemies);
+    
+    // Try multiple ways to access enemies from the scene
+    if (this.scene.enemies && typeof this.scene.enemies.getChildren === 'function') {
+      // Direct access to scene.enemies (GameScene pattern)
+      enemies = this.scene.enemies.getChildren();
+      console.log('[ChronoPulse] Debug: Using getChildren() method');
+    } else if (this.scene.enemies && Array.isArray(this.scene.enemies)) {
+      // If enemies is already an array
+      enemies = this.scene.enemies;
+      console.log('[ChronoPulse] Debug: Using enemies as array');
+    } else if (this.scene.enemies && this.scene.enemies.children) {
+      // Alternative access pattern
+      enemies = this.scene.enemies.children;
+      console.log('[ChronoPulse] Debug: Using enemies.children');
+    }
+    
+    // Ensure enemies is always an array
+    if (!Array.isArray(enemies)) {
+      console.warn('[ChronoPulse] Enemies not found or not in expected format:', this.scene.enemies);
+      enemies = [];
+    }
+    
+    console.log('[ChronoPulse] Found enemies:', enemies.length);
+    console.log('[ChronoPulse] Debug: Enemies array:', enemies);
+    
+    // Detect enemies within range
+    const enemiesInRange = this.detectOverlaps(enemies);
+    console.log('[ChronoPulse] Debug: Enemies in range:', enemiesInRange.length);
+    
+    // Apply freeze effect to each enemy in range
+    enemiesInRange.forEach(enemy => {
+      console.log('[ChronoPulse] Debug: Processing enemy:', enemy);
+      console.log('[ChronoPulse] Debug: Enemy freeze method:', typeof enemy.freeze);
+      console.log('[ChronoPulse] Debug: Enemy isActive:', enemy.isActive);
+      
+      if (enemy.freeze && typeof enemy.freeze === 'function') {
+        enemy.freeze(this.duration);
+        console.log(`[ChronoPulse] Frozen enemy at position: ${enemy.x}, ${enemy.y}`);
+      } else {
+        console.warn('[ChronoPulse] Enemy does not have freeze method:', enemy);
+      }
+    });
+    
+    // Log the number of enemies frozen
+    if (enemiesInRange.length > 0) {
+      console.log(`[ChronoPulse] Frozen ${enemiesInRange.length} enemy(ies)`);
+    } else {
+      console.log('[ChronoPulse] No enemies were frozen');
+    }
+  }
+
+  /**
    * Detect enemies that overlap with the pulse range
    * @param {Array} enemies - Array of enemy objects to check
    * @returns {Array} - Array of enemies that overlap with the pulse
    */
   detectOverlaps(enemies) {
     if (!enemies || enemies.length === 0) {
+      console.log('[ChronoPulse] Debug: No enemies provided to detectOverlaps');
       return [];
     }
 
+    console.log('[ChronoPulse] Debug: Checking', enemies.length, 'enemies for overlaps');
+    console.log('[ChronoPulse] Debug: Pulse position:', this.x, this.y, 'Range:', this.range);
+
     const overlappedEnemies = [];
     
-    enemies.forEach(enemy => {
+    enemies.forEach((enemy, index) => {
+      console.log(`[ChronoPulse] Debug: Checking enemy ${index}:`, enemy);
+      
       if (!enemy.isActive) {
+        console.log(`[ChronoPulse] Debug: Enemy ${index} is not active, skipping`);
         return; // Skip inactive enemies
       }
       
@@ -143,12 +214,18 @@ export default class ChronoPulse extends Entity {
         Math.pow(this.x - enemy.x, 2) + Math.pow(this.y - enemy.y, 2)
       );
       
+      console.log(`[ChronoPulse] Debug: Enemy ${index} at (${enemy.x}, ${enemy.y}), distance: ${distance}, range: ${this.range}`);
+      
       // Check if enemy is within range
       if (distance <= this.range) {
+        console.log(`[ChronoPulse] Debug: Enemy ${index} is within range!`);
         overlappedEnemies.push(enemy);
+      } else {
+        console.log(`[ChronoPulse] Debug: Enemy ${index} is out of range`);
       }
     });
     
+    console.log('[ChronoPulse] Debug: Total enemies in range:', overlappedEnemies.length);
     return overlappedEnemies;
   }
 

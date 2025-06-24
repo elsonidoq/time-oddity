@@ -33,6 +33,11 @@ export class Enemy extends Entity {
     this.moveSpeed = this.speed;
     this.direction = 1; // 1 for right, -1 for left
     
+    // Initialize freeze effect properties
+    this.isFrozen = false;
+    this._frozenUntil = null;
+    this._freezeTimer = null;
+    
     // Initialize state machine for AI behavior
     this.stateMachine = new StateMachine();
     
@@ -58,6 +63,8 @@ export class Enemy extends Entity {
       this.body.setBounce(0);
       this.body.setGravity(0, 980);
       this.body.setAllowGravity(true);
+      // Add friction/drag to prevent infinite sliding
+      this.body.setDrag(100, 0); // X drag for horizontal friction, no Y drag
     }
   }
 
@@ -111,7 +118,7 @@ export class Enemy extends Entity {
   move() {
     if (this.isDead() || !this.body) return;
     
-    this.body.setVelocityX(this.speed * this.direction);
+    this.body.setVelocity(this.speed * this.direction, this.body.velocity.y);
   }
 
   /**
@@ -119,7 +126,7 @@ export class Enemy extends Entity {
    */
   stop() {
     if (this.body) {
-      this.body.setVelocityX(0);
+      this.body.setVelocity(0, 0);
     }
   }
 
@@ -191,10 +198,13 @@ export class Enemy extends Entity {
    * @param {number} delta - Time since last update
    */
   update(time, delta) {
-    super.update(time, delta);
+    // Check if freeze effect has expired
+    if (this.isFrozen && this._frozenUntil && time >= this._frozenUntil) {
+      this.unfreeze();
+    }
     
-    // Update state machine
-    if (this.stateMachine) {
+    // Update state machine only if not frozen
+    if (this.stateMachine && !this.isFrozen) {
       this.stateMachine.update(time, delta);
     }
   }
@@ -224,6 +234,58 @@ export class Enemy extends Entity {
       this.stateMachine = null;
     }
     super.destroy();
+  }
+
+  /**
+   * Freeze the enemy for a specified duration.
+   * 
+   * @param {number} duration - Duration of freeze effect in milliseconds
+   */
+  freeze(duration) {
+    if (this.isDead()) return;
+    
+    // If already frozen, only extend the duration if the new duration is longer
+    if (this.isFrozen && this._frozenUntil) {
+      const newFrozenUntil = (this.scene?.time?.now || Date.now()) + duration;
+      if (newFrozenUntil > this._frozenUntil) {
+        this._frozenUntil = newFrozenUntil;
+      }
+      return;
+    }
+    
+    // Set freeze state
+    this.isFrozen = true;
+    this._frozenUntil = (this.scene?.time?.now || Date.now()) + duration;
+    
+    // Stop movement and animation
+    this.stop();
+    this.stopAnimation();
+    
+    // Emit freeze event if scene has events
+    if (this.scene?.events?.emit) {
+      this.scene.events.emit('enemyFrozen', this, duration);
+    }
+  }
+
+  /**
+   * Unfreeze the enemy and resume normal behavior.
+   */
+  unfreeze() {
+    if (!this.isFrozen) return;
+    
+    this.isFrozen = false;
+    this._frozenUntil = null;
+    this._freezeTimer = null;
+    
+    // Resume normal behavior
+    if (this.stateMachine) {
+      this.stateMachine.setState('idle');
+    }
+    
+    // Emit unfreeze event if scene has events
+    if (this.scene?.events?.emit) {
+      this.scene.events.emit('enemyUnfrozen', this);
+    }
   }
 }
 
