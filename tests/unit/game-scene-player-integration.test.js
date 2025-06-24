@@ -48,7 +48,17 @@ describe('Task 2.3: Add Player to GameScene', () => {
     scene.sys = { game: { config: { width: 1280, height: 720 } } };
     scene.add = { 
       text: jest.fn(),
-      existing: jest.fn()
+      existing: jest.fn(),
+      sprite: jest.fn(() => ({
+        setActive: jest.fn().mockReturnThis(),
+        setVisible: jest.fn().mockReturnThis(),
+        setOrigin: jest.fn().mockReturnThis(),
+        destroy: jest.fn()
+      })),
+      group: jest.fn(() => ({
+        add: jest.fn(),
+        getChildren: jest.fn(() => [])
+      }))
     };
     scene.physics = { 
       add: { 

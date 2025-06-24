@@ -38,7 +38,7 @@ describe('Task 1.22: Object Pool System', () => {
       getChildren: jest.fn(() => []),
       get: jest.fn(),
     };
-    pool = new ObjectPool(mockGroup, MockGameObject);
+    pool = new ObjectPool(mockGroup, () => new MockGameObject());
   });
 
   test('should create a new object if pool is empty', () => {
@@ -84,5 +84,84 @@ describe('Task 1.22: Object Pool System', () => {
 
   test('should not fail when releasing a null object', () => {
     expect(() => pool.release(null)).not.toThrow();
+  });
+
+  describe('Physics Body Cleanup', () => {
+    test('should disable physics body when object is released', () => {
+      const mockObject = {
+        setActive: jest.fn().mockReturnThis(),
+        setVisible: jest.fn().mockReturnThis(),
+        setPosition: jest.fn().mockReturnThis(),
+        setScale: jest.fn().mockReturnThis(),
+        setAlpha: jest.fn().mockReturnThis(),
+        body: {
+          enable: true,
+          setVelocity: jest.fn(),
+          setAllowGravity: jest.fn(),
+          setCollideWorldBounds: jest.fn()
+        }
+      };
+
+      pool.release(mockObject);
+
+      expect(mockObject.body.enable).toBe(false);
+      expect(mockObject.body.setVelocity).toHaveBeenCalledWith(0, 0);
+      expect(mockObject.body.setAllowGravity).toHaveBeenCalledWith(false);
+      expect(mockObject.body.setCollideWorldBounds).toHaveBeenCalledWith(false);
+    });
+
+    test('should handle objects without physics bodies gracefully', () => {
+      const mockObject = {
+        setActive: jest.fn().mockReturnThis(),
+        setVisible: jest.fn().mockReturnThis(),
+        setPosition: jest.fn().mockReturnThis(),
+        setScale: jest.fn().mockReturnThis(),
+        setAlpha: jest.fn().mockReturnThis()
+        // No body property
+      };
+
+      expect(() => pool.release(mockObject)).not.toThrow();
+      expect(mockObject.setActive).toHaveBeenCalledWith(false);
+      expect(mockObject.setVisible).toHaveBeenCalledWith(false);
+    });
+
+    test('should reset object properties when released', () => {
+      const mockObject = {
+        setActive: jest.fn().mockReturnThis(),
+        setVisible: jest.fn().mockReturnThis(),
+        setPosition: jest.fn().mockReturnThis(),
+        setScale: jest.fn().mockReturnThis(),
+        setAlpha: jest.fn().mockReturnThis(),
+        body: {
+          enable: true,
+          setVelocity: jest.fn(),
+          setAllowGravity: jest.fn(),
+          setCollideWorldBounds: jest.fn()
+        }
+      };
+
+      pool.release(mockObject);
+
+      expect(mockObject.setPosition).toHaveBeenCalledWith(0, 0);
+      expect(mockObject.setScale).toHaveBeenCalledWith(1);
+      expect(mockObject.setAlpha).toHaveBeenCalledWith(1);
+    });
+
+    test('should handle physics bodies with missing methods gracefully', () => {
+      const mockObject = {
+        setActive: jest.fn().mockReturnThis(),
+        setVisible: jest.fn().mockReturnThis(),
+        setPosition: jest.fn().mockReturnThis(),
+        setScale: jest.fn().mockReturnThis(),
+        setAlpha: jest.fn().mockReturnThis(),
+        body: {
+          enable: true
+          // Missing physics methods
+        }
+      };
+
+      expect(() => pool.release(mockObject)).not.toThrow();
+      expect(mockObject.body.enable).toBe(false);
+    });
   });
 }); 

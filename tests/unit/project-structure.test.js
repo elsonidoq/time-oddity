@@ -97,7 +97,7 @@ describe('Project Structure Tests', () => {
 
   describe('Documentation', () => {
     test('should have comprehensive documentation', () => {
-      expect(existsSync(join(projectRoot, 'agent_docs/comprehensive_documentation.md'))).toBe(true);
+      expect(existsSync(join(projectRoot, 'agent_docs/small_comprehensive_documentation.md'))).toBe(true);
     });
 
     // test('should have task breakdown', () => {

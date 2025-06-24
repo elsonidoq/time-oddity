@@ -2,6 +2,7 @@ import { jest } from '@jest/globals';
 import { readFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { mockScene } from '../mocks/phaserMock.js';
 
 describe('Task 2.3.bis: Entity/Player Physics Integration', () => {
   const __filename = fileURLToPath(import.meta.url);
@@ -49,20 +50,20 @@ describe('Task 2.3.bis: Entity/Player Physics Integration', () => {
   });
 
   beforeEach(() => {
-    // Create mock scene for testing
-    const mockScene = {
+    // Use the centralized mockScene and ensure it has all required methods
+    const testScene = {
+      ...mockScene,
       add: {
-        existing: jest.fn()
-      },
-      physics: {
-        add: {
-          existing: jest.fn()
-        }
+        ...mockScene.add,
+        group: jest.fn(() => ({
+          add: jest.fn(),
+          getChildren: jest.fn(() => [])
+        }))
       }
     };
     
-    entity = new Entity(mockScene, 100, 200, 'test-texture', 'test-frame', 100);
-    player = new Player(mockScene, 100, 200, 'test-texture', 'test-frame', 100);
+    entity = new Entity(testScene, 100, 200, 'test-texture', 'test-frame', 100);
+    player = new Player(testScene, 100, 200, 'test-texture', 'test-frame', 100);
   });
 
   describe('Entity Class Physics Integration', () => {

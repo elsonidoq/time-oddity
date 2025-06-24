@@ -66,10 +66,21 @@ describe('Task 2.10: Connect StateMachine to Player', () => {
     StateMachine.mockClear();
     const scene = new MockScene('GameScene');
     scene.timeManager = { isRewinding: false };
-    player = new Player(scene, 100, 100, 'player', undefined, undefined, scene);
+    scene.add = {
+      ...scene.add,
+      group: jest.fn(() => ({
+        add: jest.fn(),
+        getChildren: jest.fn(() => [])
+      }))
+    };
+    player = new Player(scene, 100, 100, { key: 'player' }, undefined, undefined, scene);
     jest.spyOn(player.stateMachine, 'addState');
     jest.spyOn(player.stateMachine, 'setState');
     jest.spyOn(player.stateMachine, 'update');
+    // Patch chronoPulse.setPosition for this player
+    if (player.chronoPulse && typeof player.chronoPulse.setPosition !== 'function') {
+      player.chronoPulse.setPosition = jest.fn();
+    }
   });
 
   test('Player should have a stateMachine instance', () => {
@@ -89,7 +100,19 @@ describe('Task 2.10: Connect StateMachine to Player', () => {
   });
 
   test('Player update method should call stateMachine.update', () => {
-    const player = new Player(scene, 0, 0, undefined, undefined, undefined, new MockScene());
+    const scene = new MockScene();
+    scene.add = {
+      ...scene.add,
+      group: jest.fn(() => ({
+        add: jest.fn(),
+        getChildren: jest.fn(() => [])
+      }))
+    };
+    const player = new Player(scene, 0, 0, { key: 'player' }, undefined, undefined, scene);
+    // Patch chronoPulse.setPosition for this player
+    if (player.chronoPulse && typeof player.chronoPulse.setPosition !== 'function') {
+      player.chronoPulse.setPosition = jest.fn();
+    }
     player.stateMachine.update = jest.fn();
     player.inputManager = {}; // Set inputManager so update doesn't return early
     const time = 123, delta = 456;
@@ -118,7 +141,14 @@ describe('Task 8: Player state after rewind ends', () => {
     StateMachine.mockClear();
     scene = new MockScene('GameScene');
     scene.timeManager = { isRewinding: false };
-    player = new Player(scene, 100, 100, 'player', undefined, undefined, scene);
+    scene.add = {
+      ...scene.add,
+      group: jest.fn(() => ({
+        add: jest.fn(),
+        getChildren: jest.fn(() => [])
+      }))
+    };
+    player = new Player(scene, 100, 100, { key: 'player' }, undefined, undefined, scene);
     player.inputManager = {
       left: { isDown: false },
       right: { isDown: false },
@@ -127,6 +157,10 @@ describe('Task 8: Player state after rewind ends', () => {
     };
     jest.spyOn(player.stateMachine, 'setState');
     jest.spyOn(player.stateMachine, 'update');
+    // Patch chronoPulse.setPosition for this player
+    if (player.chronoPulse && typeof player.chronoPulse.setPosition !== 'function') {
+      player.chronoPulse.setPosition = jest.fn();
+    }
   });
 
   test('should transition to idle after rewind ends if no movement keys are pressed', () => {

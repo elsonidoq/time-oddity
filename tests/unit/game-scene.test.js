@@ -32,6 +32,7 @@ describe('GameScene', () => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
   let scene;
+  let mockBody;
   const gameScenePath = join(dirname(fileURLToPath(import.meta.url)), '../../client/src/scenes/GameScene.js');
 
   beforeAll(() => {
@@ -68,7 +69,21 @@ describe('GameScene', () => {
       config: { debug: false },
       add: { 
         group: jest.fn(() => ({ create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) })), 
-        sprite: jest.fn(() => ({ body: { setAllowGravity: jest.fn() }, play: jest.fn().mockReturnThis(), parentCoin: null })), 
+        sprite: jest.fn(() => ({ 
+          body: { 
+            setAllowGravity: jest.fn(),
+            setGravity: jest.fn(),
+            setCollideWorldBounds: jest.fn(),
+            setBounce: jest.fn(),
+            setVelocity: jest.fn(),
+            setVelocityX: jest.fn(),
+            setVelocityY: jest.fn(),
+            velocity: { x: 0, y: 0 },
+            onFloor: jest.fn(() => true)
+          }, 
+          play: jest.fn().mockReturnThis(), 
+          parentCoin: null 
+        })), 
         existing: jest.fn(),
         collider: jest.fn(),
       },
@@ -88,6 +103,17 @@ describe('GameScene', () => {
     scene.players = { create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) };
     scene.enemies = { create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) };
     scene.coins = { create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) };
+    mockBody = {
+      setVelocity: jest.fn(),
+      setVelocityX: jest.fn(),
+      setVelocityY: jest.fn(),
+      setCollideWorldBounds: jest.fn(),
+      setBounce: jest.fn(),
+      setGravity: jest.fn(),
+      setAllowGravity: jest.fn(),
+      velocity: { x: 0, y: 0 },
+      onFloor: jest.fn(() => true)
+    };
   });
 
   // Helper to patch all scene references after create

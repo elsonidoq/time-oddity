@@ -4,6 +4,7 @@ import InputManager from '../systems/InputManager.js';
 import CollisionManager from '../systems/CollisionManager.js';
 import Coin from '../entities/Coin.js';
 import TimeManager from '../systems/TimeManager.js';
+import { LoopHound } from '../entities/enemies/LoopHound.js';
 
 export default class GameScene extends BaseScene {
   constructor(mockScene = null) {
@@ -56,7 +57,7 @@ export default class GameScene extends BaseScene {
       const groundY = 656;
       for (let x = 0; x < this.sys.game.config.width; x += 64) {
           const groundTile = this.platforms.create(x, groundY, 'tiles', 'terrain_grass_horizontal_middle').setOrigin(0, 0);
-          this.configurePlatform(groundTile, true); // `isFullBlock` = true
+          this.configurePlatform(groundTile, true); // Use full block for ground
       }
 
       // Floating platforms
@@ -103,7 +104,7 @@ export default class GameScene extends BaseScene {
       this.collisionManager.addCollider(this.player, this.platforms);
       this.collisionManager.addOverlap(this.player, this.coins, this.handlePlayerCoinOverlap, null, this);
     }
-
+    
     // Add basic content (e.g., a label)
     this.add.text(640, 100, 'Game Scene', { font: '32px Arial', fill: '#fff' }).setOrigin(0.5);
 
@@ -120,6 +121,22 @@ export default class GameScene extends BaseScene {
 
     // Register shutdown event
     this.registerShutdown();
+
+    // Add LoopHound enemy for testing (only in non-test environment)
+    if (!this._mockScene) {
+      this.loophound = new LoopHound(this, 400, groundY, 'enemies', 'slime_normal_rest');
+      
+      // Add collision detection for LoopHound with platforms
+      if (this.collisionManager && this.platforms && this.loophound) {
+        this.collisionManager.addCollider(this.loophound, this.platforms);
+      }
+
+      
+      // Add LoopHound to enemies physics group
+      if (this.enemies && this.enemies.add) {
+        this.enemies.add(this.loophound);
+      }
+    }
   }
 
   handlePlayerCoinOverlap(player, coinSprite) {

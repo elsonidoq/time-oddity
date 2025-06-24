@@ -6,6 +6,7 @@ export default {
   },
   moduleNameMapper: {
     '^phaser$': '<rootDir>/tests/mocks/phaserMock.js',
+    '^gsap$': '<rootDir>/tests/mocks/gsapMock.js',
     '^matter-js$': '<rootDir>/tests/__mocks__/matter-js.cjs',
     '^\./matter-js$': '<rootDir>/tests/__mocks__/matter-js.cjs',
     '^phaser3spectorjs$': '<rootDir>/tests/__mocks__/phaser3spectorjs.cjs',

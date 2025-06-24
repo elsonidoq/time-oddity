@@ -3,18 +3,10 @@
 // See agent_docs/comprehensive_documentation.md for best practices.
 
 import { jest } from '@jest/globals';
-import { gsap } from 'gsap';
+import gsap from 'gsap';
 import TimeManager from '../../client/src/systems/TimeManager.js';
 
 jest.useFakeTimers();
-
-// Assign jest.fn() mocks to gsap methods
-beforeEach(() => {
-  gsap.to = jest.fn();
-  gsap.fromTo = jest.fn();
-  gsap.killTweensOf = jest.fn();
-  gsap.updateRoot = jest.fn();
-});
 
 // Mock Phaser Scene
 const mockScene = {

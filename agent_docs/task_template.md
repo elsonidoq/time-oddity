@@ -12,6 +12,7 @@ _What is the goal? What feature, fix, or improvement is being delivered?_
 
 ## Documentation References
 - [ ] List all relevant sections from `comprehensive_documentation.md` (including Testing and Mocking)
+- [ ] **Review and apply all relevant guidance from `testing_best_practices.md` (MANDATORY for all engineering and LLM-driven tasks)**
 - [ ] Link to any related design docs, diagrams, or previous tasks
 
 ## Pre-Implementation Design & Impact

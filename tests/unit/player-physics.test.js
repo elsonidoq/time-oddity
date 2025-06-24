@@ -2,6 +2,7 @@ import { jest } from '@jest/globals';
 import { readFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { mockScene } from '../mocks/phaserMock.js';
 
 describe('Task 2.4: Enable Player Physics', () => {
   const __filename = fileURLToPath(import.meta.url);
@@ -39,19 +40,19 @@ describe('Task 2.4: Enable Player Physics', () => {
   });
 
   beforeEach(() => {
-    // Create mock scene for testing
-    const mockScene = {
+    // Use the centralized mockScene and ensure it has all required methods
+    const testScene = {
+      ...mockScene,
       add: {
-        existing: jest.fn()
-      },
-      physics: {
-        add: {
-          existing: jest.fn()
-        }
+        ...mockScene.add,
+        group: jest.fn(() => ({
+          add: jest.fn(),
+          getChildren: jest.fn(() => [])
+        }))
       }
     };
     
-    player = new Player(mockScene, 100, 200, 'test-texture', 'test-frame', 100);
+    player = new Player(testScene, 100, 200, 'test-texture', 'test-frame', 100);
   });
 
   describe('Physics Body Creation and Attachment', () => {
@@ -183,7 +184,17 @@ describe('Task 2.4: Enable Player Physics', () => {
           }
         },
         add: {
-          existing: jest.fn()
+          existing: jest.fn(),
+          group: jest.fn(() => ({
+            add: jest.fn(),
+            getChildren: jest.fn(() => [])
+          })),
+          sprite: jest.fn(() => ({
+            setActive: jest.fn().mockReturnThis(),
+            setVisible: jest.fn().mockReturnThis(),
+            setOrigin: jest.fn().mockReturnThis(),
+            destroy: jest.fn()
+          }))
         }
       };
       

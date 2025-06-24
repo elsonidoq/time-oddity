@@ -1,5 +1,6 @@
+import { jest } from '@jest/globals';
 // Centralized GSAP mock for all tests
-export const mockTimeline = {
+const mockTimeline = {
   to: jest.fn().mockReturnThis(),
   from: jest.fn().mockReturnThis(),
   add: jest.fn().mockReturnThis(),
@@ -12,16 +13,24 @@ export const mockTimeline = {
   }),
 };
 
-export const gsapMock = {
+const killTweensOf = jest.fn();
+
+const mockGsap = {
   to: jest.fn((target, vars) => {
-    if (vars && typeof vars.onComplete === 'function') {
+    if (vars.onComplete) {
       vars.onComplete(...(vars.onCompleteParams || []));
     }
     return { kill: jest.fn() };
   }),
-  from: jest.fn(),
-  fromTo: jest.fn(),
-  killTweensOf: jest.fn(),
-  updateRoot: jest.fn(),
   timeline: jest.fn(() => mockTimeline),
-}; 
+  killTweensOf,
+};
+
+// Provide both default and named exports for compatibility
+export default mockGsap;
+export const gsap = mockGsap;
+export { mockTimeline, killTweensOf };
+
+export const from = jest.fn();
+export const fromTo = jest.fn();
+export const updateRoot = jest.fn(); 

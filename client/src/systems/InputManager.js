@@ -28,6 +28,9 @@ export default class InputManager {
 
     // Shift key for dash
     this.shift = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
+    
+    // E key for Chrono Pulse ability
+    this.e = scene.input.keyboard.addKey('E');
   }
 
   /**
@@ -96,5 +99,25 @@ export default class InputManager {
    */
   get isDashJustPressed() {
     return Phaser.Input.Keyboard.JustDown(this.shift);
+  }
+
+  /**
+   * Check if the Chrono Pulse key is pressed (E)
+   */
+  get isChronoPulsePressed() {
+    const pressed = this.e.isDown;
+    if (pressed) console.log('[InputManager] Chrono Pulse key pressed');
+    return pressed;
+  }
+
+  /**
+   * Check if the Chrono Pulse key was just pressed (E)
+   */
+  get isChronoPulseJustPressed() {
+    const justPressed = Phaser.Input.Keyboard.JustDown(this.e);
+    if (justPressed) {
+      console.log('[InputManager] Chrono Pulse key just pressed (E)');
+    }
+    return justPressed;
   }
 } 

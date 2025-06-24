@@ -61,7 +61,8 @@ if (!globalThis.scene.physics.add) {
   globalThis.scene.physics.add = {};
 }
 globalThis.scene.physics.add.sprite = jest.fn(() => ({
-  body: { setAllowGravity: jest.fn() },
+  ...createMockGameObject(),
+  body: createMockBody(),
   play: jest.fn().mockReturnThis(),
   parentCoin: null,
 }));
@@ -74,8 +75,20 @@ const mockGameObject = {
   x: 0,
   y: 0,
   active: true,
+  visible: true,
+  alpha: 1,
+  scale: 1,
+  flipX: false,
+  texture: { key: 'mock-texture' },
   setOrigin: jest.fn().mockReturnThis(),
   setDepth: jest.fn().mockReturnThis(),
+  setPosition: jest.fn().mockReturnThis(),
+  setTexture: jest.fn().mockReturnThis(),
+  setFlipX: jest.fn().mockReturnThis(),
+  setAlpha: jest.fn().mockReturnThis(),
+  setScale: jest.fn().mockReturnThis(),
+  setActive: jest.fn().mockReturnThis(),
+  setVisible: jest.fn().mockReturnThis(),
   anims: {
     play: jest.fn(),
     isPlaying: false,
@@ -170,6 +183,7 @@ class ArcadeSprite {
     this.y = y;
     this.texture = texture;
     this.frame = frame;
+    this.body = createMockBody();
   }
 }
 const Physics = {
@@ -179,10 +193,36 @@ const Physics = {
   },
 };
 
+// Helper to create a fresh mockGameObject
+function createMockGameObject() {
+  return {
+    x: 0,
+    y: 0,
+    active: true,
+    visible: true,
+    body: createMockBody(),
+    setOrigin: jest.fn().mockReturnThis(),
+    setDepth: jest.fn().mockReturnThis(),
+    setPosition: jest.fn().mockReturnThis(),
+    setTexture: jest.fn().mockReturnThis(),
+    setFlipX: jest.fn().mockReturnThis(),
+    setAlpha: jest.fn().mockReturnThis(),
+    setScale: jest.fn().mockReturnThis(),
+    setActive: jest.fn().mockReturnThis(),
+    setVisible: jest.fn().mockReturnThis(),
+    anims: {
+      play: jest.fn(),
+      isPlaying: false,
+      currentAnim: null,
+    },
+    destroy: jest.fn(),
+  };
+}
+
 // Mock Scene object (for composition)
 const mockScene = {
   add: {
-    sprite: jest.fn(() => mockGameObject),
+    sprite: jest.fn(() => createMockGameObject()),
     text: jest.fn(() => ({
       setText: jest.fn(),
       setOrigin: jest.fn().mockReturnThis(),
@@ -191,6 +231,20 @@ const mockScene = {
       destroy: jest.fn().mockReturnThis(),
     })),
     existing: jest.fn(),
+    group: jest.fn(() => ({
+      add: jest.fn(),
+      getChildren: jest.fn(() => [createMockGameObject(), createMockGameObject(), createMockGameObject(), createMockGameObject(), createMockGameObject()]),
+    })),
+    graphics: jest.fn(() => ({
+      setPosition: jest.fn().mockReturnThis(),
+      lineStyle: jest.fn().mockReturnThis(),
+      strokeCircle: jest.fn().mockReturnThis(),
+      fillStyle: jest.fn().mockReturnThis(),
+      fillCircle: jest.fn().mockReturnThis(),
+      destroy: jest.fn().mockReturnThis(),
+      scale: 1,
+      alpha: 1,
+    })),
   },
   physics: {
     add: {
@@ -275,6 +329,46 @@ const PhaserDefault = {
 // Ensure add.existing and physics.add.existing are always present
 mockScene.add.existing = jest.fn();
 mockScene.physics.add.existing = jest.fn();
+
+// Ensure global scene.add.group is always available
+if (!globalThis.scene.add) {
+  globalThis.scene.add = {};
+}
+globalThis.scene.add.group = jest.fn(() => ({
+  add: jest.fn(),
+  getChildren: jest.fn(() => [createMockGameObject(), createMockGameObject(), createMockGameObject(), createMockGameObject(), createMockGameObject()]),
+}));
+
+// Also patch global scene.add.graphics for any global usage
+if (!globalThis.scene.add) globalThis.scene.add = {};
+globalThis.scene.add.graphics = mockScene.add.graphics;
+
+// Patch for Arcade Physics Body
+function createMockBody() {
+  return {
+    setSize: jest.fn().mockReturnThis(),
+    setOffset: jest.fn().mockReturnThis(),
+    setGravity: jest.fn().mockReturnThis(),
+    setAllowGravity: jest.fn().mockReturnThis(),
+    setCollideWorldBounds: jest.fn().mockReturnThis(),
+    setBounce: jest.fn().mockReturnThis(),
+    setVelocityX: jest.fn().mockReturnThis(),
+    setVelocityY: jest.fn().mockReturnThis(),
+    setVelocity: jest.fn().mockReturnThis(),
+    setImmovable: jest.fn().mockReturnThis(),
+    setAllowGravity: jest.fn().mockReturnThis(),
+    setCollisionGroup: jest.fn().mockReturnThis(),
+    enable: true,
+    velocity: { x: 0, y: 0 },
+    offset: { x: 0, y: 0 },
+    height: 0,
+    width: 0,
+    x: 0,
+    y: 0,
+    blocked: { left: false, right: false, down: false, up: false },
+    onFloor: jest.fn().mockReturnValue(false),
+  };
+}
 
 export default PhaserDefault;
 export { Scene, Input, Physics, Scale, Game, AUTO, mockScene, mockGameObject }; 
