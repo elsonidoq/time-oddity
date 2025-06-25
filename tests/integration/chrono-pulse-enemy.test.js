@@ -541,4 +541,6 @@ function simulateRewind(enemy, rewindState) {
   }
   // For test compatibility
   enemy.isActive = rewindState.isAlive;
-} 
+}
+  });
+});
