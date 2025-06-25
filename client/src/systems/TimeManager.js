@@ -2,8 +2,12 @@ import TemporalState from './TemporalState.js';
 import { gsap } from 'gsap';
 
 /**
- * Core time manipulation system.
- * See Section 7.1 "The Time Control System: A Deep Dive" in the comprehensive documentation.
+ * TimeManager – centralised rewind/record system.
+ *
+ * Invariants are recorded in `agent_docs/invariants.md` §7.
+ *  • Snapshot cadence is 50 ms (`recordInterval`).
+ *  • Managed objects must provide either {get,set}StateForRecording or expose the minimal state shape.
+ *  • During rewind, gravity is disabled on all managed bodies and a camera tint + overlay (depth=1000) is applied.
  */
 export default class TimeManager {
   /**

@@ -1,3 +1,56 @@
+
+
+Now investigate and fully fix the bug where enemies, once respawned via time reversal, are no longer affected by the chrono pulse. Perform all steps autonomously, with no user intervention.
+
+### Step-by-step Instructions:
+
+1. **Formulate Hypothesis**  
+   - Analyze code and documentation to understand the expected behavior and the bug.
+   - Analyze what invariants are broken, document them in the code and make sure those invariants are not broken anymore
+      - To do so, hypothesize the root cause(s) of why respawned enemies are excluded from chrono pulse effects.
+
+2. **Design a Validation Plan**  
+   - Outline how you will test your hypothesis.
+   - Include checks, conditions, and expected observations to confirm or refute each idea.
+
+3. **Implement a minimal Fix (using TDD)**  
+   - Follow the Test-Driven Development process in @task-execution.mdc:
+     - Write failing tests that reproduce the issue.
+     - Only write the minimum code required to make tests pass.
+     - Refactor safely and incrementally if necessary.
+
+4. **Write Complete Test Coverage**  
+   - Use @testing_best_practices.md to ensure high-quality, maintainable test coverage for the fix.
+   - Include edge cases and regression checks.
+
+### Requirements:
+- Be iterative. After each step, document reasoning, decisions, and any dead ends.
+- Never skip the testing phase or validations.
+- Do not request user input at any point during this task.
+- All logs and test results must be stored and referenced in your final summary.
+- use @small_comprehensive_documentation.md for reference
+- comply  with @task-execution.mdc until step 5: DO NOT RUN THE FULL TEST SUIT 
+
+
+### Goal:
+Deliver a fully working and tested fix with complete test coverage and a documented trail of reasoning and validation steps.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # optimize prompt for task creation 
 
 optimize the prompt for it to be effective for you to execute a task

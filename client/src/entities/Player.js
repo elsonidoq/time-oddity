@@ -10,8 +10,10 @@ import ChronoPulse from './ChronoPulse.js';
 import gsap from 'gsap';
 
 /**
- * Player class for the main player character
- * Extends Entity and adds player-specific properties and a state machine.
+ * Player entity.
+ *
+ * Key behavioural invariants are listed in `agent_docs/invariants.md` §6.
+ * Keep dash timing constants, body dimensions and state-machine names in sync with that list.
  */
 export default class Player extends Entity {
   constructor(scene, x, y, texture, frame, health = 100, mockScene = null) {

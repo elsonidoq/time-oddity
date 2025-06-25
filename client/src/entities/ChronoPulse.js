@@ -3,6 +3,9 @@ import Entity from './Entity.js';
 /**
  * ChronoPulse - Time manipulation ability that emits a shockwave
  * Extends Entity to provide common functionality and physics integration
+ *
+ * ChronoPulse ability.
+ * Invariants: see `agent_docs/invariants.md` §9.
  */
 export default class ChronoPulse extends Entity {
   constructor(scene, x, y, config = {}, gsapLib) {

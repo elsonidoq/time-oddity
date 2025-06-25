@@ -4,6 +4,7 @@ globs:
 alwaysApply: false
 ---
 If any test fails:
+   - Select a test to work on
    - Perform a root cause analysis to understand the reason why the test fails
    - Attempt to fix it silently.
    - If the same error persists after 3 attempts, prompt the user for input or clarification.
