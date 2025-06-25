@@ -31,6 +31,9 @@ export default class Player extends Entity {
     this.gravity = 980; // This might be redundant if world gravity is set
     this.inputManager = null; // Will be set up later
 
+    // Add default attack power for combat system
+    this.attackPower = 20;
+
     // Dash properties
     this.dashCooldown = 1000; // ms - 1 second default cooldown
     this.dashDuration = 120; // ms

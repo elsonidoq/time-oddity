@@ -1,6 +1,0 @@
----
-description: 
-globs: 
-alwaysApply: false
----
-When creating or fixing tests make sure to check testing best practices: [testing_best_practices.md](mdc:agent_docs/testing_best_practices.md) 

@@ -109,6 +109,10 @@ export class Enemy extends Entity {
   die() {
     this.health = 0;
     this.deactivate();
+    // Disable physics body on death
+    if (this.body) {
+      this.body.enable = false;
+    }
     // Override in subclasses for specific death behavior
   }
 

@@ -144,6 +144,11 @@ export default class GameScene extends BaseScene {
     if (!this._mockScene) {
       this.loophound = new LoopHound(this, 250, groundY, 'enemies', 'slime_normal_rest');
       
+      // Register LoopHound with TimeManager for rewind
+      if (this.timeManager && this.loophound) {
+        this.timeManager.register(this.loophound);
+      }
+      
       // Activate the LoopHound to start its movement behavior
       this.loophound.activate();
       
@@ -164,8 +169,15 @@ export default class GameScene extends BaseScene {
           this.player,
           this.enemies,
           (player, enemy) => {
-            // For now, just log the collision event
-            console.log('Player collided with enemy:', player, enemy);
+            // Apply damage to enemy on collision
+            const attackPower = player.attackPower || 20;
+            if (enemy && typeof enemy.takeDamage === 'function' && !enemy.isDead()) {
+              enemy.takeDamage(attackPower);
+              console.log(`[Combat] Player dealt ${attackPower} damage to enemy. Enemy health: ${enemy.health}`);
+              if (enemy.isDead()) {
+                console.log('[Combat] Enemy defeated!');
+              }
+            }
           }
         );
       }

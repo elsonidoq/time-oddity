@@ -3,14 +3,35 @@ description:
 globs: 
 alwaysApply: false
 ---
-You will follow a strict Test Driven Development (TDD) workflow for each task.
+# Rule: Follow Strict Test-Driven Development (TDD) Workflow
 
-1. Begin by writing all required tests as specified in the task description.
-2. Once tests are written and the project is in the "red" state (tests failing), proceed to implement the functionality.
-3. Focus solely on making the tests pass. Do not refactor or add extra logic beyond what is needed to make the tests pass.
-4. After implementation, verify that all newly written tests pass.
-5. If the task results in visible or functional changes, prompt the user to manually verify the behavior.
-6. Run the full project test suite. Confirm all tests pass (green state).
-7. If any test fails:
-   - Attempt to fix it silently.
-   - If the same error persists after 3 attempts, prompt the user for input or clarification.
+For every assigned task, you must adhere to the following strict TDD process:
+
+1. **Write Tests First**
+   - Before writing any implementation code, create all required tests based on the task description.
+   - Ensure the project is in a "red" state (i.e., tests fail due to missing or incomplete implementation).
+
+2. **Validate Red State**
+   - Confirm that new tests fail for the expected reasons. 
+   - If a test passes prematurely, stop and revise the test—it is not properly validating unimplemented logic.
+
+3. **Implement Minimal Code**
+   - Write only the minimal code required to make the tests pass.
+   - Avoid adding any extra logic or refactoring at this stage.
+
+4. **Confirm Green State**
+   - Ensure all newly written tests now pass.
+   - Do not proceed unless all tests for this task are green.
+
+5. **User Verification (If Applicable)**
+   - If the task affects visible behavior or user interaction, prompt the user to manually verify the results.
+
+6. **Run Full Test Suite**
+   - Execute the complete test suite.
+   - Confirm that **all** tests (new and existing) pass (green state).
+
+7. **Error Recovery**
+   - If any test fails, attempt to fix it silently.
+   - If the same error persists after 3 retries, stop and request clarification from the user.
+
+⛔ **Never skip a step. Always prioritize correctness and minimalism.**

@@ -204,9 +204,12 @@ export default class ChronoPulse extends Entity {
     enemies.forEach((enemy, index) => {
       console.log(`[ChronoPulse] Debug: Checking enemy ${index}:`, enemy);
       
-      if (!enemy.isActive) {
-        console.log(`[ChronoPulse] Debug: Enemy ${index} is not active, skipping`);
-        return; // Skip inactive enemies
+      const isActiveFlag = typeof enemy.isActive === 'boolean' ? enemy.isActive : true;
+      const phaserActive = typeof enemy.active === 'boolean' ? enemy.active : true;
+
+      if (!isActiveFlag && phaserActive === false) {
+        console.log(`[ChronoPulse] Debug: Enemy ${index} is not active (both flags false), skipping`);
+        return; // Skip only if both flags indicate inactivity
       }
       
       // Calculate distance between pulse center and enemy

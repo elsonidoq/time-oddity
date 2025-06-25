@@ -311,13 +311,28 @@ describe('ChronoPulse', () => {
       const mockEnemy = {
         x: 150,
         y: 200,
-        isActive: false
+        isActive: false,
+        active: false
       };
       
       const enemies = [mockEnemy];
       const overlappedEnemies = chronoPulse.detectOverlaps(enemies);
       
       expect(overlappedEnemies).not.toContain(mockEnemy);
+    });
+
+    test('should detect enemy when Phaser active flag is false but custom isActive is true', () => {
+      const chronoPulse = new ChronoPulse(testScene, 100, 200, {}, gsap);
+      const mockEnemy = {
+        x: 120,
+        y: 200,
+        isActive: true,
+        active: false
+      };
+
+      const overlappedEnemies = chronoPulse.detectOverlaps([mockEnemy]);
+
+      expect(overlappedEnemies).toContain(mockEnemy);
     });
 
     test('should handle empty enemy list', () => {

@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 // Import LoopHound and Enemy classes
 import { LoopHound } from '../../client/src/entities/enemies/LoopHound.js';
 import { Enemy as RealEnemy } from '../../client/src/entities/Enemy.js';
@@ -399,11 +400,13 @@ describe('LoopHound Enemy', () => {
     test('should handle death when health reaches zero', () => {
       loophound = new LoopHound(mockScene, 100, 200);
       loophound.anims = mockAnims;
-      loophound.sprite = mockAdd.sprite();
+      // Spy on setActive and setVisible
+      const setActiveSpy = jest.spyOn(loophound, 'setActive');
+      const setVisibleSpy = jest.spyOn(loophound, 'setVisible');
       loophound.takeDamage(100);
       expect(loophound.health).toBe(0);
-      expect(loophound.sprite.setActive.calls).toContainEqual([false]);
-      expect(loophound.sprite.setVisible.calls).toContainEqual([false]);
+      expect(setActiveSpy).toHaveBeenCalledWith(false);
+      expect(setVisibleSpy).toHaveBeenCalledWith(false);
     });
 
     test('should not take damage when already dead', () => {

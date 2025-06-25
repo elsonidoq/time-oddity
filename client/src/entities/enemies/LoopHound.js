@@ -80,8 +80,8 @@ export class LoopHound extends Enemy {
     // LoopHound-specific damage handling
     if (this.health <= 0) {
       // Handle death
-      this.sprite.setActive(false);
-      this.sprite.setVisible(false);
+      this.setActive(false);
+      this.setVisible(false);
     }
   }
   
@@ -111,25 +111,34 @@ export class LoopHound extends Enemy {
     return {
       x: this.x,
       y: this.y,
-      vx: this.body ? this.body.velocity.x : 0,
-      vy: this.body ? this.body.velocity.y : 0,
-      direction: this.direction,
-      isFrozen: this.isFrozen,
-      state: this.stateMachine ? this.stateMachine.getCurrentState() : 'patrol',
-      patrolStartX: this.patrolStartX,
-      patrolEndX: this.patrolEndX
+      velocityX: this.body?.velocity?.x || 0,
+      velocityY: this.body?.velocity?.y || 0,
+      animation: this.anims?.currentAnim?.key || null,
+      health: this.health,
+      active: this.active,
+      visible: this.visible,
+      bodyEnable: this.body?.enable ?? true,
+      state: (this.stateMachine && typeof this.stateMachine.getCurrentState === 'function')
+        ? this.stateMachine.getCurrentState()
+        : null
     };
   }
   
   setStateFromRecording(state) {
     if (state.x !== undefined) this.x = state.x;
     if (state.y !== undefined) this.y = state.y;
-    if (state.vx !== undefined && this.body) this.body.setVelocityX(state.vx);
-    if (state.vy !== undefined && this.body) this.body.setVelocityY(state.vy);
+    if (state.velocityX !== undefined && this.body) this.body.setVelocityX(state.velocityX);
+    if (state.velocityY !== undefined && this.body) this.body.setVelocityY(state.velocityY);
     if (state.direction !== undefined) this.direction = state.direction;
     if (state.isFrozen !== undefined) this.isFrozen = state.isFrozen;
     if (state.patrolStartX !== undefined) this.patrolStartX = state.patrolStartX;
     if (state.patrolEndX !== undefined) this.patrolEndX = state.patrolEndX;
+    // Restore lifecycle properties
+    if (state.active !== undefined) this.setActive(state.active);
+    if (state.visible !== undefined) this.setVisible(state.visible);
+    if (state.bodyEnable !== undefined && this.body) this.body.enable = state.bodyEnable;
+    if (state.health !== undefined) this.health = state.health;
+    if (state.animation && this.anims && this.anims.play) this.anims.play(state.animation);
   }
   
   respawn() {
@@ -140,6 +149,16 @@ export class LoopHound extends Enemy {
     this.direction = 1;
     if (this.body) {
       this.body.setVelocity(0, 0);
+    }
+    this.activate();
+    this.setActive(true);
+    this.setVisible(true);
+    // Ensure the enemy is in the scene's enemies group
+    if (this.scene && this.scene.enemies && this.scene.enemies.getChildren) {
+      const group = this.scene.enemies;
+      if (!group.getChildren().includes(this)) {
+        group.add(this);
+      }
     }
   }
   

@@ -367,6 +367,25 @@ describe('Task 3.11: Enemy Base Class', () => {
       enemy.takeDamage(enemy.maxHealth);
       expect(enemy.isDead()).toBe(true);
     });
+
+    test('should disable physics body when enemy dies', () => {
+      const enemy = new Enemy(mockScene, 100, 200, 'enemy');
+      // Add a mock body with an 'enable' property
+      enemy.body = {
+        enable: true,
+        setCollideWorldBounds: function() { return this; },
+        setBounce: function() { return this; },
+        setGravity: function(x, y) { return this; },
+        setVelocity: function() { return this; },
+        setAllowGravity: function() { return this; },
+        onFloor: function() { return false; },
+        blocked: { left: false, right: false, up: false, down: false }
+      };
+      enemy.anims = { stop: function() {} };
+      // Deal lethal damage
+      enemy.takeDamage(enemy.maxHealth);
+      expect(enemy.body.enable).toBe(false);
+    });
   });
 
   describe('Enemy Movement Properties', () => {

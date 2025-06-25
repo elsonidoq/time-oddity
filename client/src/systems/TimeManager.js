@@ -37,6 +37,7 @@ export default class TimeManager {
    * @param {boolean} isRewinding Whether to enable or disable rewind.
    */
   toggleRewind(isRewinding) {
+    console.log('[TimeManager] toggleRewind: managedObjects before:', Array.from(this.managedObjects));
     if (isRewinding === this.isRewinding) return;
     this.isRewinding = isRewinding;
 
@@ -58,6 +59,7 @@ export default class TimeManager {
       }
       this._deactivateRewindVisuals();
     }
+    console.log('[TimeManager] toggleRewind: managedObjects after:', Array.from(this.managedObjects));
   }
 
   /**
@@ -102,16 +104,23 @@ export default class TimeManager {
     if (time - this.lastRecordTime > this.recordInterval) {
       this.lastRecordTime = time;
       const frameStates = [];
+      console.log('[TimeManager] handleRecord: managedObjects size:', this.managedObjects.size);
       for (const object of this.managedObjects) {
-        const state = new TemporalState({
-          x: object.x,
-          y: object.y,
-          velocityX: object.body.velocity.x,
-          velocityY: object.body.velocity.y,
-          animation: object.anims.currentAnim ? object.anims.currentAnim.key : null,
-          isAlive: object.active,
-          isVisible: object.visible,
-        });
+        let state;
+        if (typeof object.getStateForRecording === 'function') {
+          state = object.getStateForRecording();
+        } else {
+          state = new TemporalState({
+            x: object.x,
+            y: object.y,
+            velocityX: object.body.velocity.x,
+            velocityY: object.body.velocity.y,
+            animation: object.anims.currentAnim ? object.anims.currentAnim.key : null,
+            isAlive: object.active,
+            isVisible: object.visible,
+          });
+        }
+        console.log('[TimeManager] Recording state for object:', object, state);
         frameStates.push({ target: object, state: state });
       }
       this.stateBuffer.push({ timestamp: time, states: frameStates });
@@ -148,18 +157,34 @@ export default class TimeManager {
   }
 
   applyState(target, state) {
+    const inManaged = this.managedObjects.has(target);
+    console.log('[TimeManager] applyState: Restoring target:', target, 'State:', state, 'In managedObjects:', inManaged);
+    if (typeof target.setStateFromRecording === 'function') {
+      target.setStateFromRecording(state);
+      return;
+    }
     target.x = state.x;
     target.y = state.y;
-    
     if (target.body) {
       target.body.setVelocity(state.velocityX, state.velocityY);
     }
-    
     if (target.anims && state.animation) {
       target.anims.play(state.animation, true);
     }
-    
-    target.setActive(state.isAlive);
+
+    // --- Sync life/visibility flags ---
+    // Built-in Phaser active flag
+    if (typeof target.setActive === 'function') {
+      target.setActive(state.isAlive);
+    } else {
+      target.active = state.isAlive;
+    }
+
+    // Project-specific custom flag used by ChronoPulse and others
+    if ('isActive' in target) {
+      target.isActive = state.isAlive;
+    }
+
     target.setVisible(state.isVisible);
   }
 
