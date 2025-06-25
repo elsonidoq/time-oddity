@@ -188,4 +188,6 @@ module.exports = {
       this.setInteractive = function() { return this; };
     }
   }
-}; 
+};
+
+module.exports.default = module.exports; 

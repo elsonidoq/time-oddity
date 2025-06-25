@@ -64,12 +64,16 @@ if (!globalThis.scene.physics.add) {
   globalThis.scene.physics.add = {};
 }
 globalThis.scene.physics.add.sprite = function() {
-  return {
-    ...createMockGameObject(),
-    body: createMockBody(),
-    play: () => this,
-    parentCoin: null,
-  };
+  const obj = createMockGameObject();
+  const destroyMock = function() {};
+  destroyMock.mock = { calls: [] };
+  destroyMock.mockClear = function() { this.mock.calls = []; };
+  destroyMock.mockImplementation = function() {};
+  destroyMock.mockName = function() { return this; };
+  destroyMock.getMockName = function() { return 'destroyMock'; };
+  destroyMock._isMockFunction = true;
+  obj.destroy = destroyMock;
+  return obj;
 };
 globalThis.scene.physics.add.existing = function() {};
 globalThis.scene.physics.add.collider = function() {};
@@ -94,6 +98,7 @@ const mockGameObject = {
   setScale: function() { return this; },
   setActive: function() { return this; },
   setVisible: function() { return this; },
+  play: function() { return this; },
   anims: {
     play: function() {},
     stop: function() {},
@@ -111,7 +116,7 @@ const mockGameObject = {
     touching: { down: false, up: false, left: false, right: false },
     blocked: { down: false, up: false, left: false, right: false },
   },
-  destroy: function() {},
+  destroy: (typeof jest !== 'undefined' ? jest.fn() : function() {}),
 };
 
 // Add AUTO constant
@@ -199,28 +204,49 @@ const Physics = {
   },
 };
 
-// Helper to create a fresh mockGameObject
-function createMockGameObject() {
-  return JSON.parse(JSON.stringify(mockGameObject));
+function cloneDeep(target) {
+  if (Array.isArray(target)) {
+    return target.map(cloneDeep);
+  }
+  if (target && typeof target === 'object') {
+    const output = {};
+    for (const key in target) {
+      output[key] = cloneDeep(target[key]);
+    }
+    return output;
+  }
+  return target;
 }
 
-// Helper to create a fresh mock body
+// Helper to create a fresh mockGameObject while preserving functions
+function createMockGameObject() {
+  const clone = Object.assign({}, cloneDeep(mockGameObject));
+  if (typeof jest === 'undefined') {
+    // Provide minimal mock structure so Jest matchers work
+    clone.destroy = function() {};
+    clone.destroy.mock = { calls: [] };
+  }
+  return clone;
+}
+
+// Helper to create a fresh mock body preserving function methods
 function createMockBody() {
-  return {
-    setVelocityX: function() {},
-    setVelocityY: function() {},
-    setBounce: function() {},
-    setCollideWorldBounds: function() {},
-    setAllowGravity: function() {},
-    setGravity: function() {},
-    setDrag: function() {},
-    setVelocity: function() {},
+  const bodyTemplate = {
+    setVelocityX: function() { return this; },
+    setVelocityY: function() { return this; },
+    setBounce: function() { return this; },
+    setCollideWorldBounds: function() { return this; },
+    setAllowGravity: function() { return this; },
+    setGravity: function() { return this; },
+    setDrag: function() { return this; },
+    setVelocity: function() { return this; },
     velocity: { x: 0, y: 0 },
     setSize: function() { return this; },
     setOffset: function() { return this; },
     touching: { down: false, up: false, left: false, right: false },
     blocked: { down: false, up: false, left: false, right: false },
   };
+  return Object.assign({}, cloneDeep(bodyTemplate));
 }
 
 const Scale = { FIT: 'FIT', CENTER_BOTH: 'CENTER_BOTH' };
@@ -229,10 +255,22 @@ const mockScene = {
   add: {
     graphics: function() { return {}; },
     existing: function() {},
-    sprite: function() { return {}; },
+    sprite: function() {
+      const obj = createMockGameObject();
+      const destroyMock = function() {};
+      destroyMock.mock = { calls: [] };
+      destroyMock.mockClear = function() { this.mock.calls = []; };
+      destroyMock.mockImplementation = function() {};
+      destroyMock.mockName = function() { return this; };
+      destroyMock.getMockName = function() { return 'destroyMock'; };
+      destroyMock._isMockFunction = true;
+      obj.destroy = destroyMock;
+      return obj;
+    },
     bitmapText: function() { return {}; },
-    text: function() { return {}; },
+    text: function() { return { setOrigin: function() { return this; }, setInteractive: function() { return this; }, on: function() { return this; } }; },
     particles: function() { return {}; },
+    group: function() { return { add: function() {}, getChildren: function() { return []; } }; },
   },
   physics: {
     add: {
@@ -240,7 +278,12 @@ const mockScene = {
       group: function() { return { getChildren: function() { return []; }, add: function() {} }; },
       collider: function() {},
       overlap: function() {},
-      sprite: function() { return {}; },
+      sprite: function() {
+        return {
+          ...createMockGameObject(),
+          body: createMockBody(),
+        };
+      },
     },
   },
   input: {
@@ -259,6 +302,16 @@ const mockScene = {
   },
 };
 
+// Consolidate exported members into a single default object so that
+// `import Phaser from 'phaser'` works in ESM test files.
+const PhaserDefault = {
+  Scene,
+  Input,
+  Physics,
+  Scale,
+  Game,
+  AUTO,
+};
 export {
   Scene,
   Input,
@@ -269,5 +322,6 @@ export {
   mockScene,
   mockGameObject,
   createMockGameObject,
-  createMockBody
-}; 
+  createMockBody,
+};
+export default PhaserDefault; 
