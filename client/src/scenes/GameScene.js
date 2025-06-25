@@ -182,6 +182,11 @@ export default class GameScene extends BaseScene {
         );
       }
     }
+
+    // Launch UIScene overlay for HUD elements
+    if (this.scene && typeof this.scene.launch === 'function') {
+      this.scene.launch('UIScene');
+    }
   }
 
   handlePlayerCoinOverlap(player, coinSprite) {
@@ -217,9 +222,34 @@ export default class GameScene extends BaseScene {
   }
 
   update(time, delta) {
+    // Handle pause input
+    if (this.player && this.player.inputManager && this.player.inputManager.isPauseJustPressed) {
+      // Pause the game scene
+      this.scene.pause('GameScene');
+      
+      // Launch UIScene with pause menu
+      this.scene.launch('UIScene', { showPause: true });
+      
+      // Pause TimeManager recording if it exists
+      if (this.timeManager && typeof this.timeManager.pauseRecording === 'function') {
+        this.timeManager.pauseRecording();
+      }
+      
+      // Emit pause event
+      this.events.emit('gamePaused');
+      
+      return; // Don't continue with normal update logic when pausing
+    }
+
     // Update game objects
     if (this.player) {
       this.player.update(time, delta);
+      
+      // Update registry with current player health for UI
+      if (this.registry && this.player) {
+        this.registry.set('playerHealth', this.player.health);
+        this.registry.set('dashTimer', this.player.dashTimer);
+      }
     }
     if (this.loophound) {
       this.loophound.update(time, delta);
@@ -231,6 +261,11 @@ export default class GameScene extends BaseScene {
         if (isRewindActive !== this.timeManager.isRewinding) {
             this.timeManager.toggleRewind(isRewindActive);
         }
+    }
+    
+    // Update registry with chrono pulse cooldown data
+    if (this.registry && this.player && this.player.chronoPulse) {
+      this.registry.set('chronoPulseLastActivation', this.player.chronoPulse.lastActivationTime);
     }
   }
 

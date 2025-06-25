@@ -31,6 +31,9 @@ export default class InputManager {
     
     // E key for Chrono Pulse ability
     this.e = scene.input.keyboard.addKey('E');
+
+    // P key for pause
+    this.p = scene.input.keyboard.addKey('P');
   }
 
   /**
@@ -119,5 +122,19 @@ export default class InputManager {
       console.log('[InputManager] Chrono Pulse key just pressed (E)');
     }
     return justPressed;
+  }
+
+  /**
+   * Check if the pause key is pressed (P)
+   */
+  get isPausePressed() {
+    return this.p.isDown;
+  }
+
+  /**
+   * Check if the pause key was just pressed (P)
+   */
+  get isPauseJustPressed() {
+    return Phaser.Input.Keyboard.JustDown(this.p);
   }
 } 

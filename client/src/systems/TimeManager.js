@@ -26,6 +26,9 @@ export default class TimeManager {
     // Visual effect state
     this._rewindOverlay = null;
     this._rewindActive = false;
+
+    // Pause state for recording
+    this.isRecordingPaused = false;
   }
 
   /**
@@ -104,7 +107,26 @@ export default class TimeManager {
     this.interpolateFrame(frameA, frameB, t);
   }
 
+  /**
+   * Pauses state recording (for game pause functionality)
+   */
+  pauseRecording() {
+    this.isRecordingPaused = true;
+  }
+
+  /**
+   * Resumes state recording (for game resume functionality)
+   */
+  resumeRecording() {
+    this.isRecordingPaused = false;
+  }
+
   handleRecord(time) {
+    // Don't record if recording is paused
+    if (this.isRecordingPaused) {
+      return;
+    }
+
     if (time - this.lastRecordTime > this.recordInterval) {
       this.lastRecordTime = time;
       const frameStates = [];

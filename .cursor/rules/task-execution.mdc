@@ -7,31 +7,67 @@ alwaysApply: false
 
 For every assigned task, you must adhere to the following strict TDD process:
 
-1. **Write Tests First**
-   - Before writing any implementation code, create all required tests based on the task description.
-   - Ensure the project is in a "red" state (i.e., tests fail due to missing or incomplete implementation).
+## Core TDD Cycle
 
-2. **Validate Red State**
-   - Confirm that new tests fail for the expected reasons. 
-   - If a test passes prematurely, stop and revise the test—it is not properly validating unimplemented logic.
+### 1. **Red Phase - Write Tests First**
+   - Before writing any implementation code, create all required tests based on the task description
+   - Ensure the project is in a "red" state (i.e., tests fail due to missing or incomplete implementation)
+   - Tests must define the exact requirements and expected behavior
 
-3. **Implement Minimal Code**
-   - Write only the minimal code required to make the tests pass.
-   - Avoid adding any extra logic or refactoring at this stage.
+### 2. **Validate Red State**
+   - Confirm that new tests fail for the expected reasons
+   - If a test passes prematurely, stop and revise the test—it is not properly validating unimplemented logic
+   - Verify that the test suite accurately reflects the task requirements
 
-4. **Confirm Green State**
-   - Ensure all newly written tests now pass.
-   - Do not proceed unless all tests for this task are green.
+### 3. **Green Phase - Implement Minimal Code**
+   - Write only the minimal code required to make the tests pass
+   - Avoid adding any extra logic or refactoring at this stage
+   - Focus on correctness over optimization
 
-5. **User Verification (If Applicable)**
-   - If the task affects visible behavior or user interaction, prompt the user to manually verify the results.
+### 4. **Confirm Green State**
+   - Ensure all newly written tests now pass
+   - Do not proceed unless all tests for this task are green
+   - Verify that existing tests still pass (no regressions)
 
-6. **Run Full Test Suite**
-   - Execute the complete test suite.
-   - Confirm that **all** tests (new and existing) pass (green state).
+### 5. **Refactor Phase - Clean Up Code**
+   - Clean up and optimize both the production and test code
+   - Ensure all tests continue to pass during refactoring
+   - Improve code quality while maintaining functionality
 
-7. **Error Recovery**
-   - If any test fails, attempt to fix it silently.
-   - If the same error persists after 3 retries, stop and request clarification from the user.
+## Quality Gates
+
+### 6. **Full Test Suite Validation**
+   - Execute the complete test suite to ensure no regressions
+   - Confirm that **all** tests (new and existing) pass
+   - Address any failures before proceeding
+
+### 7. **User Verification (If Applicable)**
+   - If the task affects visible behavior or user interaction, prompt the user to manually verify the results
+   - Ensure the implementation meets the user's expectations
+
+### 8. **Error Recovery Protocol**
+   - If any test fails, attempt to fix it silently
+   - If the same error persists after 3 retries, stop and request clarification from the user
+   - Document any unexpected issues for future reference
+
+## Critical Principles
+
+### State & Invariant Conservation
+- **Preserve all existing states and invariants** unless explicitly creating new ones
+- **Document any new states/invariants** following established patterns
+- **Ensure time reversal compatibility** for all new entities
+
+### Testing Excellence
+- **Unit tests must be fast and isolated** (use proper mocking strategies)
+- **Integration tests for component interactions** where appropriate
+- **All tests must pass before considering task complete**
+
+### Architectural Compliance
+- **Maintain decoupled architecture** (logic separated from engine dependencies)
+- **Follow established patterns** from project documentation
+- **Preserve existing event contracts** and runtime event names
 
 ⛔ **Never skip a step. Always prioritize correctness and minimalism.**
+⛔ **Execute the task end to end. Only ask for input for functional validation, or for a persistent error.**
+⛔ **State and invariant conservation is non-negotiable.**
+⛔ **All tests must pass before task completion.**

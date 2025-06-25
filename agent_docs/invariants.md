@@ -41,6 +41,7 @@
 | Dash | **SHIFT** (JustDown is used for dash trigger) |
 | Rewind | **R** (While held) |
 | Chrono-Pulse | **E** (JustDown) |
+| Pause | **P** (JustDown) |
 
 If you change key bindings ensure **all getters** in `InputManager` continue to return correct booleans because they are queried **each frame in every state**.
 
@@ -70,6 +71,7 @@ If you change key bindings ensure **all getters** in `InputManager` continue to 
    * expose **at minimum**: `x`, `y`, `body.velocity.{x,y}`, `anims.currentAnim.key`, `active`, `visible`.
 3. During rewind `body.setAllowGravity(false)` is called – objects should not immediately re-enable gravity on their own.
 4. Visual rewind overlay is created with depth **1000**; adding UI above this depth will hide it.
+5. **Pause recording functionality**: `pauseRecording()` and `resumeRecording()` methods control whether state snapshots are recorded. When paused, the rewind buffer is preserved but no new states are added.
 
 ---
 
@@ -138,6 +140,8 @@ Several systems communicate via the Phaser event-emitter. These string constants
 |---------|------------|--------------|-------------------|
 | Scene.events | `playerEnemyCollision` | `CollisionManager.setupPlayerEnemyCollision` | Combat handler in `GameScene`, tests |
 | Scene.events | `enemyFrozen` / `enemyUnfrozen` | `Enemy.freeze()` / `Enemy.unfreeze()` | Visual/audio feedback to be implemented, tests |
+| Scene.events | `gamePaused` | `GameScene.update()` when pause triggered | UI feedback systems, tests |
+| Scene.events | `gameResumed` | `UIScene.resumeGame()` when resume triggered | Game state restoration systems, tests |
 
 Do **not** rename these events without refactoring every `scene.events.on(...)` subscription and the test-suite.
 
