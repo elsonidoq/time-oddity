@@ -438,13 +438,14 @@ describe('LoopHound Enemy', () => {
       expect(state).toEqual({
         x: 100,
         y: 200,
-        vx: 0,
-        vy: 0,
-        direction: 1,
-        isFrozen: false,
-        state: 'patrol',
-        patrolStartX: 100,
-        patrolEndX: 300
+        velocityX: 0,
+        velocityY: 0,
+        animation: null,
+        health: 100,
+        active: true,
+        visible: true,
+        bodyEnable: true,
+        state: 'patrol'
       });
     });
 

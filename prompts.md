@@ -1,4 +1,5 @@
 
+current release: 4b9d01f9788108e9dd10a2b975f44fe340618a0d
 
 Now investigate and fully fix the bug where enemies, once respawned via time reversal, are no longer affected by the chrono pulse. Perform all steps autonomously, with no user intervention.
 

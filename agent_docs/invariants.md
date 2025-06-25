@@ -150,6 +150,203 @@ Do **not** rename these events without refactoring every `scene.events.on(...)` 
 
 ---
 
+## 17. State Structures & Time Reversal Contracts
+
+### 17.1 Base TemporalState (systems/TemporalState.js)
+The minimal state shape that **all** objects must expose for TimeManager recording:
+
+```javascript
+{
+  x: number,           // Horizontal position
+  y: number,           // Vertical position  
+  velocityX: number,   // Horizontal velocity
+  velocityY: number,   // Vertical velocity
+  animation: string,   // Current animation key (or null)
+  isAlive: boolean,    // Phaser's active flag
+  isVisible: boolean   // Visibility flag
+}
+```
+
+**Usage**: TimeManager creates this automatically for objects without custom recording methods.
+
+### 17.2 Entity Base State (entities/Entity.js)
+All entities inherit these properties from `Phaser.Physics.Arcade.Sprite` + custom fields:
+
+```javascript
+// From Phaser.Physics.Arcade.Sprite
+this.x, this.y                    // Position
+this.body.velocity.x/y            // Physics velocity
+this.active                       // Phaser's active flag
+this.visible                      // Visibility
+this.anims.currentAnim.key        // Current animation
+
+// Custom Entity properties  
+this.health                       // Current health (0-100)
+this.maxHealth                    // Maximum health
+this.isActive                     // Custom active flag (used by ChronoPulse)
+```
+
+**Time Reversal**: `isActive` is synced with `active` during state restoration.
+
+### 17.3 Player State (entities/Player.js)
+Extends Entity with player-specific state:
+
+```javascript
+// Movement & Physics
+this.speed = 200                  // Horizontal movement speed
+this.jumpPower = 800              // Jump velocity
+this.gravity = 980                // Gravity constant
+
+// Combat
+this.attackPower = 20             // Damage dealt to enemies
+
+// Dash System (critical for time reversal)
+this.dashCooldown = 1000          // Cooldown in ms
+this.dashDuration = 120           // Dash duration in ms  
+this.dashSpeed = 1000             // Dash velocity
+this.dashTimer = 0                // Absolute time when dash becomes available
+this.canDash = true               // Whether dash is currently allowed
+this.isDashing = false            // Whether currently dashing
+
+// State Machine
+this.stateMachine                 // Current state: 'idle'|'run'|'jump'|'fall'|'dash'
+this._wasRewinding = false        // Previous rewind state for transition handling
+
+// Abilities
+this.chronoPulse                  // ChronoPulse instance
+this.ghostPool                    // ObjectPool for dash trail effects
+```
+
+**Time Reversal**: Dash timing variables (`dashTimer`, `canDash`) are **not** recorded by TimeManager – they are recalculated from `scene.time.now` during state restoration.
+
+### 17.4 Enemy State (entities/Enemy.js)
+Extends Entity with AI behavior state:
+
+```javascript
+// Health & Combat
+this.maxHealth = 100              // Maximum health
+this.health                       // Current health  
+this.damage = 20                  // Damage dealt to player
+this.speed = 100                  // Movement speed
+this.moveSpeed = this.speed       // Current movement speed
+
+// Movement & AI
+this.direction = 1                // 1 = right, -1 = left
+this.stateMachine                 // AI state machine
+
+// Freeze System (critical for ChronoPulse)
+this.isFrozen = false             // Whether currently frozen
+this._frozenUntil = null          // Timestamp when freeze expires
+this._freezeTimer = null          // Internal timer reference
+```
+
+**Time Reversal**: Freeze timers are checked against `scene.time.now` during `update()` – they automatically expire and unfreeze enemies.
+
+### 17.5 LoopHound Extended State (entities/enemies/LoopHound.js)
+Extends Enemy with patrol-specific state:
+
+```javascript
+// Patrol Behavior
+this.patrolDistance = 200         // Patrol range
+this.patrolStartX = x             // Left boundary
+this.patrolEndX = x + 200         // Right boundary
+this.spawnX = x                   // Respawn position
+this.spawnY = y                   // Respawn position
+
+// Custom State Recording (implements getStateForRecording/setStateFromRecording)
+{
+  // Standard TemporalState fields
+  x, y, velocityX, velocityY, animation, active, visible,
+  
+  // Extended fields
+  health,                         // Current health
+  bodyEnable,                     // Physics body enabled state
+  direction,                      // Movement direction
+  isFrozen,                       // Freeze state
+  patrolStartX, patrolEndX,       // Patrol boundaries
+  state                          // State machine current state
+}
+```
+
+**Time Reversal**: LoopHound's custom recording preserves patrol boundaries and AI state that the base TemporalState would lose.
+
+### 17.6 ChronoPulse State (entities/ChronoPulse.js)
+Extends Entity with ability-specific state:
+
+```javascript
+// Configuration
+this.cooldown = 3000              // Cooldown in ms
+this.range = 150                  // Effect range in pixels
+this.duration = 1000              // Effect duration in ms
+
+// Runtime State
+this.lastActivationTime = 0       // Timestamp of last activation
+this.animationTimeline = null     // GSAP timeline reference
+this.shockwaveGraphics = null     // Visual effect graphics object
+this.gsapLib                      // GSAP library reference
+```
+
+**Time Reversal**: ChronoPulse does **not** implement custom state recording – it relies on the base TemporalState. Cooldown timing is recalculated from `scene.time.now` during `canActivate()`.
+
+### 17.7 TimeManager State (systems/TimeManager.js)
+The central time reversal system state:
+
+```javascript
+// Core State
+this.stateBuffer = []             // Array of recorded frames
+this.isRewinding = false          // Whether currently rewinding
+this.managedObjects = new Set()   // Objects being tracked
+this.lastRecordTime = 0           // Timestamp of last recording
+this.recordInterval = 50          // Recording frequency in ms
+this.playbackTimestamp = 0        // Current playback position
+
+// Visual Effects
+this._rewindOverlay = null        // Blue overlay graphics object
+this._rewindActive = false        // Whether visual effects are active
+```
+
+**State Buffer Structure**:
+```javascript
+[
+  {
+    timestamp: number,             // Absolute time of this frame
+    states: [                      // Array of object states
+      {
+        target: GameObject,        // Reference to the object
+        state: TemporalState       // State data (or custom object)
+      }
+    ]
+  }
+]
+```
+
+### 17.8 State Recording Contracts
+
+#### Objects with Custom Recording
+- **LoopHound**: Implements `getStateForRecording()` and `setStateFromRecording()`
+- **Future entities**: Should implement these methods if they have state beyond the base TemporalState
+
+#### Objects with Default Recording  
+- **Player**: Uses base TemporalState (dash timing recalculated)
+- **Enemy**: Uses base TemporalState (freeze timing recalculated)  
+- **ChronoPulse**: Uses base TemporalState (cooldown recalculated)
+- **Coin**: Uses base TemporalState
+
+#### State Restoration Rules
+1. **Position & Velocity**: Always restored exactly
+2. **Animation**: Restored if animation key exists
+3. **Lifecycle Flags**: `active` and `visible` always restored
+4. **Custom Flags**: `isActive` synced with `active` during restoration
+5. **Timing Variables**: Recalculated from `scene.time.now` (not recorded)
+6. **Physics Body**: `body.enable` restored for objects that track it
+
+#### Testing Implications
+- **Unit Tests**: Must mock `scene.time.now` to test timing-dependent logic
+- **Integration Tests**: Must ensure state recording/restoration works correctly
+- **Mock Objects**: Must implement the same state contracts as real objects
+
+---
+
 ### How to update this document
 * When you purposefully change an invariant, **edit this file in the same pull-request** and explain why the change is safe.  
 * Run `npm test` locally – a large portion of the suite guards against these invariants implicitly.

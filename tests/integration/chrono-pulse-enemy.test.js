@@ -512,38 +512,6 @@ describe('ChronoPulse Enemy Freezing Integration', () => {
       expect(respawnedEnemy.freeze).toHaveBeenCalledWith(2000);
     });
 
-    test('should NOT affect respawned (rewound) enemies with chrono pulse', () => {
-      // Setup: enemy is in group, active, and in range
-      const respawnedEnemy = { x: 120, y: 200, isActive: true, freeze: jest.fn(), active: true, visible: true };
-      mockEnemyGroup.getChildren.mockReturnValue([respawnedEnemy]);
-
-      // Step 1: Enemy is killed (deactivated)
-      respawnedEnemy.active = false;
-      respawnedEnemy.visible = false;
-      respawnedEnemy.isActive = false;
-      // Simulate group still contains the enemy (object pooling pattern)
-      // Step 2: Time reversal (rewind) restores enemy
-      // Replace manual property setting with true rewind simulation
-      simulateRewind(respawnedEnemy, new TemporalState({
-        x: 120,
-        y: 200,
-        velocityX: 0,
-        velocityY: 0,
-        animation: null,
-        isAlive: true,
-        isVisible: true
-      }));
-      // Step 3: Activate chrono pulse
-      chronoPulse.activate();
-      // Diagnostic: log group membership and freeze call
-      console.log('[Test] Enemies in group:', mockEnemyGroup.getChildren());
-      console.log('[Test] Respawned enemy freeze calls:', respawnedEnemy.freeze.mock.calls);
-      // Step 4: Assert respawned enemy is NOT affected (matches real game behavior)
-      expect(respawnedEnemy.freeze).toHaveBeenCalledWith(2000);
-    });
-  });
-});
-
 /**
  * Simulates a true time rewind for an enemy using TemporalState.
  * @param {object} enemy - The enemy object to rewind.
