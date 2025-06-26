@@ -29,6 +29,7 @@
 1. **Boot → Menu → Game** – `BootScene` must finish loading atlases before any other scene is started.
 2. `GameScene` creates physics groups **platforms, players, enemies, coins** – their existence is assumed by many systems (`CollisionManager`, `ChronoPulse`).
 3. `GameScene` registers a single `Player` instance in `this.players`. Multiple players are *not* yet supported.
+4. **Platform Creation**: `GameScene` uses `PlatformFactory` to create `Platform` class instances instead of hardcoded sprites. All platforms are registered with `TimeManager` for time reversal compatibility.
 
 ---
 
@@ -94,6 +95,7 @@ If you change key bindings ensure **all getters** in `InputManager` continue to 
 ## 10. CollisionManager Expectations
 1. All colliders are created **once** during `GameScene.create()`; re-creating colliders each frame will leak handlers.
 2. `setupPlayerEnemyCollision()` emits `'playerEnemyCollision'` event on the **scene** event-emitter. Listeners rely on this exact event name.
+3. **Platform Collisions**: Platforms are `Platform` class instances that implement time reversal contracts (`getStateForRecording()` and `setStateFromRecording()`). Collision detection works with both static and moving platforms.
 
 ---
 
@@ -106,7 +108,8 @@ If you change key bindings ensure **all getters** in `InputManager` continue to 
 
 ## 12. Level / Platform Geometry
 1. Ground top pixel-row sits at **y = 656** in 720 p canvas; camera bounds & player spawn rely on this magic number.
-2. `configurePlatform(platform, isFullBlock)` sets hit-box to full sprite when `isFullBlock` is `true`; altering this function may break jump/fall tests.
+2. Platform configuration is handled by `Platform.configurePlatform()` method within the `Platform` class. The `isFullBlock` parameter sets hit-box to full sprite when `true`; altering this function may break jump/fall tests.
+3. **Platform Registration**: All platforms created by `GameScene` must be registered with `TimeManager` for time reversal compatibility.
 
 ---
 

@@ -83,6 +83,13 @@ export default class Platform extends Entity {
         velocity: { x: 0, y: 0 }
       };
     }
+    
+    // Ensure all required methods exist (for test environments)
+    if (!this.body.setImmovable) this.body.setImmovable = noop;
+    if (!this.body.setAllowGravity) this.body.setAllowGravity = noop;
+    if (!this.body.setSize) this.body.setSize = noop;
+    if (!this.body.setOffset) this.body.setOffset = noop;
+    if (!this.body.velocity) this.body.velocity = { x: 0, y: 0 };
   }
 
   /**

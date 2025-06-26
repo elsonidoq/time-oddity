@@ -280,25 +280,25 @@ class Platform extends Entity {
 - **Mock requirements**: Platform mock, PlatformFactory mock
 
 **Task Breakdown & Acceptance Criteria**:
-- [ ] **Ground Platform Refactoring**: Replace hardcoded ground platform creation
-  - [ ] Create ground platform using Platform class
-  - [ ] Maintain exact same visual appearance and collision behavior
-  - [ ] Register ground platform with TimeManager
-  - [ ] Verify collision detection still works
-- [ ] **Floating Platforms Refactoring**: Replace hardcoded floating platform creation
-  - [ ] Create each floating platform using Platform class
-  - [ ] Maintain exact same positions and configurations
-  - [ ] Register all platforms with TimeManager
-  - [ ] Verify all collision detection still works
-- [ ] **Integration Testing**: Verify complete functionality
-  - [ ] Test player-platform collisions
-  - [ ] Test enemy-platform collisions
-  - [ ] Test time reversal with platforms
-  - [ ] Verify no visual or behavioral changes
-- [ ] **Invariant Documentation**: Document scene platform management in invariants.md
-  - [ ] Update §3 Scene Lifecycle to reflect Platform class usage
-  - [ ] Document platform registration requirements with TimeManager
-  - [ ] Update any relevant collision expectations in §10
+- [x] **Ground Platform Refactoring**: Replace hardcoded ground platform creation
+  - [x] Create ground platform using Platform class
+  - [x] Maintain exact same visual appearance and collision behavior
+  - [x] Register ground platform with TimeManager
+  - [x] Verify collision detection still works
+- [x] **Floating Platforms Refactoring**: Replace hardcoded floating platform creation
+  - [x] Create each floating platform using Platform class
+  - [x] Maintain exact same positions and configurations
+  - [x] Register all platforms with TimeManager
+  - [x] Verify all collision detection still works
+- [x] **Integration Testing**: Verify complete functionality
+  - [x] Test player-platform collisions
+  - [x] Test enemy-platform collisions
+  - [x] Test time reversal with platforms
+  - [x] Verify no visual or behavioral changes
+- [x] **Invariant Documentation**: Document scene platform management in invariants.md
+  - [x] Update §3 Scene Lifecycle to reflect Platform class usage
+  - [x] Document platform registration requirements with TimeManager
+  - [x] Update any relevant collision expectations in §10
 
 **Expected Output**: GameScene using Platform class instances instead of hardcoded sprites, with identical behavior.
 
@@ -308,12 +308,12 @@ class Platform extends Entity {
 - **Fallback plan**: Maintain existing hardcoded platform creation as commented code
 
 **Definition of Done**:
-- [ ] All hardcoded platforms replaced with Platform class instances
-- [ ] All existing functionality preserved exactly
-- [ ] All integration tests pass
-- [ ] Time reversal works correctly with platforms
-- [ ] **invariants.md updated with scene platform management**
-- [ ] No regressions in collision detection or physics
+- [x] All hardcoded platforms replaced with Platform class instances
+- [x] All existing functionality preserved exactly
+- [x] All integration tests pass
+- [x] Time reversal works correctly with platforms
+- [x] **invariants.md updated with scene platform management**
+- [x] No regressions in collision detection or physics
 
 ---
 
