@@ -1,411 +1,880 @@
-## Platform Class Refactoring Tasks
+# Platform Class Refactoring Plan
 
-### Task 7.1: Create Platform Base Class
+## Platform Interface Design
 
-### Task Title
-Create Platform Base Class with Core Properties
+### Core Platform Abstraction
+The `Platform` class will abstract all platform logic, providing a flexible and extensible structure for different platform types:
 
-### Objective
-Create a dedicated Platform class that extends Entity with core platform properties.
+```javascript
+/**
+ * Platform Configuration Interface
+ */
+interface PlatformConfig {
+  x: number;                    // X position
+  y: number;                    // Y position
+  width: number;                // Platform width (default: 64)
+  height: number;               // Platform height (default: 64)
+  textureKey: string;           // Atlas key (default: 'tiles')
+  frameKey: string;             // Frame key from atlas
+  isFullBlock: boolean;         // Whether to use full sprite hitbox
+  platformType: PlatformType;   // Type of platform behavior
+  movementConfig?: MovementConfig; // For moving platforms
+  properties?: PlatformProperties; // Additional platform properties
+}
 
-### Task Reference
-Foundation for all platform refactoring tasks.
+/**
+ * Platform Types
+ */
+enum PlatformType {
+  STATIC = 'static',           // Standard static platform
+  MOVING = 'moving',           // Platform that moves along a path
+  BREAKABLE = 'breakable',     // Platform that can be destroyed
+  BOUNCY = 'bouncy',           // Platform that bounces entities
+  CONVEYOR = 'conveyor'        // Platform that moves entities
+}
 
-### Pre-Implementation Analysis
-- [ ] **testing_best_practices.md sections to apply**: §1.2 (Test Pyramid), §2.1 (TDD)
-- [ ] **invariants.md sections to verify**: §6 (Entity Base Class)
-- [ ] **small_comprehensive_documentation.md sections to reference**: §7.2 (Platformer Character Controller)
+/**
+ * Movement Configuration for Moving Platforms
+ */
+interface MovementConfig {
+  path: Array<{x: number, y: number}>; // Movement path points
+  speed: number;                        // Movement speed
+  loop: boolean;                        // Whether to loop the path
+  pingPong: boolean;                    // Whether to reverse at endpoints
+  startDelay: number;                   // Initial delay before movement
+}
 
-### Implementation Plan
-- **Create**: `client/src/entities/Platform.js` - Base Platform class
+/**
+ * Platform Properties
+ */
+interface PlatformProperties {
+  friction?: number;            // Surface friction (0-1)
+  bounciness?: number;          // Bounce factor (0-1)
+  damage?: number;              // Damage dealt on contact
+  isOneWay?: boolean;           // Whether entities can pass through from below
+}
+```
+
+### Platform Class Structure
+```javascript
+class Platform extends Entity {
+  constructor(scene, config, mockScene = null)
+  
+  // Core properties
+  platformType: PlatformType
+  movementConfig?: MovementConfig
+  properties: PlatformProperties
+  
+  // Movement state (for moving platforms)
+  currentPathIndex: number
+  pathProgress: number
+  isMoving: boolean
+  
+  // Methods
+  update(time, delta): void
+  startMovement(): void
+  stopMovement(): void
+  resetPosition(): void
+  
+  // Time reversal compatibility
+  getStateForRecording(): TemporalState
+  setStateFromRecording(state: TemporalState): void
+}
+```
+
+### Level Configuration Format
+```json
+{
+  "platforms": [
+    {
+      "x": 200,
+      "y": 500,
+      "frameKey": "terrain_grass_block_center",
+      "isFullBlock": true,
+      "platformType": "static"
+    },
+    {
+      "x": 400,
+      "y": 300,
+      "frameKey": "terrain_grass_block_center",
+      "platformType": "moving",
+      "movementConfig": {
+        "path": [
+          {"x": 400, "y": 300},
+          {"x": 600, "y": 300}
+        ],
+        "speed": 50,
+        "loop": true,
+        "pingPong": true
+      }
+    }
+  ]
+}
+```
+
+---
+
+## Phase 1: Introduce Platform Class and Refactor Existing Static Platforms
+
+### Task 1.1: Create Platform Base Class
+**Objective**: Create the foundational Platform class that extends Entity and provides basic platform functionality.
+
+**Task Reference**: Phase 1, Task 1.1
+
+**Pre-Implementation Analysis**:
+- **invariants.md sections to review**: §17 State Structures, §12 Level/Platform Geometry
+- **testing_best_practices.md sections to apply**: TDD/BDD methodology, State-Based Testing
+- **small_comprehensive_documentation.md sections to reference**: §7.2 Platformer Character Controller, §8.1 Testing Philosophy
+
+**State & Invariant Impact Assessment**:
+- **Existing states to preserve**: All existing platform positions and behaviors must remain unchanged
+- **New states/invariants to create**: Platform state structure for time reversal compatibility
+- **Time reversal compatibility**: Platform must implement TemporalState recording/restoration
+
+**Implementation Plan**:
+- **Create**: `client/src/entities/Platform.js`
+- **Modify**: None initially
+- **Delete**: None
+
+**Integration Points**:
+- **Systems affected**: GameScene platform creation, CollisionManager
+- **State machines**: None initially
+- **External libraries**: Phaser physics, existing tile atlas
+
+**Testing Strategy**:
+- **Test files to create/update**: `tests/unit/platform.test.js`
+- **Key test cases**: Platform creation, physics configuration, state recording/restoration
+- **Mock requirements**: PhaserSceneMock, existing Entity mocks
+
+**Task Breakdown & Acceptance Criteria**:
+- [x] **Platform Class Creation**: Create Platform class extending Entity with basic platform properties
+  - [x] Platform constructor accepts scene, x, y, texture, frame parameters
+  - [x] Platform configures physics body as immovable with no gravity
+  - [x] Platform supports isFullBlock configuration for hitbox sizing
+  - [x] Platform implements getStateForRecording() and setStateFromRecording() for time reversal
+- [x] **Physics Configuration**: Implement configurePlatform() method within Platform class
+  - [x] Method sets body as immovable and disables gravity
+  - [x] Method configures hitbox based on isFullBlock parameter
+  - [x] Method matches existing configurePlatform() behavior exactly
+- [x] **Unit Tests**: Create comprehensive test suite for Platform class
+  - [x] Test platform creation with various configurations
+  - [x] Test physics body configuration
+  - [x] Test state recording and restoration
+  - [x] Test time reversal compatibility
+- [x] **Invariant Documentation**: Document new Platform state structure in invariants.md
+  - [x] Add Platform state structure to §17 State Structures & Time Reversal Contracts
+  - [x] Document Platform-specific state recording requirements
+  - [x] Update any relevant asset/animation key references in §14
+
+**Expected Output**: A working Platform class that can be instantiated and configured with the same behavior as existing hardcoded platforms.
+
+**Risk Assessment**:
+- **Potential complexity**: Ensuring exact compatibility with existing platform behavior
+- **Dependencies**: Entity base class, Phaser physics system
+- **Fallback plan**: If issues arise, maintain existing configurePlatform() method as fallback
+
+**Definition of Done**:
+- [x] Platform class created and functional
+- [x] All unit tests pass
+- [x] Platform behavior matches existing hardcoded platforms exactly
+- [x] Time reversal compatibility verified
+- [x] **invariants.md updated with new Platform state structure**
+- [x] No regressions in existing functionality
+
+---
+
+### Task 1.2: Create Platform Factory
+**Objective**: Create a factory pattern for platform creation to standardize platform instantiation.
+
+**Task Reference**: Phase 1, Task 1.2
+
+**Pre-Implementation Analysis**:
+- **invariants.md sections to review**: §14 Asset & Animation Keys, §12 Level/Platform Geometry
+- **testing_best_practices.md sections to apply**: Factory Pattern Testing, Mock Integration
+- **small_comprehensive_documentation.md sections to reference**: §1.3 Asset and Sprite Management
+
+**State & Invariant Impact Assessment**:
+- **Existing states to preserve**: All existing platform creation patterns
+- **New states/invariants to create**: Platform factory configuration patterns
+- **Time reversal compatibility**: Factory-created platforms must be time reversal compatible
+
+**Implementation Plan**:
+- **Create**: `client/src/systems/PlatformFactory.js`
+- **Modify**: None initially
+- **Delete**: None
+
+**Integration Points**:
+- **Systems affected**: GameScene platform creation
+- **State machines**: None
+- **External libraries**: Phaser GameObjectFactory
+
+**Testing Strategy**:
+- **Test files to create/update**: `tests/unit/platform-factory.test.js`
+- **Key test cases**: Factory creation with various configurations, error handling
+- **Mock requirements**: PhaserSceneMock, Platform mock
+
+**Task Breakdown & Acceptance Criteria**:
+- [x] **Factory Class Creation**: Create PlatformFactory class with createPlatform method
+  - [x] Factory accepts scene and platform configuration object
+  - [x] Factory creates Platform instances with correct parameters
+  - [x] Factory handles default values for optional configuration
+  - [x] Factory validates configuration parameters
+- [x] **Configuration Validation**: Implement configuration validation
+  - [x] Validate required parameters (x, y, frameKey)
+  - [x] Set sensible defaults for optional parameters
+  - [x] Throw descriptive errors for invalid configurations
+- [x] **Unit Tests**: Create comprehensive test suite for PlatformFactory
+  - [x] Test platform creation with various configurations
+  - [x] Test configuration validation and error handling
+  - [x] Test default value assignment
+- [x] **Invariant Documentation**: Document factory configuration patterns in invariants.md
+  - [x] Add PlatformFactory configuration requirements to §14 Asset & Animation Keys
+  - [x] Document required vs optional configuration parameters
+  - [x] Update any relevant testing assumptions in §13
+
+**Expected Output**: A PlatformFactory that can create Platform instances from configuration objects.
+
+**Risk Assessment**:
+- **Potential complexity**: Ensuring factory creates platforms identical to hardcoded versions
+- **Dependencies**: Platform class, Phaser scene
+- **Fallback plan**: Maintain direct Platform instantiation as alternative
+
+**Definition of Done**:
+- [x] PlatformFactory class created and functional
+- [x] All unit tests pass
+- [x] Factory creates platforms identical to hardcoded versions
+- [x] Configuration validation working correctly
+- [x] **invariants.md updated with factory configuration patterns**
+- [x] No regressions in existing functionality
+
+---
+
+### Task 1.3: Refactor GameScene to Use Platform Class
+**Objective**: Replace hardcoded platform creation in GameScene with Platform class instances.
+
+**Task Reference**: Phase 1, Task 1.3
+
+**Pre-Implementation Analysis**:
+- **invariants.md sections to review**: §3 Scene Lifecycle, §12 Level/Platform Geometry
+- **testing_best_practices.md sections to apply**: Integration Testing, State-Based Testing
+- **small_comprehensive_documentation.md sections to reference**: §1.2 Scene System, §7.2 Platformer Character Controller
+
+**State & Invariant Impact Assessment**:
+- **Existing states to preserve**: All existing platform positions, behaviors, and collision detection
+- **New states/invariants to create**: Platform instances in scene state
+- **Time reversal compatibility**: All platforms must be registered with TimeManager
+
+**Implementation Plan**:
+- **Create**: None
+- **Modify**: `client/src/scenes/GameScene.js`
+- **Delete**: None
+
+**Integration Points**:
+- **Systems affected**: GameScene platform creation, CollisionManager, TimeManager
+- **State machines**: None
+- **External libraries**: Platform class, PlatformFactory
+
+**Testing Strategy**:
+- **Test files to create/update**: `tests/unit/game-scene-platforms.test.js`
+- **Key test cases**: Platform creation, collision detection, time reversal registration
+- **Mock requirements**: Platform mock, PlatformFactory mock
+
+**Task Breakdown & Acceptance Criteria**:
+- [x] **Ground Platform Refactoring**: Replace hardcoded ground platform creation
+  - [x] Create ground platform using Platform class
+  - [x] Maintain exact same visual appearance and collision behavior
+  - [x] Register ground platform with TimeManager
+  - [x] Verify collision detection still works
+- [x] **Floating Platforms Refactoring**: Replace hardcoded floating platform creation
+  - [x] Create each floating platform using Platform class
+  - [x] Maintain exact same positions and configurations
+  - [x] Register all platforms with TimeManager
+  - [x] Verify all collision detection still works
+- [x] **Integration Testing**: Verify complete functionality
+  - [x] Test player-platform collisions
+  - [x] Test enemy-platform collisions
+  - [x] Test time reversal with platforms
+  - [x] Verify no visual or behavioral changes
+- [x] **Invariant Documentation**: Document scene platform management in invariants.md
+  - [x] Update §3 Scene Lifecycle to reflect Platform class usage
+  - [x] Document platform registration requirements with TimeManager
+  - [x] Update any relevant collision expectations in §10
+
+**Expected Output**: GameScene using Platform class instances instead of hardcoded sprites, with identical behavior.
+
+**Risk Assessment**:
+- **Potential complexity**: Ensuring exact compatibility with existing collision detection
+- **Dependencies**: Platform class, PlatformFactory, TimeManager
+- **Fallback plan**: Maintain existing hardcoded platform creation as commented code
+
+**Definition of Done**:
+- [x] All hardcoded platforms replaced with Platform class instances
+- [x] All existing functionality preserved exactly
+- [x] All integration tests pass
+- [x] Time reversal works correctly with platforms
+- [x] **invariants.md updated with scene platform management**
+- [x] No regressions in collision detection or physics
+
+---
+
+### Task 1.4: Remove configurePlatform Method
+**Objective**: Remove the configurePlatform method from GameScene since it's now handled by Platform class.
+
+**Task Reference**: Phase 1, Task 1.4
+
+**Pre-Implementation Analysis**:
+- **invariants.md sections to review**: §12 Level/Platform Geometry
+- **testing_best_practices.md sections to apply**: Refactoring Testing, Regression Testing
+- **small_comprehensive_documentation.md sections to reference**: §8.1 Testing Philosophy
+
+**State & Invariant Impact Assessment**:
+- **Existing states to preserve**: All platform physics behavior
+- **New states/invariants to create**: None
+- **Time reversal compatibility**: Platform physics must remain time reversal compatible
+
+**Implementation Plan**:
+- **Create**: None
+- **Modify**: `client/src/scenes/GameScene.js`
+- **Delete**: configurePlatform method from GameScene
+
+**Integration Points**:
+- **Systems affected**: GameScene only
+- **State machines**: None
+- **External libraries**: None
+
+**Testing Strategy**:
+- **Test files to create/update**: `tests/unit/game-scene.test.js`
+- **Key test cases**: Verify no functionality is lost, all platforms still work correctly
+- **Mock requirements**: Existing mocks
+
+**Task Breakdown & Acceptance Criteria**:
+- [ ] **Method Removal**: Remove configurePlatform method from GameScene
+  - [ ] Remove method implementation
+  - [ ] Remove method documentation
+  - [ ] Verify no references to method remain
+- [ ] **Functionality Verification**: Ensure no functionality is lost
+  - [ ] All platforms still have correct physics behavior
+  - [ ] All collision detection still works
+  - [ ] All tests still pass
+- [ ] **Code Cleanup**: Clean up any related code
+  - [ ] Remove any unused imports or variables
+  - [ ] Update any related documentation
+- [ ] **Invariant Documentation**: Update invariants.md to reflect method removal
+  - [ ] Update §12 Level/Platform Geometry to reflect Platform class handling
+  - [ ] Remove any references to GameScene.configurePlatform method
+  - [ ] Document that platform configuration is now handled by Platform class
+
+**Expected Output**: Clean GameScene code with configurePlatform functionality moved to Platform class.
+
+**Risk Assessment**:
+- **Potential complexity**: Ensuring no functionality is accidentally removed
+- **Dependencies**: Platform class must handle all configuration
+- **Fallback plan**: Keep method as deprecated if issues arise
+
+**Definition of Done**:
+- [ ] configurePlatform method removed from GameScene
+- [ ] All platform functionality preserved
+- [ ] All tests pass
+- [ ] Code is cleaner and more maintainable
+- [ ] **invariants.md updated to reflect method removal**
+- [ ] No regressions in any functionality
+
+---
+
+## Phase 2: Add Support for Moving Platforms
+
+### Task 2.1: Extend Platform Class for Movement
+**Objective**: Add movement capabilities to Platform class for moving platforms.
+
+**Task Reference**: Phase 2, Task 2.1
+
+**Pre-Implementation Analysis**:
+- **invariants.md sections to review**: §17 State Structures, §7 TimeManager Rewind System
+- **testing_best_practices.md sections to apply**: State-Based Testing, Time-Based Testing
+- **small_comprehensive_documentation.md sections to reference**: §7.1 Time Control System
+
+**State & Invariant Impact Assessment**:
+- **Existing states to preserve**: All existing static platform behavior
+- **New states/invariants to create**: Movement state for time reversal
+- **Time reversal compatibility**: Moving platforms must record and restore movement state
+
+**Implementation Plan**:
+- **Create**: None
+- **Modify**: `client/src/entities/Platform.js`
+- **Delete**: None
+
+**Integration Points**:
+- **Systems affected**: Platform class, TimeManager
+- **State machines**: None
+- **External libraries**: Phaser physics, GSAP for smooth movement
+
+**Testing Strategy**:
+- **Test files to create/update**: `tests/unit/platform-movement.test.js`
+- **Key test cases**: Movement along paths, state recording/restoration, collision during movement
+- **Mock requirements**: PhaserSceneMock, GSAP mock, TimeManager mock
+
+**Task Breakdown & Acceptance Criteria**:
+- [ ] **Movement Properties**: Add movement-related properties to Platform class
+  - [ ] Add movementConfig property for path and speed configuration
+  - [ ] Add currentPathIndex and pathProgress for tracking movement
+  - [ ] Add isMoving flag for movement state
+- [ ] **Movement Logic**: Implement movement update logic
+  - [ ] Implement update() method for movement calculations
+  - [ ] Support linear interpolation between path points
+  - [ ] Support loop and pingPong movement patterns
+  - [ ] Handle movement start/stop functionality
+- [ ] **State Recording**: Extend state recording for movement
+  - [ ] Record current path index and progress in getStateForRecording()
+  - [ ] Restore movement state in setStateFromRecording()
+  - [ ] Ensure smooth movement restoration during time reversal
+- [ ] **Invariant Documentation**: Document moving platform state structure in invariants.md
+  - [ ] Extend §17 State Structures to include moving platform state
+  - [ ] Document movement state recording requirements
+  - [ ] Update §7 TimeManager Rewind System with moving platform considerations
+
+**Expected Output**: Platform class with movement capabilities that work with time reversal.
+
+**Risk Assessment**:
+- **Potential complexity**: Ensuring smooth movement during time reversal
+- **Dependencies**: TimeManager, GSAP for smooth movement
+- **Fallback plan**: Disable movement during time reversal if issues arise
+
+**Definition of Done**:
+- [ ] Platform class supports movement along configurable paths
+- [ ] Movement state is properly recorded and restored
+- [ ] All movement tests pass
+- [ ] Time reversal works correctly with moving platforms
+- [ ] **invariants.md updated with moving platform state structure**
+- [ ] No regressions in static platform functionality
+
+---
+
+### Task 2.2: Create Moving Platform Factory Methods
+**Objective**: Add factory methods for creating moving platforms with different movement patterns.
+
+**Task Reference**: Phase 2, Task 2.2
+
+**Pre-Implementation Analysis**:
+- **invariants.md sections to review**: §14 Asset & Animation Keys
+- **testing_best_practices.md sections to apply**: Factory Pattern Testing
+- **small_comprehensive_documentation.md sections to reference**: §1.3 Asset and Sprite Management
+
+**State & Invariant Impact Assessment**:
+- **Existing states to preserve**: All existing platform factory functionality
+- **New states/invariants to create**: Moving platform configuration patterns
+- **Time reversal compatibility**: Factory-created moving platforms must be time reversal compatible
+
+**Implementation Plan**:
+- **Create**: None
+- **Modify**: `client/src/systems/PlatformFactory.js`
+- **Delete**: None
+
+**Integration Points**:
+- **Systems affected**: PlatformFactory
+- **State machines**: None
+- **External libraries**: Platform class
+
+**Testing Strategy**:
+- **Test files to create/update**: `tests/unit/platform-factory-movement.test.js`
+- **Key test cases**: Moving platform creation, configuration validation, movement pattern creation
+- **Mock requirements**: Platform mock, PhaserSceneMock
+
+**Task Breakdown & Acceptance Criteria**:
+- [ ] **Moving Platform Creation**: Add createMovingPlatform method
+  - [ ] Method accepts movement configuration
+  - [ ] Method validates movement parameters
+  - [ ] Method creates Platform with movement capabilities
+- [ ] **Movement Pattern Helpers**: Add helper methods for common patterns
+  - [ ] createHorizontalMovingPlatform for left-right movement
+  - [ ] createVerticalMovingPlatform for up-down movement
+  - [ ] createCircularMovingPlatform for circular paths
+  - [ ] createPatrolMovingPlatform for complex patrol paths
+- [ ] **Configuration Validation**: Extend validation for movement config
+  - [ ] Validate path points are valid coordinates
+  - [ ] Validate speed is positive number
+  - [ ] Validate loop and pingPong flags are boolean
+- [ ] **Invariant Documentation**: Document moving platform factory patterns in invariants.md
+  - [ ] Extend §14 Asset & Animation Keys with moving platform configuration
+  - [ ] Document movement pattern validation requirements
+  - [ ] Update factory configuration patterns
+
+**Expected Output**: PlatformFactory with methods for creating various types of moving platforms.
+
+**Risk Assessment**:
+- **Potential complexity**: Ensuring all movement patterns work correctly
+- **Dependencies**: Platform class movement implementation
+- **Fallback plan**: Provide simple linear movement as fallback
+
+**Definition of Done**:
+- [ ] PlatformFactory supports moving platform creation
+- [ ] All movement pattern helpers implemented
+- [ ] Configuration validation working correctly
+- [ ] All tests pass
+- [ ] **invariants.md updated with moving platform factory patterns**
+- [ ] No regressions in static platform creation
+
+---
+
+### Task 2.3: Add Moving Platforms to GameScene
+**Objective**: Add moving platforms to GameScene to demonstrate and test the new functionality.
+
+**Task Reference**: Phase 2, Task 2.3
+
+**Pre-Implementation Analysis**:
+- **invariants.md sections to review**: §3 Scene Lifecycle, §7 TimeManager Rewind System
+- **testing_best_practices.md sections to apply**: Integration Testing, State-Based Testing
+- **small_comprehensive_documentation.md sections to reference**: §1.2 Scene System
+
+**State & Invariant Impact Assessment**:
+- **Existing states to preserve**: All existing static platform functionality
+- **New states/invariants to create**: Moving platform instances in scene state
+- **Time reversal compatibility**: Moving platforms must be registered with TimeManager
+
+**Implementation Plan**:
+- **Create**: None
+- **Modify**: `client/src/scenes/GameScene.js`
+- **Delete**: None
+
+**Integration Points**:
+- **Systems affected**: GameScene, CollisionManager, TimeManager
+- **State machines**: None
+- **External libraries**: PlatformFactory, Platform class
+
+**Testing Strategy**:
+- **Test files to create/update**: `tests/unit/game-scene-moving-platforms.test.js`
+- **Key test cases**: Moving platform integration, collision during movement, time reversal
+- **Mock requirements**: Platform mock, PlatformFactory mock, TimeManager mock
+
+**Task Breakdown & Acceptance Criteria**:
+- [ ] **Moving Platform Addition**: Add moving platforms to GameScene
+  - [ ] Create horizontal moving platform
+  - [ ] Create vertical moving platform
+  - [ ] Create circular moving platform
+  - [ ] Register all moving platforms with TimeManager
+- [ ] **Collision Integration**: Ensure moving platforms work with collision detection
+  - [ ] Player can stand on moving platforms
+  - [ ] Enemies can interact with moving platforms
+  - [ ] Collision detection works during movement
+- [ ] **Time Reversal Integration**: Test time reversal with moving platforms
+  - [ ] Moving platforms record and restore movement state
+  - [ ] Player position is correctly updated during rewind
+  - [ ] No visual glitches during time reversal
+- [ ] **Invariant Documentation**: Document moving platform scene integration in invariants.md
+  - [ ] Update §3 Scene Lifecycle with moving platform considerations
+  - [ ] Document moving platform collision expectations in §10
+  - [ ] Update any relevant runtime event names in §15
+
+**Expected Output**: GameScene with moving platforms that work correctly with all game systems.
+
+**Risk Assessment**:
+- **Potential complexity**: Ensuring smooth collision detection during movement
+- **Dependencies**: Platform movement implementation, TimeManager
+- **Fallback plan**: Disable moving platforms if collision issues arise
+
+**Definition of Done**:
+- [ ] Moving platforms added to GameScene
+- [ ] All collision detection works correctly
+- [ ] Time reversal works with moving platforms
+- [ ] All integration tests pass
+- [ ] **invariants.md updated with moving platform scene integration**
+- [ ] No regressions in existing functionality
+
+---
+
+## Phase 3: Enable Level Creation from External JSON Config
+
+### Task 3.1: Create Level Configuration Parser
+**Objective**: Create a system to parse level configurations from JSON files.
+
+**Task Reference**: Phase 3, Task 3.1
+
+**Pre-Implementation Analysis**:
+- **invariants.md sections to review**: §14 Asset & Animation Keys, §12 Level/Platform Geometry
+- **testing_best_practices.md sections to apply**: File I/O Testing, Configuration Testing
+- **small_comprehensive_documentation.md sections to reference**: §1.3 Asset and Sprite Management
+
+**State & Invariant Impact Assessment**:
+- **Existing states to preserve**: All existing platform creation functionality
+- **New states/invariants to create**: Level configuration state structure
+- **Time reversal compatibility**: Config-created platforms must be time reversal compatible
+
+**Implementation Plan**:
+- **Create**: `client/src/systems/LevelLoader.js`
+- **Modify**: None initially
+- **Delete**: None
+
+**Integration Points**:
+- **Systems affected**: GameScene level creation
+- **State machines**: None
+- **External libraries**: PlatformFactory, JSON parsing
+
+**Testing Strategy**:
+- **Test files to create/update**: `tests/unit/level-loader.test.js`
+- **Key test cases**: JSON parsing, configuration validation, platform creation from config
+- **Mock requirements**: File system mocks, PlatformFactory mock
+
+**Task Breakdown & Acceptance Criteria**:
+- [ ] **LevelLoader Class**: Create LevelLoader class for parsing level configurations
+  - [ ] Class can load JSON files from assets
+  - [ ] Class validates JSON structure
+  - [ ] Class converts JSON to platform configurations
+- [ ] **Configuration Validation**: Implement comprehensive validation
+  - [ ] Validate required platform properties
+  - [ ] Validate movement configurations
+  - [ ] Provide descriptive error messages for invalid configs
+- [ ] **Platform Creation**: Convert configurations to Platform instances
+  - [ ] Use PlatformFactory to create platforms from config
+  - [ ] Handle all platform types (static, moving, etc.)
+  - [ ] Support all movement patterns
+- [ ] **Invariant Documentation**: Document level configuration structure in invariants.md
+  - [ ] Add level configuration format to §14 Asset & Animation Keys
+  - [ ] Document JSON schema requirements
+  - [ ] Update any relevant testing assumptions in §13
+
+**Expected Output**: LevelLoader that can parse JSON configurations and create Platform instances.
+
+**Risk Assessment**:
+- **Potential complexity**: Ensuring robust JSON validation and error handling
+- **Dependencies**: PlatformFactory, file system access
+- **Fallback plan**: Provide default level configuration if loading fails
+
+**Definition of Done**:
+- [ ] LevelLoader class created and functional
+- [ ] JSON parsing and validation working correctly
+- [ ] Platform creation from config working
+- [ ] All tests pass
+- [ ] **invariants.md updated with level configuration structure**
+- [ ] Comprehensive error handling implemented
+
+---
+
+### Task 3.2: Create Sample Level Configuration Files
+**Objective**: Create sample JSON configuration files for different level layouts.
+
+**Task Reference**: Phase 3, Task 3.2
+
+**Pre-Implementation Analysis**:
+- **invariants.md sections to review**: §14 Asset & Animation Keys, §12 Level/Platform Geometry
+- **testing_best_practices.md sections to apply**: Configuration Testing
+- **small_comprehensive_documentation.md sections to reference**: §1.3 Asset and Sprite Management
+
+**State & Invariant Impact Assessment**:
+- **Existing states to preserve**: Current level layout and gameplay
+- **New states/invariants to create**: Level configuration file format
+- **Time reversal compatibility**: Config files must define time reversal compatible platforms
+
+**Implementation Plan**:
+- **Create**: `client/src/assets/levels/level1.json`, `client/src/assets/levels/level2.json`
 - **Modify**: None
 - **Delete**: None
 
-### Task Breakdown & Acceptance Criteria
-- [ ] Create Platform class that extends Entity
-- [ ] Add core properties: `width`, `height`, `isSolid`, `isMoving`
-- [ ] Add constructor that accepts x, y, width, height, config
-- [ ] Add basic collision detection methods
-- [ ] Write unit tests for Platform instantiation and properties
+**Integration Points**:
+- **Systems affected**: LevelLoader, GameScene
+- **State machines**: None
+- **External libraries**: None
+
+**Testing Strategy**:
+- **Test files to create/update**: `tests/unit/level-configs.test.js`
+- **Key test cases**: Config file validation, platform creation from files
+- **Mock requirements**: File system mocks
+
+**Task Breakdown & Acceptance Criteria**:
+- [ ] **Level 1 Configuration**: Create JSON config for current level layout
+  - [ ] Define ground platform configuration
+  - [ ] Define all floating platform configurations
+  - [ ] Match exact current level layout
+- [ ] **Level 2 Configuration**: Create JSON config for new level with moving platforms
+  - [ ] Include static platforms
+  - [ ] Include moving platforms with various patterns
+  - [ ] Demonstrate all platform types and movement patterns
+- [ ] **Configuration Validation**: Ensure all configs are valid
+  - [ ] All required properties present
+  - [ ] All movement configurations valid
+  - [ ] All asset references valid
+- [ ] **Invariant Documentation**: Document sample level configurations in invariants.md
+  - [ ] Add sample level file references to §14 Asset & Animation Keys
+  - [ ] Document level file naming conventions
+  - [ ] Update any relevant directory structure references
+
+**Expected Output**: Sample level configuration files that can be loaded by LevelLoader.
+
+**Risk Assessment**:
+- **Potential complexity**: Ensuring configs match exact current behavior
+- **Dependencies**: LevelLoader implementation
+- **Fallback plan**: Provide simple default configs if complex ones fail
+
+**Definition of Done**:
+- [ ] Sample level configuration files created
+- [ ] All configurations are valid and loadable
+- [ ] Configurations match intended level layouts
 - [ ] All tests pass
-
-### Expected Output
-A new `client/src/entities/Platform.js` file with a basic Platform class and corresponding tests.
-
-### Definition of Done
-- [ ] Platform class created with core properties
-- [ ] Class extends Entity properly
-- [ ] Constructor accepts required parameters
-- [ ] Unit tests pass
-- [ ] No existing functionality broken
+- [ ] **invariants.md updated with sample level configurations**
+- [ ] Documentation provided for config format
 
 ---
 
-### Task 7.2: Add Platform Movement Logic
+### Task 3.3: Integrate LevelLoader with GameScene
+**Objective**: Modify GameScene to use LevelLoader for level creation instead of hardcoded platforms.
 
-### Task Title
-Add Platform Movement Logic to Platform Class
+**Task Reference**: Phase 3, Task 3.3
 
-### Objective
-Add movement capabilities to the Platform class for moving platforms.
+**Pre-Implementation Analysis**:
+- **invariants.md sections to review**: §3 Scene Lifecycle, §7 TimeManager Rewind System
+- **testing_best_practices.md sections to apply**: Integration Testing, State-Based Testing
+- **small_comprehensive_documentation.md sections to reference**: §1.2 Scene System
 
-### Task Reference
-Builds on Task 7.1 Platform base class.
+**State & Invariant Impact Assessment**:
+- **Existing states to preserve**: All existing level functionality and appearance
+- **New states/invariants to create**: Level loading state in GameScene
+- **Time reversal compatibility**: All loaded platforms must be time reversal compatible
 
-### Pre-Implementation Analysis
-- [ ] **testing_best_practices.md sections to apply**: §1.2 (Test Pyramid), §2.1 (TDD)
-- [ ] **invariants.md sections to verify**: §6 (Entity Base Class)
-- [ ] **small_comprehensive_documentation.md sections to reference**: §7.2 (Platformer Character Controller)
-
-### Implementation Plan
+**Implementation Plan**:
 - **Create**: None
-- **Modify**: `client/src/entities/Platform.js` - Add movement logic
-- **Delete**: None
+- **Modify**: `client/src/scenes/GameScene.js`
+- **Delete**: Hardcoded platform creation code
 
-### Task Breakdown & Acceptance Criteria
-- [ ] Add movement properties: `moveSpeed`, `moveDistance`, `startX`, `startY`
-- [ ] Add `update()` method for movement logic
-- [ ] Add `setMovement()` method to configure movement
-- [ ] Add `resetPosition()` method to return to start position
-- [ ] Write unit tests for movement functionality
-- [ ] All tests pass
+**Integration Points**:
+- **Systems affected**: GameScene, LevelLoader, TimeManager, CollisionManager
+- **State machines**: None
+- **External libraries**: LevelLoader, PlatformFactory
 
-### Expected Output
-Enhanced Platform class with movement capabilities and corresponding tests.
+**Testing Strategy**:
+- **Test files to create/update**: `tests/unit/game-scene-level-loading.test.js`
+- **Key test cases**: Level loading, platform creation, collision detection, time reversal
+- **Mock requirements**: LevelLoader mock, PlatformFactory mock
 
-### Definition of Done
-- [ ] Movement properties added
-- [ ] Update method implements movement logic
-- [ ] Movement configuration methods work
-- [ ] Unit tests pass
-- [ ] No existing functionality broken
+**Task Breakdown & Acceptance Criteria**:
+- [ ] **Level Loading Integration**: Integrate LevelLoader with GameScene
+  - [ ] Load level configuration in create() method
+  - [ ] Create platforms from loaded configuration
+  - [ ] Register all platforms with TimeManager
+  - [ ] Set up collision detection for all platforms
+- [ ] **Fallback Mechanism**: Implement fallback for loading failures
+  - [ ] Use default level if config loading fails
+  - [ ] Provide error logging for debugging
+  - [ ] Ensure game remains playable
+- [ ] **Level Switching**: Support multiple level configurations
+  - [ ] Load different levels based on scene data
+  - [ ] Support level progression
+  - [ ] Maintain state between level switches
+- [ ] **Invariant Documentation**: Document level loading integration in invariants.md
+  - [ ] Update §3 Scene Lifecycle with level loading process
+  - [ ] Document level switching requirements
+  - [ ] Update any relevant runtime event names in §15
 
----
+**Expected Output**: GameScene that loads levels from JSON configuration files.
 
-### Task 7.3: Add Platform Collision Detection
+**Risk Assessment**:
+- **Potential complexity**: Ensuring smooth level loading and error handling
+- **Dependencies**: LevelLoader, PlatformFactory, TimeManager
+- **Fallback plan**: Maintain hardcoded level creation as fallback option
 
-### Task Title
-Add Platform Collision Detection Methods
-
-### Objective
-Add collision detection methods to the Platform class.
-
-### Task Reference
-Builds on Task 7.2 Platform movement logic.
-
-### Pre-Implementation Analysis
-- [ ] **testing_best_practices.md sections to apply**: §1.2 (Test Pyramid), §2.1 (TDD)
-- [ ] **invariants.md sections to verify**: §6 (Entity Base Class)
-- [ ] **small_comprehensive_documentation.md sections to reference**: §7.2 (Platformer Character Controller)
-
-### Implementation Plan
-- **Create**: None
-- **Modify**: `client/src/entities/Platform.js` - Add collision detection
-- **Delete**: None
-
-### Task Breakdown & Acceptance Criteria
-- [ ] Add `checkCollision(entity)` method
-- [ ] Add `getBounds()` method to return collision bounds
-- [ ] Add `isOnTop(entity)` method for top collision detection
-- [ ] Add `isOnSide(entity)` method for side collision detection
-- [ ] Write unit tests for collision detection
-- [ ] All tests pass
-
-### Expected Output
-Enhanced Platform class with collision detection methods and corresponding tests.
-
-### Definition of Done
-- [ ] Collision detection methods added
-- [ ] Methods work with different entity types
-- [ ] Top and side collision detection implemented
-- [ ] Unit tests pass
-- [ ] No existing functionality broken
+**Definition of Done**:
+- [ ] GameScene loads levels from JSON configuration
+- [ ] All existing functionality preserved
+- [ ] Error handling and fallback mechanisms working
+- [ ] All integration tests pass
+- [ ] **invariants.md updated with level loading integration**
+- [ ] No regressions in gameplay or time reversal
 
 ---
 
-### Task 7.4: Create Static Platform Subclass
+### Task 3.4: Add Level Configuration Documentation
+**Objective**: Create comprehensive documentation for the level configuration format.
 
-### Task Title
-Create Static Platform Subclass
+**Task Reference**: Phase 3, Task 3.4
 
-### Objective
-Create a StaticPlatform subclass for non-moving platforms.
+**Pre-Implementation Analysis**:
+- **invariants.md sections to review**: §14 Asset & Animation Keys, §12 Level/Platform Geometry
+- **testing_best_practices.md sections to apply**: Documentation Testing
+- **small_comprehensive_documentation.md sections to reference**: §14.1 Directory Structure
 
-### Task Reference
-Builds on Task 7.3 Platform collision detection.
+**State & Invariant Impact Assessment**:
+- **Existing states to preserve**: All existing documentation structure
+- **New states/invariants to create**: Level configuration documentation
+- **Time reversal compatibility**: Documentation must cover time reversal considerations
 
-### Pre-Implementation Analysis
-- [ ] **testing_best_practices.md sections to apply**: §1.2 (Test Pyramid), §2.1 (TDD)
-- [ ] **invariants.md sections to verify**: §6 (Entity Base Class)
-- [ ] **small_comprehensive_documentation.md sections to reference**: §7.2 (Platformer Character Controller)
-
-### Implementation Plan
-- **Create**: `client/src/entities/StaticPlatform.js` - Static platform subclass
-- **Modify**: None
+**Implementation Plan**:
+- **Create**: `agent_docs/level_configuration.md`
+- **Modify**: `agent_docs/small_comprehensive_documentation.md`
 - **Delete**: None
 
-### Task Breakdown & Acceptance Criteria
-- [ ] Create StaticPlatform class that extends Platform
-- [ ] Override constructor to set `isMoving = false`
-- [ ] Override `update()` to do nothing (static platforms don't move)
-- [ ] Add `setTexture()` method for platform appearance
-- [ ] Write unit tests for StaticPlatform
-- [ ] All tests pass
+**Integration Points**:
+- **Systems affected**: Documentation system
+- **State machines**: None
+- **External libraries**: None
 
-### Expected Output
-A new `client/src/entities/StaticPlatform.js` file with StaticPlatform class and corresponding tests.
+**Testing Strategy**:
+- **Test files to create/update**: `tests/unit/level-configuration-docs.test.js`
+- **Key test cases**: Documentation accuracy, example validation
+- **Mock requirements**: None
 
-### Definition of Done
-- [ ] StaticPlatform class created
-- [ ] Class extends Platform properly
-- [ ] Static behavior implemented
-- [ ] Unit tests pass
-- [ ] No existing functionality broken
+**Task Breakdown & Acceptance Criteria**:
+- [ ] **Configuration Format Documentation**: Document complete JSON schema
+  - [ ] Document all platform properties and their types
+  - [ ] Document movement configuration options
+  - [ ] Provide examples for all platform types
+- [ ] **Usage Examples**: Provide practical examples
+  - [ ] Simple static platform examples
+  - [ ] Complex moving platform examples
+  - [ ] Complete level configuration examples
+- [ ] **Best Practices**: Document configuration best practices
+  - [ ] Performance considerations
+  - [ ] Time reversal compatibility guidelines
+  - [ ] Common pitfalls and solutions
+- [ ] **Invariant Documentation**: Update invariants.md with documentation references
+  - [ ] Add reference to level configuration documentation in §14
+  - [ ] Document any new invariants discovered during documentation
+  - [ ] Update any relevant testing assumptions in §13
+
+**Expected Output**: Comprehensive documentation for level configuration format.
+
+**Risk Assessment**:
+- **Potential complexity**: Ensuring documentation is accurate and complete
+- **Dependencies**: Level configuration implementation
+- **Fallback plan**: Provide basic documentation with links to code examples
+
+**Definition of Done**:
+- [ ] Complete level configuration documentation created
+- [ ] All examples validated and working
+- [ ] Best practices documented
+- [ ] Documentation integrated with existing docs
+- [ ] **invariants.md updated with documentation references**
+- [ ] All documentation tests pass
 
 ---
 
-### Task 7.5: Create Moving Platform Subclass
+## Post-Implementation Validation
 
-### Task Title
-Create Moving Platform Subclass
+### Final Integration Testing
+- [ ] **Complete Level Loading**: Test loading of all sample levels
+- [ ] **Time Reversal Compatibility**: Verify all platforms work with time reversal
+- [ ] **Performance Testing**: Ensure no performance degradation
+- [ ] **Cross-Platform Testing**: Test on different browsers and devices
 
-### Objective
-Create a MovingPlatform subclass for platforms that move.
+### Documentation Updates
+- [ ] **invariants.md**: Add new platform-related invariants
+- [ ] **small_comprehensive_documentation.md**: Update with platform abstraction details
+- [ ] **testing_best_practices.md**: Add platform testing guidelines
 
-### Task Reference
-Builds on Task 7.4 Static platform subclass.
-
-### Pre-Implementation Analysis
-- [ ] **testing_best_practices.md sections to apply**: §1.2 (Test Pyramid), §2.1 (TDD)
-- [ ] **invariants.md sections to verify**: §6 (Entity Base Class)
-- [ ] **small_comprehensive_documentation.md sections to reference**: §7.2 (Platformer Character Controller)
-
-### Implementation Plan
-- **Create**: `client/src/entities/MovingPlatform.js` - Moving platform subclass
-- **Modify**: None
-- **Delete**: None
-
-### Task Breakdown & Acceptance Criteria
-- [ ] Create MovingPlatform class that extends Platform
-- [ ] Override constructor to set `isMoving = true`
-- [ ] Add movement pattern properties: `movePattern`, `currentPatternIndex`
-- [ ] Add `setMovementPattern()` method
-- [ ] Override `update()` to implement pattern-based movement
-- [ ] Write unit tests for MovingPlatform
-- [ ] All tests pass
-
-### Expected Output
-A new `client/src/entities/MovingPlatform.js` file with MovingPlatform class and corresponding tests.
-
-### Definition of Done
-- [ ] MovingPlatform class created
-- [ ] Class extends Platform properly
-- [ ] Movement patterns implemented
-- [ ] Unit tests pass
-- [ ] No existing functionality broken
+### Code Quality Assurance
+- [ ] **Code Review**: Complete code review of all new files
+- [ ] **Test Coverage**: Ensure adequate test coverage for all new functionality
+- [ ] **Performance Analysis**: Verify no performance regressions
+- [ ] **Security Review**: Ensure no security vulnerabilities introduced
 
 ---
 
-### Task 7.6: Refactor GameScene to Use Platform Classes
+## Success Criteria
 
-### Task Title
-Refactor GameScene Platform Creation to Use New Platform Classes
+The refactoring is successful when:
 
-### Objective
-Update GameScene to use the new Platform classes instead of direct sprite creation.
+1. **Functionality Preserved**: All existing platform behavior is maintained exactly
+2. **New Capabilities**: Moving platforms and level configuration are fully functional
+3. **Time Reversal Compatible**: All platforms work correctly with the time reversal system
+4. **Performance Maintained**: No performance degradation compared to hardcoded platforms
+5. **Test Coverage**: Comprehensive test coverage for all new functionality
+6. **Documentation Complete**: All new features are properly documented
+7. **Code Quality**: Clean, maintainable code following project standards
 
-### Task Reference
-Builds on Tasks 7.4 and 7.5 Platform subclasses.
-
-### Pre-Implementation Analysis
-- [ ] **testing_best_practices.md sections to apply**: §1.2 (Test Pyramid), §2.1 (TDD)
-- [ ] **invariants.md sections to verify**: §3 (Scene Lifecycle)
-- [ ] **small_comprehensive_documentation.md sections to reference**: §1.2 (Scene System)
-
-### Implementation Plan
-- **Create**: None
-- **Modify**: `client/src/scenes/GameScene.js` - Update platform creation
-- **Delete**: None
-
-### Task Breakdown & Acceptance Criteria
-- [ ] Import StaticPlatform and MovingPlatform classes
-- [ ] Replace direct sprite creation with Platform class instantiation
-- [ ] Update platform creation methods to use new classes
-- [ ] Ensure collision detection still works
-- [ ] Write integration tests for platform creation
-- [ ] All tests pass
-
-### Expected Output
-Updated GameScene that uses the new Platform classes for platform creation.
-
-### Definition of Done
-- [ ] GameScene uses Platform classes
-- [ ] Platform creation methods updated
-- [ ] Collision detection preserved
-- [ ] Integration tests pass
-- [ ] No existing functionality broken
-
----
-
-### Task 7.7: Update Collision Manager for Platform Classes
-
-### Task Title
-Update Collision Manager to Work with Platform Classes
-
-### Objective
-Update CollisionManager to handle the new Platform classes properly.
-
-### Task Reference
-Builds on Task 7.6 GameScene refactoring.
-
-### Pre-Implementation Analysis
-- [ ] **testing_best_practices.md sections to apply**: §1.2 (Test Pyramid), §2.1 (TDD)
-- [ ] **invariants.md sections to verify**: §8 (Collision System)
-- [ ] **small_comprehensive_documentation.md sections to reference**: §7.2 (Platformer Character Controller)
-
-### Implementation Plan
-- **Create**: None
-- **Modify**: `client/src/systems/CollisionManager.js` - Update for Platform classes
-- **Delete**: None
-
-### Task Breakdown & Acceptance Criteria
-- [ ] Update collision detection to use Platform class methods
-- [ ] Add platform-specific collision handling
-- [ ] Update player-platform collision logic
-- [ ] Ensure moving platform collision works
-- [ ] Write unit tests for platform collision
-- [ ] All tests pass
-
-### Expected Output
-Updated CollisionManager that properly handles Platform class collisions.
-
-### Definition of Done
-- [ ] CollisionManager works with Platform classes
-- [ ] Platform collision detection updated
-- [ ] Moving platform collision works
-- [ ] Unit tests pass
-- [ ] No existing functionality broken
-
----
-
-### Task 7.8: Add Platform Factory Pattern
-
-### Task Title
-Add Platform Factory Pattern for Easy Platform Creation
-
-### Objective
-Create a PlatformFactory to simplify platform creation in GameScene.
-
-### Task Reference
-Builds on Task 7.7 CollisionManager updates.
-
-### Pre-Implementation Analysis
-- [ ] **testing_best_practices.md sections to apply**: §1.2 (Test Pyramid), §2.1 (TDD)
-- [ ] **invariants.md sections to verify**: §6 (Entity Base Class)
-- [ ] **small_comprehensive_documentation.md sections to reference**: §7.2 (Platformer Character Controller)
-
-### Implementation Plan
-- **Create**: `client/src/entities/PlatformFactory.js` - Platform factory class
-- **Modify**: None
-- **Delete**: None
-
-### Task Breakdown & Acceptance Criteria
-- [ ] Create PlatformFactory class
-- [ ] Add `createStaticPlatform()` method
-- [ ] Add `createMovingPlatform()` method
-- [ ] Add `createPlatformFromConfig()` method
-- [ ] Write unit tests for PlatformFactory
-- [ ] All tests pass
-
-### Expected Output
-A new `client/src/entities/PlatformFactory.js` file with PlatformFactory class and corresponding tests.
-
-### Definition of Done
-- [ ] PlatformFactory class created
-- [ ] Factory methods implemented
-- [ ] Platform creation simplified
-- [ ] Unit tests pass
-- [ ] No existing functionality broken
-
----
-
-### Task 7.9: Update GameScene to Use Platform Factory
-
-### Task Title
-Update GameScene to Use Platform Factory for Platform Creation
-
-### Objective
-Refactor GameScene to use the PlatformFactory for cleaner platform creation.
-
-### Task Reference
-Builds on Task 7.8 Platform factory pattern.
-
-### Pre-Implementation Analysis
-- [ ] **testing_best_practices.md sections to apply**: §1.2 (Test Pyramid), §2.1 (TDD)
-- [ ] **invariants.md sections to verify**: §3 (Scene Lifecycle)
-- [ ] **small_comprehensive_documentation.md sections to reference**: §1.2 (Scene System)
-
-### Implementation Plan
-- **Create**: None
-- **Modify**: `client/src/scenes/GameScene.js` - Use PlatformFactory
-- **Delete**: None
-
-### Task Breakdown & Acceptance Criteria
-- [ ] Import PlatformFactory
-- [ ] Replace direct Platform class instantiation with factory methods
-- [ ] Update platform creation methods to use factory
-- [ ] Ensure all platform types still work
-- [ ] Write integration tests for factory usage
-- [ ] All tests pass
-
-### Expected Output
-Updated GameScene that uses PlatformFactory for platform creation.
-
-### Definition of Done
-- [ ] GameScene uses PlatformFactory
-- [ ] Platform creation simplified
-- [ ] All platform types work
-- [ ] Integration tests pass
-- [ ] No existing functionality broken
-
----
-
-### Task 7.10: Add Platform Configuration System
-
-### Task Title
-Add Platform Configuration System for Level Design
-
-### Objective
-Create a configuration system for easy platform setup in levels.
-
-### Task Reference
-Builds on Task 7.9 Platform factory integration.
-
-### Pre-Implementation Analysis
-- [ ] **testing_best_practices.md sections to apply**: §1.2 (Test Pyramid), §2.1 (TDD)
-- [ ] **invariants.md sections to verify**: §6 (Entity Base Class)
-- [ ] **small_comprehensive_documentation.md sections to reference**: §7.2 (Platformer Character Controller)
-
-### Implementation Plan
-- **Create**: `client/src/config/platformConfigs.js` - Platform configuration system
-- **Modify**: None
-- **Delete**: None
-
-### Task Breakdown & Acceptance Criteria
-- [ ] Create platform configuration objects
-- [ ] Add configuration validation
-- [ ] Add configuration loading methods
-- [ ] Add configuration to PlatformFactory
-- [ ] Write unit tests for configuration system
-- [ ] All tests pass
-
-### Expected Output
-A new `client/src/config/platformConfigs.js` file with platform configuration system and corresponding tests.
-
-### Definition of Done
-- [ ] Platform configuration system created
-- [ ] Configuration validation works
-- [ ] Factory uses configurations
-- [ ] Unit tests pass
-- [ ] No existing functionality broken
-
+This plan provides a complete roadmap for transforming the hardcoded platform system into a flexible, configurable platform abstraction while maintaining all existing functionality and adding powerful new capabilities. 

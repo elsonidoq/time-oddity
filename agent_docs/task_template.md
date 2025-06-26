@@ -46,6 +46,13 @@ _Reference to the specific task (e.g., "Task 4.15 of phase_4.md")_
 ## Task Breakdown & Acceptance Criteria
 - [ ] _Atomic sub-task 1_: _Description and acceptance criteria_
 - [ ] _Atomic sub-task 2_: _Description and acceptance criteria_
+- [ ] **Invariant Documentation**: _If new invariants were created or existing ones modified, document them in invariants.md_
+  - [ ] New invariants are added to the appropriate section with clear explanation
+  - [ ] Modified invariants include explanation of why the change is safe
+  - [ ] All new state structures are documented in §17 State Structures & Time Reversal Contracts
+  - [ ] Any new event names are added to §15 Runtime Event Names
+  - [ ] Any new asset/animation keys are added to §14 Asset & Animation Keys
+  - [ ] Any new testing assumptions are added to §13 Testing Assumptions
 - [ ] ...
 
 ## Expected Output
@@ -62,6 +69,10 @@ _Describe the observable deliverable or change that should result from this task
 - [ ] All project tests pass (locally and in CI)
 - [ ] Code reviewed and approved
 - [ ] **invariants.md updated if new states/invariants were created**
+  - [ ] New invariants documented with clear rationale
+  - [ ] Modified invariants include explanation of safety
+  - [ ] All state structures properly documented in §17
+  - [ ] Any new contracts or assumptions added to relevant sections
 - [ ] No new linter or type errors
 - [ ] No regressions in related features
 - [ ] Task marked as complete in tracking system

@@ -29,6 +29,7 @@
 1. **Boot → Menu → Game** – `BootScene` must finish loading atlases before any other scene is started.
 2. `GameScene` creates physics groups **platforms, players, enemies, coins** – their existence is assumed by many systems (`CollisionManager`, `ChronoPulse`).
 3. `GameScene` registers a single `Player` instance in `this.players`. Multiple players are *not* yet supported.
+4. **Platform Creation**: `GameScene` uses `PlatformFactory` to create `Platform` class instances instead of hardcoded sprites. All platforms are registered with `TimeManager` for time reversal compatibility.
 
 ---
 
@@ -94,6 +95,7 @@ If you change key bindings ensure **all getters** in `InputManager` continue to 
 ## 10. CollisionManager Expectations
 1. All colliders are created **once** during `GameScene.create()`; re-creating colliders each frame will leak handlers.
 2. `setupPlayerEnemyCollision()` emits `'playerEnemyCollision'` event on the **scene** event-emitter. Listeners rely on this exact event name.
+3. **Platform Collisions**: Platforms are `Platform` class instances that implement time reversal contracts (`getStateForRecording()` and `setStateFromRecording()`). Collision detection works with both static and moving platforms.
 
 ---
 
@@ -106,13 +108,17 @@ If you change key bindings ensure **all getters** in `InputManager` continue to 
 
 ## 12. Level / Platform Geometry
 1. Ground top pixel-row sits at **y = 656** in 720 p canvas; camera bounds & player spawn rely on this magic number.
-2. `configurePlatform(platform, isFullBlock)` sets hit-box to full sprite when `isFullBlock` is `true`; altering this function may break jump/fall tests.
+2. Platform configuration is handled by `Platform.configurePlatform()` method within the `Platform` class. The `isFullBlock` parameter sets hit-box to full sprite when `true`; altering this function may break jump/fall tests.
+3. **Platform Registration**: All platforms created by `GameScene` must be registered with `TimeManager` for time reversal compatibility.
 
 ---
 
 ## 13. Testing Assumptions
 1. Jest tests rely on public method names staying **exactly the same** (e.g., `Player.simulateDashStateExecute()`).
 2. Mocks replace external libraries (`phaser`, `gsap`, `howler`) – ensure new code paths do **not** require un-mocked APIs during test runs.
+3. Platform tests require physics body mocking – ensure `scene.physics.add.existing()` assigns a mock body with required methods.
+4. PlatformFactory tests validate configuration parameters – ensure all required and optional parameters are tested.
+5. Platform state recording tests verify custom state structure beyond base TemporalState.
 
 ---
 
@@ -130,6 +136,40 @@ The following **key strings** are hard-coded across boot loaders, entity classes
 | ChronoPulse placeholder texture | `'placeholder'` | `ChronoPulse` constructor |
 
 BootScene **must** define every animation before any other scene starts; otherwise runtime will throw `Animation not found` errors.
+
+### 14.1 PlatformFactory Configuration Requirements
+The `PlatformFactory.createPlatform(config)` method requires specific configuration parameters:
+
+**Required Parameters:**
+- `x: number` - Horizontal position
+- `y: number` - Vertical position  
+- `frameKey: string` - Frame key from the tiles atlas
+
+**Optional Parameters (with defaults):**
+- `width: number = 64` - Platform width
+- `height: number = 64` - Platform height
+- `textureKey: string = 'tiles'` - Atlas key
+- `isFullBlock: boolean = false` - Whether to use full sprite hitbox
+- `platformType: string = 'static'` - Platform type: 'static'|'moving'|'breakable'|'bouncy'|'conveyor'
+- `movementConfig: Object = null` - Movement configuration for moving platforms
+- `properties: Object = {}` - Additional platform properties
+
+**Movement Configuration (for moving platforms):**
+```javascript
+{
+  path: Array<{x: number, y: number}>, // Movement path points (minimum 2)
+  speed: number,                        // Movement speed (positive)
+  loop: boolean,                        // Whether to loop the path
+  pingPong: boolean,                    // Whether to reverse at endpoints
+  startDelay: number                    // Initial delay before movement
+}
+```
+
+**Validation Rules:**
+- All required parameters must be present and of correct type
+- Moving platforms require valid movementConfig with at least 2 path points
+- Movement speed must be positive
+- Loop and pingPong flags must be boolean values
 
 ---
 
@@ -293,7 +333,47 @@ this.gsapLib                      // GSAP library reference
 
 **Time Reversal**: ChronoPulse does **not** implement custom state recording – it relies on the base TemporalState. Cooldown timing is recalculated from `scene.time.now` during `canActivate()`.
 
-### 17.7 TimeManager State (systems/TimeManager.js)
+### 17.7 Platform State (entities/Platform.js)
+Extends Entity with platform-specific state:
+
+```javascript
+// Platform Configuration
+this.width = 64                   // Platform width
+this.height = 64                  // Platform height
+this.textureKey = 'tiles'         // Atlas key
+this.frameKey = 'terrain_grass_block_center' // Frame key from atlas
+this.isFullBlock = false          // Whether to use full sprite hitbox
+this.platformType = 'static'      // Type: 'static'|'moving'|'breakable'|'bouncy'|'conveyor'
+this.movementConfig = null        // Movement configuration for moving platforms
+this.properties = {}              // Additional platform properties
+
+// Movement State (for moving platforms)
+this.currentPathIndex = 0         // Current position in movement path
+this.pathProgress = 0             // Progress along current path segment
+this.isMoving = false             // Whether platform is currently moving
+
+// Custom State Recording (implements getStateForRecording/setStateFromRecording)
+{
+  // Standard TemporalState fields
+  x, y, velocityX, velocityY, animation, active, visible,
+  
+  // Platform-specific fields
+  currentPathIndex,               // Movement path index
+  pathProgress,                   // Path segment progress
+  isMoving                        // Movement state
+}
+```
+
+**Time Reversal**: Platform implements custom state recording to preserve movement state and path progress that the base TemporalState would lose.
+
+**Platform Types**:
+- **Static**: Standard immovable platform
+- **Moving**: Platform that moves along a configurable path
+- **Breakable**: Platform that can be destroyed (future implementation)
+- **Bouncy**: Platform that bounces entities (future implementation)
+- **Conveyor**: Platform that moves entities (future implementation)
+
+### 17.8 TimeManager State (systems/TimeManager.js)
 The central time reversal system state:
 
 ```javascript
@@ -325,10 +405,11 @@ this._rewindActive = false        // Whether visual effects are active
 ]
 ```
 
-### 17.8 State Recording Contracts
+### 17.9 State Recording Contracts
 
 #### Objects with Custom Recording
 - **LoopHound**: Implements `getStateForRecording()` and `setStateFromRecording()`
+- **Platform**: Implements `getStateForRecording()` and `setStateFromRecording()` for movement state
 - **Future entities**: Should implement these methods if they have state beyond the base TemporalState
 
 #### Objects with Default Recording  
