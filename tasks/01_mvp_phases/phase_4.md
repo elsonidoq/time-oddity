@@ -42,7 +42,7 @@ Before merging each phase branch:
 
 **TDD REQUIREMENT**: All tasks in this phase follow Test-Driven Development (TDD).
 
-### Task 4.1: Create UIScene Class
+### Task 4.1: Create UIScene Class ✅
 **Objective**: Separate UI from game logic.
 **IMPLEMENTATION REFERENCE**: See Section 7.3 "Decoupled UI Scene".
 - **Expected output**: A new `UIScene.js` file exists. The scene runs in parallel with `GameScene` but is currently empty. This can be verified by adding a temporary text object to the `UIScene` and seeing it overlay the `GameScene`.
@@ -50,21 +50,21 @@ Before merging each phase branch:
 - **After completion**: Mark task as completed only after ALL project tests pass.
 - **CRITICAL**: After completion, all changes must be committed to git and pushed to the remote repository.
 
-### Task 4.2: Add Health Bar to UI
+### Task 4.2: Add Health Bar to UI ✅
 **Objective**: Display player health in the UI.
 **IMPLEMENTATION REFERENCE**: See Section 7.3 "HUD State Updates via Event Emitter".
 - **Expected output**: A simple health bar graphic appears in the `UIScene`. It does not need to be functional yet.
 - **After completion**: Mark task as completed only after ALL project tests pass.
 - **CRITICAL**: After completion, all changes must be committed to git and pushed to the remote repository.
 
-### Task 4.3: Add Ability Cooldown Indicators
+### Task 4.3: Add Ability Cooldown Indicators ✅
 **Objective**: Show ability availability in the UI.
 **IMPLEMENTATION REFERENCE**: See Section 7.3 "Interactive Menus and Responsive Layout".
 - **Expected output**: Placeholder icons for the Dash and Chrono Pulse abilities appear in the `UIScene`. They do not need to be functional yet.
 - **After completion**: Mark task as completed only after ALL project tests pass.
 - **CRITICAL**: After completion, all changes must be committed to git and pushed to the remote repository.
 
-### Task 4.4: Create Pause Menu
+### Task 4.4: Create Pause Menu ✅
 **Objective**: Allow the game to be paused.
 **IMPLEMENTATION REFERENCE**: See Section 1.2 "Scene Management" for pausing patterns.
 - **Expected output**: Pressing a key (e.g., 'P') pauses the `GameScene` and shows a "Paused" menu in the `UIScene` with a "Resume" button. Clicking "Resume" unpauses the game.

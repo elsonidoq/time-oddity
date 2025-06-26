@@ -1,7 +1,33 @@
+import '../mocks/phaserMock.js';
 import { jest } from '@jest/globals';
 import { existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { createPhaserKeyMock } from '../mocks/phaserKeyMock.js';
+
+let InputManager;
+
+beforeAll(async () => {
+  const { join, dirname } = await import('path');
+  const { fileURLToPath } = await import('url');
+  const { existsSync } = await import('fs');
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = dirname(__filename);
+  const inputManagerPath = join(__dirname, '../../client/src/systems/InputManager.js');
+  if (existsSync(inputManagerPath)) {
+    const inputModule = await import(inputManagerPath);
+    InputManager = inputModule.default;
+  } else {
+    InputManager = class { constructor(s) { this.scene = s; } update() {} };
+  }
+});
+
+// Patch global Phaser mock for Keyboard static methods
+if (!globalThis.Phaser) globalThis.Phaser = {};
+if (!globalThis.Phaser.Input) globalThis.Phaser.Input = {};
+if (!globalThis.Phaser.Input.Keyboard) globalThis.Phaser.Input.Keyboard = {};
+if (!globalThis.Phaser.Input.Keyboard.JustDown) globalThis.Phaser.Input.Keyboard.JustDown = jest.fn(() => false);
+if (!globalThis.Phaser.Input.Keyboard.JustUp) globalThis.Phaser.Input.Keyboard.JustUp = jest.fn(() => false);
 
 describe('Task 2.6: IdleState Class', () => {
   const __filename = fileURLToPath(import.meta.url);
@@ -10,6 +36,7 @@ describe('Task 2.6: IdleState Class', () => {
   let IdleState;
   let player;
   let state;
+  let scene;
 
   beforeAll(async () => {
     if (existsSync(idleStatePath)) {
@@ -21,6 +48,23 @@ describe('Task 2.6: IdleState Class', () => {
   });
 
   beforeEach(() => {
+    // Centralized key mocks
+    const left = createPhaserKeyMock('LEFT');
+    const right = createPhaserKeyMock('RIGHT');
+    const up = createPhaserKeyMock('UP');
+    // Minimal scene mock for InputManager
+    scene = {
+      input: {
+        keyboard: {
+          addKey: (key) => {
+            if (key === 'LEFT') return left;
+            if (key === 'RIGHT') return right;
+            if (key === 'UP') return up;
+            return createPhaserKeyMock(key);
+          }
+        }
+      }
+    };
     player = {
       anims: { play: jest.fn() },
       body: {
@@ -29,14 +73,7 @@ describe('Task 2.6: IdleState Class', () => {
         setAllowGravity: jest.fn(),
         onFloor: jest.fn(() => true),
       },
-      inputManager: {
-        left: false,
-        right: false,
-        up: false,
-        get isLeftPressed() { return this.left; },
-        get isRightPressed() { return this.right; },
-        get isUpPressed() { return this.up; },
-      },
+      inputManager: new InputManager(scene),
       stateMachine: { setState: jest.fn() },
       flipX: false,
       speed: 200,
@@ -44,6 +81,10 @@ describe('Task 2.6: IdleState Class', () => {
       dashTimer: 0,
       scene: { time: { now: 0 } },
     };
+    // Attach key mocks for direct test access
+    player.inputManager.left = left;
+    player.inputManager.right = right;
+    player.inputManager.up = up;
     state = new IdleState(player);
   });
 
@@ -57,19 +98,19 @@ describe('Task 2.6: IdleState Class', () => {
   });
 
   test('execute() should transition to RunState if moving left', () => {
-    player.inputManager.left = true;
+    player.inputManager.left.setDown();
     state.execute();
     expect(player.stateMachine.setState).toHaveBeenCalledWith('run');
   });
 
   test('execute() should transition to RunState if moving right', () => {
-    player.inputManager.right = true;
+    player.inputManager.right.setDown();
     state.execute();
     expect(player.stateMachine.setState).toHaveBeenCalledWith('run');
   });
 
   test('execute() should transition to JumpState if jumping', () => {
-    player.inputManager.up = true;
+    player.inputManager.up.setDown();
     state.execute();
     expect(player.stateMachine.setState).toHaveBeenCalledWith('jump');
   });

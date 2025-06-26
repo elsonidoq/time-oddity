@@ -26,9 +26,8 @@ if (!globalThis.Phaser.Input.Keyboard.KeyCodes) {
     R: 'R',
   };
 }
-// JustDown/JustUp must be assigned in test setup
-// globalThis.Phaser.Input.Keyboard.JustDown = jest.fn();
-// globalThis.Phaser.Input.Keyboard.JustUp = jest.fn();
+if (!globalThis.Phaser.Input.Keyboard.JustDown) globalThis.Phaser.Input.Keyboard.JustDown = () => false;
+if (!globalThis.Phaser.Input.Keyboard.JustUp) globalThis.Phaser.Input.Keyboard.JustUp = () => false;
 
 // Provide a global mock for scene.input.keyboard.addKey
 if (typeof globalThis.scene === 'undefined') {

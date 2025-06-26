@@ -1,7 +1,26 @@
+import '../mocks/phaserMock.js';
 import { jest } from '@jest/globals';
 import { existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { createPhaserKeyMock } from '../mocks/phaserKeyMock.js';
+
+let InputManager;
+
+beforeAll(async () => {
+  const { join, dirname } = await import('path');
+  const { fileURLToPath } = await import('url');
+  const { existsSync } = await import('fs');
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = dirname(__filename);
+  const inputManagerPath = join(__dirname, '../../client/src/systems/InputManager.js');
+  if (existsSync(inputManagerPath)) {
+    const inputModule = await import(inputManagerPath);
+    InputManager = inputModule.default;
+  } else {
+    InputManager = class { constructor(s) { this.scene = s; } update() {} };
+  }
+});
 
 describe('Task 2.7: RunState Class', () => {
   const __filename = fileURLToPath(import.meta.url);
@@ -10,6 +29,7 @@ describe('Task 2.7: RunState Class', () => {
   let RunState;
   let player;
   let state;
+  let scene;
 
   beforeAll(async () => {
     if (existsSync(runStatePath)) {
@@ -21,6 +41,23 @@ describe('Task 2.7: RunState Class', () => {
   });
 
   beforeEach(() => {
+    // Centralized key mocks
+    const left = createPhaserKeyMock('LEFT');
+    const right = createPhaserKeyMock('RIGHT');
+    const up = createPhaserKeyMock('UP');
+    // Minimal scene mock for InputManager
+    scene = {
+      input: {
+        keyboard: {
+          addKey: (key) => {
+            if (key === 'LEFT') return left;
+            if (key === 'RIGHT') return right;
+            if (key === 'UP') return up;
+            return createPhaserKeyMock(key);
+          }
+        }
+      }
+    };
     player = {
       anims: { play: jest.fn() },
       body: { 
@@ -30,14 +67,7 @@ describe('Task 2.7: RunState Class', () => {
         setVelocityY: jest.fn(),
         setAllowGravity: jest.fn(),
       },
-      inputManager: {
-        left: false,
-        right: false,
-        up: false,
-        get isLeftPressed() { return this.left; },
-        get isRightPressed() { return this.right; },
-        get isUpPressed() { return this.up; },
-      },
+      inputManager: new InputManager(scene),
       stateMachine: { setState: jest.fn() },
       speed: 200,
       flipX: false,
@@ -45,6 +75,10 @@ describe('Task 2.7: RunState Class', () => {
       dashTimer: 0,
       scene: { time: { now: 0 } },
     };
+    // Attach key mocks for direct test access
+    player.inputManager.left = left;
+    player.inputManager.right = right;
+    player.inputManager.up = up;
     state = new RunState(player);
   });
 
@@ -58,14 +92,14 @@ describe('Task 2.7: RunState Class', () => {
   });
 
   test('execute() should set velocity left and flip sprite', () => {
-    player.inputManager.left = true;
+    player.inputManager.left.setDown();
     state.execute();
     expect(player.body.setVelocityX).toHaveBeenCalledWith(-player.speed);
     expect(player.flipX).toBe(true);
   });
 
   test('execute() should set velocity right and not flip sprite', () => {
-    player.inputManager.right = true;
+    player.inputManager.right.setDown();
     state.execute();
     expect(player.body.setVelocityX).toHaveBeenCalledWith(player.speed);
     expect(player.flipX).toBe(false);
@@ -77,15 +111,15 @@ describe('Task 2.7: RunState Class', () => {
   });
   
   test('execute() should transition to JumpState if jumping', () => {
-    player.inputManager.up = true;
-    player.inputManager.right = true; // ensure movement
+    player.inputManager.up.setDown();
+    player.inputManager.right.setDown(); // ensure movement
     state.execute();
     expect(player.stateMachine.setState).toHaveBeenCalledWith('jump');
   });
 
   test('execute() should transition to FallState if not on floor', () => {
     player.body.onFloor.mockReturnValue(false);
-    player.inputManager.right = true; // ensure movement
+    player.inputManager.right.setDown(); // ensure movement
     state.execute();
     expect(player.stateMachine.setState).toHaveBeenCalledWith('fall');
   });

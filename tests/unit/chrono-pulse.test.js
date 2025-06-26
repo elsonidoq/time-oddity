@@ -35,6 +35,7 @@ const { default: gsap } = await import('gsap');
 import { jest } from '@jest/globals';
 import ChronoPulse from '../../client/src/entities/ChronoPulse.js';
 import { mockScene } from '../mocks/phaserMock.js';
+import { createPhaserSceneMock } from '../mocks/phaserSceneMock.js';
 
 let testScene;
 let mockGraphics;
@@ -465,6 +466,61 @@ describe('ChronoPulse', () => {
       
       // Should not throw error and should still activate
       expect(chronoPulse.isActive).toBe(true);
+    });
+  });
+
+  describe('ChronoPulse cooldown edge cases', () => {
+    let testScene;
+    let gsapLib;
+    let ChronoPulseClass;
+
+    beforeAll(async () => {
+      ChronoPulseClass = (await import('../../client/src/entities/ChronoPulse.js')).default;
+      gsapLib = (await import('gsap')).default;
+    });
+
+    beforeEach(() => {
+      testScene = createPhaserSceneMock('GameScene');
+      testScene.time.now = 10000;
+      // Patch graphics mock for ChronoPulse
+      const mockGraphics = {
+        setOrigin: jest.fn().mockReturnThis(),
+        setDepth: jest.fn().mockReturnThis(),
+        destroy: jest.fn(),
+        lineStyle: jest.fn().mockReturnThis(),
+        strokeCircle: jest.fn().mockReturnThis(),
+        setPosition: jest.fn().mockReturnThis(),
+        fillStyle: jest.fn().mockReturnThis(),
+        fillCircle: jest.fn().mockReturnThis(),
+      };
+      testScene.add.graphics = jest.fn(() => mockGraphics);
+    });
+
+    test('activate() returns false when cooldown not elapsed', () => {
+      const chronoPulse = new ChronoPulseClass(testScene, 0, 0, {}, gsapLib);
+      chronoPulse.lastActivationTime = testScene.time.now;
+      expect(chronoPulse.activate()).toBe(false);
+    });
+
+    test('activate() returns true when cooldown has elapsed', () => {
+      const chronoPulse = new ChronoPulseClass(testScene, 0, 0, {}, gsapLib);
+      chronoPulse.lastActivationTime = testScene.time.now - chronoPulse.cooldown - 1;
+      expect(chronoPulse.activate()).toBe(true);
+    });
+
+    test('calling activate() twice in same frame returns false for second call', () => {
+      const chronoPulse = new ChronoPulseClass(testScene, 0, 0, {}, gsapLib);
+      chronoPulse.lastActivationTime = testScene.time.now - chronoPulse.cooldown - 1;
+      expect(chronoPulse.activate()).toBe(true);
+      expect(chronoPulse.activate()).toBe(false);
+    });
+
+    test('cooldown timing with different time intervals', () => {
+      const chronoPulse = new ChronoPulseClass(testScene, 0, 0, {}, gsapLib);
+      chronoPulse.lastActivationTime = testScene.time.now - 1000;
+      expect(chronoPulse.activate()).toBe(false); // Not enough time elapsed
+      chronoPulse.lastActivationTime = testScene.time.now - 3000;
+      expect(chronoPulse.activate()).toBe(true); // Cooldown elapsed
     });
   });
 }); 

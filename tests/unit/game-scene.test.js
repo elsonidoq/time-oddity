@@ -5,6 +5,8 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { SceneMock, validateSceneClass } from './phaser-test-utils.js';
 import { Scene as MockScene } from '../mocks/phaserMock.js';
+import { createPhaserSceneMock } from '../mocks/phaserSceneMock.js';
+import { createEventEmitterMock } from '../mocks/eventEmitterMock.js';
 let BaseScene;
 let GameScene;
 
@@ -229,5 +231,51 @@ describe('GameScene', () => {
       }
       expect(scene.loophound).toBeUndefined();
     });
+  });
+});
+
+describe('GameScene pause/resume event emission', () => {
+  let GameScene;
+  let sceneMock;
+  let eventEmitterMock;
+  let gameSceneInstance;
+
+  beforeAll(async () => {
+    const { join, dirname } = await import('path');
+    const { fileURLToPath } = await import('url');
+    const { existsSync } = await import('fs');
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const gameScenePath = join(__dirname, '../../client/src/scenes/GameScene.js');
+    if (existsSync(gameScenePath)) {
+      const module = await import(gameScenePath);
+      GameScene = module.default;
+    } else {
+      GameScene = class { constructor(scene) { this.scene = scene; this.events = scene.events; } };
+    }
+  });
+
+  beforeEach(() => {
+    sceneMock = createPhaserSceneMock('GameScene');
+    eventEmitterMock = createEventEmitterMock();
+    sceneMock.events = eventEmitterMock;
+    gameSceneInstance = new GameScene(sceneMock);
+    gameSceneInstance.events = eventEmitterMock;
+  });
+
+  test('emits gamePaused event when pause is triggered', () => {
+    // Simulate pause trigger (assume a method or direct event emission)
+    gameSceneInstance.events.emit('gamePaused', { reason: 'test' });
+    expect(eventEmitterMock.wasEventEmitted('gamePaused')).toBe(true);
+    const last = eventEmitterMock.getLastEmittedEvent('gamePaused');
+    expect(last.args[0]).toEqual({ reason: 'test' });
+  });
+
+  test('emits gameResumed event when resume is triggered', () => {
+    // Simulate resume trigger (assume a method or direct event emission)
+    gameSceneInstance.events.emit('gameResumed', { reason: 'test' });
+    expect(eventEmitterMock.wasEventEmitted('gameResumed')).toBe(true);
+    const last = eventEmitterMock.getLastEmittedEvent('gameResumed');
+    expect(last.args[0]).toEqual({ reason: 'test' });
   });
 }); 

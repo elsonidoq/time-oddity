@@ -19,7 +19,8 @@ jest.unstable_mockModule('phaser', () => ({
             this.frame = frame;
             this.body = {
               setSize: jest.fn(),
-              setOffset: jest.fn()
+              setOffset: jest.fn(),
+              setAllowGravity: jest.fn()
             };
             this.setOrigin = jest.fn();
             this.setActive = jest.fn();

@@ -276,6 +276,34 @@ The following decision matrix can guide the team in choosing the most appropriat
 
 **Table 2: GSAP Mocking Strategy Decision Matrix** | Testing Goal | Recommended Strategy | Pros | Cons | Example Test | | :--- | :--- | :--- | :--- | :--- | | **Verify animation logic** (e.g., timeline sequence, duration, ease) | **Module Mocking** (`jest.mock`) | Very fast, runs in Node.js, no DOM required. | Doesn't verify visual output. Mock can be complex to maintain. | `expect(gsap.timeline().to).toHaveBeenCalledWith('.box', { duration: 1 });` | | **Verify final state of a DOM element** after animation | **Environment Simulation** (JSDOM) | High fidelity, tests actual style/transform changes. | Slower, consumes more memory. | `const element = document.querySelector('.box'); await runAnimation(); expect(element.style.opacity).toBe('0');` | | **Verify that logic correctly _triggers_ an animation** | **State-Based Testing** (Decoupled Architecture) | Most robust, fastest unit tests, promotes good architecture. | Requires architectural buy-in. Doesn't test the animation itself. | `myComponent.show(); expect(myComponent.state).toBe('visible');` | | **Verify the full visual animation** in a real browser | **E2E / Visual Regression Testing** | Highest confidence, catches visual glitches. | Very slow, brittle, expensive to run and maintain. | A full browser test that takes a screenshot and compares it to a baseline image. |
 
+#### 2.3 Centralized Mock Architecture
+
+To reduce duplication and guarantee API consistency across the entire Jest suite, **all engine-level fakes live in one place: `tests/mocks/`**.  Three first-class mocks are provided and should be used instead of ad-hoc stubs:
+
+1. **`phaserKeyMock.js`** – simulates a single `Phaser.Input.Keyboard.Key` instance.
+   • Factory: `createPhaserKeyMock(keyCode)`  
+   • Class:   `PhaserKeyMock`  
+   • State properties: `isDown`, `isUp`, `justDown`, `justUp`  
+   • Control helpers: `setDown()`, `setUp()`, `setJustDown()`, `setJustUp()`, `reset()`, `update()`.
+
+2. **`phaserSceneMock.js`** – a comprehensive replacement for `Phaser.Scene` that exposes **time**, **input**, **physics**, **camera**, **events**, and helper methods such as `setTime()` and `getEmittedEvents()`.  Internally it delegates keyboard creation to the key mock above, so **do not** create your own key doubles.
+
+3. **`eventEmitterMock.js`** – a stand-alone `Phaser.Events.EventEmitter` surrogate offering `on`, `off`, `once`, `emit`, plus rich inspection helpers (`wasEventEmitted`, `getEventEmitCount`, etc.).  All runtime event-name invariants listed in §15 are pre-declared so typos fail fast during tests.
+
+**When to use which mock**
+
+| Test Scenario | Recommended Mock(s) | Rationale |
+|---------------|--------------------|-----------|
+| Pure keyboard logic (e.g. `InputManager` getters) | `phaserKeyMock` | Fast; no Scene setup needed |
+| Single-scene unit work (e.g. `TimeManager`, `CollisionManager`) | `phaserSceneMock` (includes key mocks) | Provides physics, cameras, and event buses in one object |
+| Cross-scene / global events | `eventEmitterMock` | Light-weight, lets you focus on pub-sub logic |
+
+> **Extension guideline** – If production code touches an un-mocked Phaser API, first extend the central mock _here_, then update typings & docs.  Never monkey-patch inside a spec file; that breaks the "single-source-of-truth" contract.
+
+> **Troubleshooting tip** – All three mocks expose a `resetMocks()` helper.  Call it from a `beforeEach` block to guarantee isolation when your test file manually mutates mock state.
+
+_For quick reference: §2.2 now defers all Phaser-specific mocking advice to this subsection._
+
 ### Section 3: Best Practices for LLM-Assisted Development and Testing
 
 The use of an engineer-focused LLM introduces both a unique opportunity and a unique challenge. The opportunity is unprecedented development velocity. The challenge, as observed, is that this velocity can create chaos if not properly directed. This section provides a framework for transforming the LLM from a source of test fragility into an engine for enforcing quality and discipline.
@@ -345,6 +373,25 @@ While the LLM should be guided by human-written tests when generating production
     
 
 By adopting these LLM-centric workflows, the development dynamic is fundamentally transformed. The current process, where the LLM's speed creates chaos in a brittle testing system, is inverted. The new process uses a robust, human-defined testing framework to impose discipline on the LLM. The tests become the specification, the prompt, and the quality gate. The LLM is thus transformed from a chaos engine into a discipline engine—a powerful tool that accelerates the most tedious parts of the development cycle while being strictly constrained by the quality and architectural standards set by the human team.
+
+### Section 4: Phase 4 Test Coverage Improvements
+
+The **Phase 4 "Increase Coverage & Robustness" milestone** introduced an extensive battery of new unit tests and refactors that pushed the project's coverage well above the critical 80 % line.
+
+Key additions:
+
+* **InputManager getters** – 7 behavioural test groups (Tasks 2.1-2.7) cover every control path (`isLeftPressed`, `isRightPressed`, `isJumpPressed`, `isDashPressed`, `isRewindPressed`, `isChronoPulsePressed`, `isPausePressed`).
+* **State-machine integration** – IdleState and RunState specs now rely on the real `InputManager` plus centralized mocks, eliminating brittle hand-rolled stubs.
+* **TimeManager deep-dive** – 35+ new cases validate constructor defaults, recording/rewind pipelines, gravity toggling, visual-effects hooks, and edge-case error handling (Tasks 8.1-8.12).
+* **Entity hot-spots** – ChronoPulse cooldown, Coin double-collection & rewind behaviour, and GameScene pause/resume event emission received dedicated edge-case suites.
+
+Practical results:
+
+* **Lines-of-code covered:** +18 %
+* **Branches covered:**    +24 %
+* **Mean test runtime:**   unchanged (<3 s) thanks to centralized mocks & fake-timer use.
+
+These improvements form the new baseline—future features must not reduce coverage below the current CI gate.
 
 ## Conclusion and Actionable Roadmap
 

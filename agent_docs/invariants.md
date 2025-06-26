@@ -151,6 +151,7 @@ Do **not** rename these events without refactoring every `scene.events.on(...)` 
 1. **Global mocks** for `phaser`, `gsap`, `howler`, and `matter-js` live in `tests/__mocks__` and **must stay in sync** with any new API surface you introduce.
 2. Tests rely on `globalThis.createMockGameObject` to satisfy `ObjectPool` when a Phaser `Group` is absent; keep that hook or extend the mock accordingly.
 3. When adding new external libraries, provide a Jest manual mock in `tests/mocks/` or tests will fail in CI.
+4. **Centralized Phaser mocks** – `phaserKeyMock.js`, `phaserSceneMock.js`, and `eventEmitterMock.js` are the **single source of truth** for keyboard, scene, and event-emitter fakes.  All test files **must import these factories instead of rolling their own**.  Any change to production APIs that touches Phaser internals **requires** the corresponding mock be extended _before_ new tests are written.
 
 ---
 

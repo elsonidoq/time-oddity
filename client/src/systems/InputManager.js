@@ -1,5 +1,8 @@
 import Phaser from 'phaser';
 
+// Patch: Use globalThis.Phaser if available for testability
+const PhaserLib = (typeof globalThis !== 'undefined' && globalThis.Phaser) ? globalThis.Phaser : Phaser;
+
 /**
  * Centralized input handling system.
  * See Section 1.5 "Input Handling" in the comprehensive documentation.
@@ -27,7 +30,7 @@ export default class InputManager {
     this.r = scene.input.keyboard.addKey('R');
 
     // Shift key for dash
-    this.shift = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
+    this.shift = scene.input.keyboard.addKey(PhaserLib.Input.Keyboard.KeyCodes.SHIFT);
     
     // E key for Chrono Pulse ability
     this.e = scene.input.keyboard.addKey('E');
@@ -76,9 +79,9 @@ export default class InputManager {
    * Check if the jump key was just released.
    */
   get isJumpJustReleased() {
-    return Phaser.Input.Keyboard.JustUp(this.up) || 
-           Phaser.Input.Keyboard.JustUp(this.w) || 
-           Phaser.Input.Keyboard.JustUp(this.space);
+    return PhaserLib.Input.Keyboard.JustUp(this.up) || 
+           PhaserLib.Input.Keyboard.JustUp(this.w) || 
+           PhaserLib.Input.Keyboard.JustUp(this.space);
   }
 
   /**
@@ -101,7 +104,7 @@ export default class InputManager {
    * Check if the dash key was just pressed (SHIFT)
    */
   get isDashJustPressed() {
-    return Phaser.Input.Keyboard.JustDown(this.shift);
+    return PhaserLib.Input.Keyboard.JustDown(this.shift);
   }
 
   /**
@@ -117,7 +120,7 @@ export default class InputManager {
    * Check if the Chrono Pulse key was just pressed (E)
    */
   get isChronoPulseJustPressed() {
-    const justPressed = Phaser.Input.Keyboard.JustDown(this.e);
+    const justPressed = PhaserLib.Input.Keyboard.JustDown(this.e);
     if (justPressed) {
       console.log('[InputManager] Chrono Pulse key just pressed (E)');
     }
@@ -135,6 +138,6 @@ export default class InputManager {
    * Check if the pause key was just pressed (P)
    */
   get isPauseJustPressed() {
-    return Phaser.Input.Keyboard.JustDown(this.p);
+    return PhaserLib.Input.Keyboard.JustDown(this.p);
   }
 } 

@@ -44,29 +44,34 @@ export default class TimeManager {
    * @param {boolean} isRewinding Whether to enable or disable rewind.
    */
   toggleRewind(isRewinding) {
-    console.log('[TimeManager] toggleRewind: managedObjects before:', Array.from(this.managedObjects));
-    if (isRewinding === this.isRewinding) return;
+    if (this.isRewinding === isRewinding) return;
+    
     this.isRewinding = isRewinding;
-
-    if (this.isRewinding) {
-      if (this.stateBuffer.length > 0) {
-        this.playbackTimestamp = this.stateBuffer[this.stateBuffer.length - 1].timestamp;
-      }
+    
+    if (isRewinding) {
+      this.playbackTimestamp = this.stateBuffer.length > 0 ? this.stateBuffer[this.stateBuffer.length - 1].timestamp : 0;
       for (const object of this.managedObjects) {
-        if (object.body) object.body.setAllowGravity(false);
+        if (object.body && typeof object.body.setAllowGravity === 'function') {
+          object.body.setAllowGravity(false);
+        }
       }
       this._activateRewindVisuals();
     } else {
-      const resumeIndex = this.stateBuffer.findIndex(record => record.timestamp >= this.playbackTimestamp);
-      if (resumeIndex > -1) {
-        this.stateBuffer.length = resumeIndex;
+      // Truncate buffer to current position
+      if (this.stateBuffer.length > 0) {
+        const currentIndex = this.stateBuffer.findIndex(record => record.timestamp >= this.playbackTimestamp);
+        if (currentIndex > 0) {
+          this.stateBuffer.splice(0, currentIndex);
+        }
       }
+      
       for (const object of this.managedObjects) {
-        if (object.body) object.body.setAllowGravity(true);
+        if (object.body && typeof object.body.setAllowGravity === 'function') {
+          object.body.setAllowGravity(true);
+        }
       }
       this._deactivateRewindVisuals();
     }
-    console.log('[TimeManager] toggleRewind: managedObjects after:', Array.from(this.managedObjects));
   }
 
   /**
@@ -121,35 +126,39 @@ export default class TimeManager {
     this.isRecordingPaused = false;
   }
 
-  handleRecord(time) {
-    // Don't record if recording is paused
-    if (this.isRecordingPaused) {
-      return;
-    }
-
-    if (time - this.lastRecordTime > this.recordInterval) {
-      this.lastRecordTime = time;
-      const frameStates = [];
-      console.log('[TimeManager] handleRecord: managedObjects size:', this.managedObjects.size);
-      for (const object of this.managedObjects) {
+  handleRecord(timestamp) {
+    if (this.isRecordingPaused) return;
+    
+    if (timestamp - this.lastRecordTime < this.recordInterval) return;
+    
+    this.lastRecordTime = timestamp;
+    
+    const states = [];
+    for (const object of this.managedObjects) {
+      try {
         let state;
         if (typeof object.getStateForRecording === 'function') {
           state = object.getStateForRecording();
         } else {
+          // Default state recording
           state = new TemporalState({
-            x: object.x,
-            y: object.y,
-            velocityX: object.body.velocity.x,
-            velocityY: object.body.velocity.y,
-            animation: object.anims.currentAnim ? object.anims.currentAnim.key : null,
-            isAlive: object.active,
-            isVisible: object.visible,
+            x: object.x || 0,
+            y: object.y || 0,
+            velocityX: object.body?.velocity?.x || 0,
+            velocityY: object.body?.velocity?.y || 0,
+            animation: object.anims?.currentAnim?.key || null,
+            isAlive: object.active !== false,
+            isVisible: object.visible !== false
           });
         }
-        console.log('[TimeManager] Recording state for object:', object, state);
-        frameStates.push({ target: object, state: state });
+        states.push({ target: object, state });
+      } catch (error) {
+        console.warn('[TimeManager] Error recording state for object:', error);
       }
-      this.stateBuffer.push({ timestamp: time, states: frameStates });
+    }
+    
+    if (states.length > 0) {
+      this.stateBuffer.push({ timestamp, states });
     }
   }
 
@@ -225,14 +234,21 @@ export default class TimeManager {
     // Overlay
     if (!this._rewindOverlay && this.scene.add && this.scene.add.graphics) {
       const overlay = this.scene.add.graphics();
-      overlay.fillStyle(0x4444ff, 1);
-      overlay.fillRect(0, 0, this.scene.sys.game.config.width, this.scene.sys.game.config.height);
-      overlay.setAlpha(0);
-      overlay.setScrollFactor && overlay.setScrollFactor(0);
-      overlay.setDepth && overlay.setDepth(1000);
-      overlay.setVisible(true);
+      if (overlay.fillStyle) {
+        overlay.fillStyle(0x4444ff, 1);
+        // Handle missing game config gracefully
+        const width = this.scene.sys?.game?.config?.width ?? 1280;
+        const height = this.scene.sys?.game?.config?.height ?? 720;
+        overlay.fillRect(0, 0, width, height);
+      }
+      if (overlay.setAlpha) overlay.setAlpha(0);
+      if (overlay.setScrollFactor) overlay.setScrollFactor(0);
+      if (overlay.setDepth) overlay.setDepth(1000);
+      if (overlay.setVisible) overlay.setVisible(true);
       this._rewindOverlay = overlay;
-      gsap.to(overlay, { alpha: 0.3, duration: 0.2, overwrite: true });
+      if (typeof gsap !== 'undefined' && gsap.to) {
+        gsap.to(overlay, { alpha: 0.3, duration: 0.2, overwrite: true });
+      }
     }
   }
 
@@ -245,17 +261,25 @@ export default class TimeManager {
     }
     // Fade out and destroy overlay
     if (this._rewindOverlay) {
-      gsap.killTweensOf(this._rewindOverlay);
-      gsap.to(this._rewindOverlay, {
-        alpha: 0,
-        duration: 0.3,
-        onComplete: () => {
-          if (this._rewindOverlay) {
-            this._rewindOverlay.destroy();
-            this._rewindOverlay = null;
+      if (typeof gsap !== 'undefined') {
+        gsap.killTweensOf(this._rewindOverlay);
+        gsap.to(this._rewindOverlay, {
+          alpha: 0,
+          duration: 0.3,
+          onComplete: () => {
+            if (this._rewindOverlay) {
+              this._rewindOverlay.destroy();
+              this._rewindOverlay = null;
+            }
           }
+        });
+      } else {
+        // Fallback when GSAP is not available
+        if (this._rewindOverlay.destroy) {
+          this._rewindOverlay.destroy();
         }
-      });
+        this._rewindOverlay = null;
+      }
     }
   }
 
