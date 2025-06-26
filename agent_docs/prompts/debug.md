@@ -1,18 +1,25 @@
-## Context Setup
-You are working on the Time Oddity project, a Phaser 3-based platformer game with time manipulation mechanics. The project follows strict architectural patterns and testing methodologies.
+# Context: 
+- Fact: There is a bug. All platforms are affected by gravity and fall.
+- Fact: all tests pass
 
-## Required Documentation Review
+# Conclusion: 
+- Either there are missing tests, or there is a bug in the mocks
+- Something was broken in the when we integrated Platform with Game Scene
+
+# Required Documentation Review
 Before beginning any task, you MUST review these documents:
 
 1. **@invariants.md ** - Contains all non-negotiable architectural assumptions, state structures, and contracts that must be preserved
 2. **@testing_best_practices.md ** - Defines TDD/BDD methodologies, testing strategies, and LLM-assisted development workflows  
 3. **@small_comprehensive_documentation.md ** - Provides technical implementation details, API references, and architectural patterns
 
-## Task Assignment
-- Execute all tasks from Task 7.2 in file @phase_4_increase_coverage.md 
-- EXECUTE ALL TASKS AUTONOMOUSLY WITHOUT REQUIRING USER INPUT
-- After finishing a task, double check the task description to make sure you actually finished
-- If you are sure, move to the next task
+
+# Task Assignment:
+- Perform an in-depth analysis to understand the root cause of the problem
+- Write down a detailed and grounded plan 
+- EXECUTE the plan following the TDD methodology strictl
+Follow the rule @debugging.mdc 
+
 
 ## Critical Requirements
 
