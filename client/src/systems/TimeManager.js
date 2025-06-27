@@ -8,6 +8,30 @@ import { gsap } from 'gsap';
  *  • Snapshot cadence is 50 ms (`recordInterval`).
  *  • Managed objects must provide either {get,set}StateForRecording or expose the minimal state shape.
  *  • During rewind, gravity is disabled on all managed bodies and a camera tint + overlay (depth=1000) is applied.
+ * 
+ * @class
+ * @description The TimeManager is responsible for recording and rewinding game state.
+ * It maintains a buffer of temporal states for all registered objects and handles
+ * their state interpolation during rewind.
+ * 
+ * State Recording Contract:
+ * 1. Objects must either:
+ *    a) Implement getStateForRecording() and setStateFromRecording(state), or
+ *    b) Expose the minimal TemporalState shape: {x, y, velocityX, velocityY, animation, isAlive, isVisible}
+ * 
+ * 2. Custom State Recording Methods:
+ *    - getStateForRecording(): Must return a TemporalState object or compatible shape
+ *    - setStateFromRecording(state): Must handle all custom state properties
+ * 
+ * 3. State Buffer Management:
+ *    - States are recorded every 50ms (recordInterval)
+ *    - Buffer is truncated to current position when exiting rewind
+ *    - Interpolation is used for smooth playback between recorded states
+ * 
+ * 4. Gravity Management:
+ *    - Original gravity states are preserved per object
+ *    - Gravity is disabled during rewind
+ *    - Original states are restored after rewind
  */
 export default class TimeManager {
   /**

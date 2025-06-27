@@ -104,7 +104,18 @@ If you change key bindings ensure **all getters** in `InputManager` continue to 
 
 ---
 
-## 12. Level / Platform Geometry
+## 12. Moving Platform Invariants
+- MovingPlatform must implement custom getStateForRecording/setStateFromRecording for perfect time reversal.
+- Movement must be deterministic and restored exactly during rewind (position, movement state, path progress, timing).
+- Player-carrying logic: platforms must track previous position, detect player standing, and apply movement delta after platform update.
+- During rewind, collision states and platform-rider relationships must be preserved.
+- SceneFactory must add moving platforms to the group before configuration.
+- TimeManager must register moving platforms and call their custom state methods.
+- CollisionManager must support enhanced collision for moving platforms and preserve state during rewind.
+
+---
+
+## 13. Level / Platform Geometry
 1. Ground top pixel-row sits at **y = 656** in 720 p canvas; camera bounds & player spawn rely on this magic number.
 2. `configurePlatform(platform, isFullBlock)` sets hit-box to full sprite when `isFullBlock` is `true`; altering this function may break jump/fall tests.
 3. **Platform Configuration Ordering (CRITICAL)**: Platforms (including MovingPlatform instances) **MUST** be added to their physics group **BEFORE** calling `configurePlatform()` or any other physics configuration methods. Configuring platforms before adding them to the group causes the configuration to be lost when the group processes the platform. This ordering requirement applies to:
@@ -133,13 +144,13 @@ If you change key bindings ensure **all getters** in `InputManager` continue to 
 
 ---
 
-## 13. Testing Assumptions
+## 14. Testing Assumptions
 1. Jest tests rely on public method names staying **exactly the same** (e.g., `Player.simulateDashStateExecute()`).
 2. Mocks replace external libraries (`phaser`, `gsap`, `howler`) – ensure new code paths do **not** require un-mocked APIs during test runs.
 
 ---
 
-## 14. Asset & Animation Keys
+## 15. Asset & Animation Keys
 The following **key strings** are hard-coded across boot loaders, entity classes and tests. Changing any of them requires updating all call-sites **and** the asset pipeline.
 
 | Purpose | Key / Filename | Where referenced |
@@ -156,7 +167,7 @@ BootScene **must** define every animation before any other scene starts; otherwi
 
 ---
 
-## 15. Runtime Event Names
+## 16. Runtime Event Names
 Several systems communicate via the Phaser event-emitter. These string constants are implicitly coupled to tests and other listeners:
 
 | Emitter | Event Name | Emitted From | Expected Listeners |
@@ -170,7 +181,7 @@ Do **not** rename these events without refactoring every `scene.events.on(...)` 
 
 ---
 
-## 16. Testing & Mock Integration
+## 17. Testing & Mock Integration
 1. **Global mocks** for `phaser`, `gsap`, `howler`, and `matter-js` live in `tests/__mocks__` and **must stay in sync** with any new API surface you introduce.
 2. Tests rely on `globalThis.createMockGameObject` to satisfy `ObjectPool` when a Phaser `Group` is absent; keep that hook or extend the mock accordingly.
 3. When adding new external libraries, provide a Jest manual mock in `tests/mocks/` or tests will fail in CI.
@@ -178,9 +189,9 @@ Do **not** rename these events without refactoring every `scene.events.on(...)` 
 
 ---
 
-## 17. State Structures & Time Reversal Contracts
+## 18. State Structures & Time Reversal Contracts
 
-### 17.1 Base TemporalState (systems/TemporalState.js)
+### 18.1 Base TemporalState (systems/TemporalState.js)
 The minimal state shape that **all** objects must expose for TimeManager recording:
 
 ```javascript
@@ -197,7 +208,7 @@ The minimal state shape that **all** objects must expose for TimeManager recordi
 
 **Usage**: TimeManager creates this automatically for objects without custom recording methods.
 
-### 17.2 Entity Base State (entities/Entity.js)
+### 18.2 Entity Base State (entities/Entity.js)
 All entities inherit these properties from `Phaser.Physics.Arcade.Sprite` + custom fields:
 
 ```javascript
@@ -216,7 +227,7 @@ this.isActive                     // Custom active flag (used by ChronoPulse)
 
 **Time Reversal**: `isActive` is synced with `active` during state restoration.
 
-### 17.3 Player State (entities/Player.js)
+### 18.3 Player State (entities/Player.js)
 Extends Entity with player-specific state:
 
 ```javascript
@@ -247,7 +258,7 @@ this.ghostPool                    // ObjectPool for dash trail effects
 
 **Time Reversal**: Dash timing variables (`dashTimer`, `canDash`) are **not** recorded by TimeManager – they are recalculated from `scene.time.now` during state restoration.
 
-### 17.4 Enemy State (entities/Enemy.js)
+### 18.4 Enemy State (entities/Enemy.js)
 Extends Entity with AI behavior state:
 
 ```javascript
@@ -270,7 +281,7 @@ this._freezeTimer = null          // Internal timer reference
 
 **Time Reversal**: Freeze timers are checked against `scene.time.now` during `update()` – they automatically expire and unfreeze enemies.
 
-### 17.5 LoopHound Extended State (entities/enemies/LoopHound.js)
+### 18.5 LoopHound Extended State (entities/enemies/LoopHound.js)
 Extends Enemy with patrol-specific state:
 
 ```javascript
@@ -298,7 +309,7 @@ this.spawnY = y                   // Respawn position
 
 **Time Reversal**: LoopHound's custom recording preserves patrol boundaries and AI state that the base TemporalState would lose.
 
-### 17.6 ChronoPulse State (entities/ChronoPulse.js)
+### 18.6 ChronoPulse State (entities/ChronoPulse.js)
 Extends Entity with ability-specific state:
 
 ```javascript
@@ -316,7 +327,7 @@ this.gsapLib                      // GSAP library reference
 
 **Time Reversal**: ChronoPulse does **not** implement custom state recording – it relies on the base TemporalState. Cooldown timing is recalculated from `scene.time.now` during `canActivate()`.
 
-### 17.7 TimeManager State (systems/TimeManager.js)
+### 18.7 TimeManager State (systems/TimeManager.js)
 The central time reversal system state:
 
 ```javascript
@@ -348,7 +359,7 @@ this._rewindActive = false        // Whether visual effects are active
 ]
 ```
 
-### 17.8 State Recording Contracts
+### 18.8 State Recording Contracts
 
 #### Objects with Custom Recording
 - **LoopHound**: Implements `getStateForRecording()` and `setStateFromRecording()`
@@ -382,3 +393,13 @@ this._rewindActive = false        // Whether visual effects are active
 ---
 
 _This file lives in `agent_docs/invariants.md` so that LLM-powered tools can index it quickly alongside other architectural docs._ 
+
+[Moving Platform Invariants migrated from moving_platform_architecture.md]
+
+- MovingPlatform must implement custom getStateForRecording/setStateFromRecording for perfect time reversal.
+- Movement must be deterministic and restored exactly during rewind (position, movement state, path progress, timing).
+- Player-carrying logic: platforms must track previous position, detect player standing, and apply movement delta after platform update.
+- During rewind, collision states and platform-rider relationships must be preserved.
+- SceneFactory must add moving platforms to the group before configuration.
+- TimeManager must register moving platforms and call their custom state methods.
+- CollisionManager must support enhanced collision for moving platforms and preserve state during rewind. 

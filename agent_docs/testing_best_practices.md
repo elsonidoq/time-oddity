@@ -304,6 +304,60 @@ To reduce duplication and guarantee API consistency across the entire Jest suite
 
 _For quick reference: §2.2 now defers all Phaser-specific mocking advice to this subsection._
 
+### Concrete Mocking Examples for GSAP and Phaser (from Moving Platform Feature)
+
+**Context:** The moving platform feature required advanced mocking of both GSAP (for animation timelines) and Phaser (for scene, physics, and collision) to enable deterministic, isolated tests for time-reversal and movement logic.
+
+#### GSAP Mock Example (Moving Platform)
+```js
+// In __mocks__/gsap.js
+const timelineMock = () => ({
+  to: jest.fn().mockReturnThis(),
+  from: jest.fn().mockReturnThis(),
+  set: jest.fn().mockReturnThis(),
+  play: jest.fn(),
+  pause: jest.fn(),
+  kill: jest.fn(),
+  // Add more timeline methods as needed
+});
+
+module.exports = {
+  to: jest.fn(),
+  set: jest.fn(),
+  timeline: jest.fn(timelineMock),
+  registerPlugin: jest.fn(),
+};
+```
+
+#### Phaser Scene/Physics Mock Example (Moving Platform)
+```js
+// In tests/mocks/phaserSceneMock.js
+class PhaserSceneMock {
+  constructor() {
+    this.physics = {
+      add: {
+        group: jest.fn(() => ({
+          create: jest.fn(),
+          add: jest.fn(),
+        })),
+      },
+      world: {
+        bounds: { setTo: jest.fn() },
+        enable: jest.fn(),
+      },
+    };
+    this.cameras = { main: { setBounds: jest.fn(), setZoom: jest.fn() } };
+    this.add = { tileSprite: jest.fn() };
+    this.events = { on: jest.fn(), emit: jest.fn() };
+  }
+}
+module.exports = PhaserSceneMock;
+```
+
+**Why:**
+- These mocks allow moving platform tests to verify animation triggers, movement, and collision logic without requiring a real DOM or Phaser runtime.
+- They enable deterministic, fast, and isolated unit/integration tests for all platform movement and time-reversal scenarios.
+
 ### Section 3: Best Practices for LLM-Assisted Development and Testing
 
 The use of an engineer-focused LLM introduces both a unique opportunity and a unique challenge. The opportunity is unprecedented development velocity. The challenge, as observed, is that this velocity can create chaos if not properly directed. This section provides a framework for transforming the LLM from a source of test fragility into an engine for enforcing quality and discipline.

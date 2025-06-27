@@ -1,6 +1,49 @@
 /**
  * A generic state machine for managing entity states (e.g., player, enemies).
  * See Section 7.2 "State Machine Implementation" in the comprehensive documentation.
+ * 
+ * @class
+ * @description Provides a flexible state machine implementation for game entities.
+ * Each state must implement a specific interface to ensure proper state transitions
+ * and execution.
+ * 
+ * Required State Interface:
+ * Each state object must implement the following methods:
+ * 
+ * 1. enter(): void
+ *    - Called when entering the state
+ *    - Should set up initial conditions (e.g., play animations, set velocities)
+ *    - Must handle cleanup of previous state's effects if needed
+ * 
+ * 2. execute(time?: number, delta?: number): void
+ *    - Called every frame while the state is active
+ *    - Handles state-specific logic and checks for transitions
+ *    - Parameters:
+ *      - time: Current game time in ms
+ *      - delta: Time since last frame in ms
+ * 
+ * 3. exit(): void
+ *    - Called when leaving the state
+ *    - Should clean up any state-specific effects or timers
+ *    - Must ensure clean transition to next state
+ * 
+ * Example State Implementation:
+ * ```javascript
+ * {
+ *   enter() {
+ *     entity.anims.play('idle');
+ *     entity.setVelocityX(0);
+ *   },
+ *   execute(time, delta) {
+ *     if (entity.inputManager.isJumpPressed) {
+ *       entity.stateMachine.setState('jump');
+ *     }
+ *   },
+ *   exit() {
+ *     entity.anims.stop();
+ *   }
+ * }
+ * ```
  */
 export default class StateMachine {
   constructor() {

@@ -38,6 +38,8 @@ export default class GameScene extends BaseScene {
     // Set camera bounds with proper error handling
     if (this.cameras && this.cameras.main) {
       this.cameras.main.setBounds(0, 0, this.sys.game.config.width, this.sys.game.config.height);
+      // Zoom out to make scene 2 times bigger
+      this.cameras.main.setZoom(0.5);
     }
 
     // Initialize physics groups with proper error handling
@@ -48,6 +50,9 @@ export default class GameScene extends BaseScene {
       this.enemies = this.physics.add.group();
       this.coins = this.physics.add.group();
     }
+
+    // Create parallax background layers
+    this.createParallaxBackground();
 
     this.collisionManager = new CollisionManager(this, this._mockScene);
     this.timeManager = new TimeManager(this, this._mockScene);
@@ -180,6 +185,29 @@ export default class GameScene extends BaseScene {
   }
 
   /**
+   * Creates a simple 2-layer parallax background
+   */
+  createParallaxBackground() {
+    // Calculate the new visible area based on camera zoom (0.5)
+    const zoom = 0.5;
+    const bgWidth = 1280 / zoom; // 2560
+    const bgHeight = 720 / zoom; // 1440
+    const centerX = bgWidth / 2;
+    const centerY = bgHeight / 2;
+
+    // Layer 1: Sky background (far background, no parallax)
+    this.skyBackground = this.add.tileSprite(centerX, centerY, bgWidth, bgHeight, 'backgrounds', 'background_solid_sky');
+    this.skyBackground.setDepth(-2); // Behind everything (negative depth)
+    
+    // Layer 2: Hills background (mid background, slow parallax)
+    this.hillsBackground = this.add.tileSprite(centerX, centerY, bgWidth, bgHeight, 'backgrounds', 'background_color_hills');
+    this.hillsBackground.setDepth(-1); // Behind platforms but in front of sky
+    
+    // Store initial positions for parallax calculation
+    this.hillsBackground.setData('initialX', this.hillsBackground.x);
+  }
+
+  /**
    * Registers MovingPlatform instances with TimeManager for time reversal support
    * @param {Array} platforms - Array of all created platforms
    */
@@ -289,6 +317,14 @@ export default class GameScene extends BaseScene {
         this.registry.set('playerHealth', this.player.health);
         this.registry.set('dashTimer', this.player.dashTimer);
       }
+    }
+    
+    // Update parallax background movement
+    if (this.player && this.hillsBackground) {
+      // Simple parallax: hills move at 0.5x player speed
+      const parallaxSpeed = 0.5;
+      const playerVelocityX = this.player.body ? this.player.body.velocity.x : 0;
+      this.hillsBackground.tilePositionX -= playerVelocityX * parallaxSpeed * (delta / 1000);
     }
     
     // Update all platforms (including moving platforms)

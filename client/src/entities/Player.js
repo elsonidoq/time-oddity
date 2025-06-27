@@ -14,6 +14,44 @@ import gsap from 'gsap';
  *
  * Key behavioural invariants are listed in `agent_docs/invariants.md` §6.
  * Keep dash timing constants, body dimensions and state-machine names in sync with that list.
+ * 
+ * @class
+ * @description The main player character with movement abilities and time manipulation powers.
+ * 
+ * Dash Mechanic:
+ * - Properties:
+ *   • dashCooldown: 1000ms (1 second) between dashes
+ *   • dashDuration: 120ms of dash movement
+ *   • dashSpeed: 1000 pixels/second during dash
+ * 
+ * - State Management:
+ *   • canDash: Boolean flag indicating cooldown status
+ *   • isDashing: Boolean flag for dash state
+ *   • dashTimer: Timestamp for cooldown tracking
+ * 
+ * - Invariants:
+ *   • Dash is only available when canDash is true
+ *   • canDash becomes false on dash start
+ *   • canDash becomes true after dashCooldown ms
+ *   • isDashing is true only during dashDuration
+ *   • Ghost trail effects only spawn during dash
+ * 
+ * ChronoPulse Ability:
+ * - Configuration:
+ *   • cooldown: 3000ms (3 seconds)
+ *   • range: 300 pixels radius
+ *   • duration: 2000ms freeze duration
+ * 
+ * - Activation Contract:
+ *   • Only activates if cooldown has expired
+ *   • Freezes all enemies within range
+ *   • Creates visual shockwave effect
+ *   • Enemies remain frozen for duration
+ * 
+ * - Integration:
+ *   • Updates position with player movement
+ *   • Managed by TimeManager for rewind
+ *   • Interacts with CollisionManager for enemy detection
  */
 export default class Player extends Entity {
   constructor(scene, x, y, texture, frame, health = 100, mockScene = null) {

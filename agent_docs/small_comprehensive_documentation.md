@@ -3,6 +3,30 @@
 ### **Introduction**
 This guide is the condensed technical reference for the "Time Oddity" project, outlining the full-stack architecture, key technologies, and implementation blueprints. It is the definitive source of truth for development, enriched with specific details for engineer LLMs. For in-depth explanations of testing methodologies and best practices, refer to `testing_best_practices.md`.
 
+## **Technology Stack**
+This project uses a carefully selected set of technologies, each chosen for its LLM compatibility, stability, and suitability for high-velocity, AI-assisted development:
+
+- **Phaser 3** ([phaser.io](https://phaser.io/))
+  - *Role*: Core 2D game engine (rendering, physics, input, scene management)
+  - *LLM Justification*: Massive public code corpus, predictable API, and "batteries-included" design make it highly LLM-friendly.
+- **GSAP (GreenSock Animation Platform)** ([gsap.com](https://gsap.com/))
+  - *Role*: Declarative, timeline-based animation for UI, effects, and advanced sprite manipulation
+  - *LLM Justification*: Declarative API abstracts away frame-by-frame logic, enabling robust, maintainable animation code generation.
+- **Howler.js** ([howlerjs.com](https://howlerjs.com/))
+  - *Role*: Audio playback, audio sprites, spatial audio, and sound effects
+  - *LLM Justification*: Simple, consistent API with built-in cross-browser support and game-centric features.
+- **Node.js** ([nodejs.org](https://nodejs.org/))
+  - *Role*: Server-side JavaScript runtime for backend logic
+  - *LLM Justification*: Ubiquitous, with extensive LLM training data and a simple, event-driven model.
+- **Express.js** ([expressjs.com](https://expressjs.com/))
+  - *Role*: RESTful API framework for Node.js
+  - *LLM Justification*: Minimalist, unopinionated, and highly predictable for LLM code generation.
+- **Socket.IO** ([socket.io](https://socket.io/))
+  - *Role*: Real-time, event-based communication between client and server
+  - *LLM Justification*: Simple, event-driven API with automatic WebSocket/HTTP fallback, ideal for multiplayer and real-time features.
+
+*See the end of this document for a summary table of component roles and LLM compatibility advantages.*
+
 ## **Section 1: Client-Side with Phaser 3**
 The client is built on Phaser 3 (v3.90+), but key functionalities like animation and audio are delegated to specialized libraries (GSAP, Howler.js) for superior performance and reliability.
 
@@ -347,39 +371,86 @@ time-oddity/
 ├── client/                          # Frontend game client
 │   ├── src/
 │   │   ├── main.js                  # Entry point
-│   │   ├── scenes/                  # Phaser scenes
-│   │   ├── entities/                # Game objects
-│   │   ├── systems/                 # Game systems
-│   │   ├── ui/                      # UI components
-│   │   └── assets/                  # Game assets
+│   │   ├── config/                  # Level configs, constants
+│   │   ├── scenes/                  # Phaser scenes (BootScene, MenuScene, GameScene, UIScene)
+│   │   ├── entities/                # Game objects (Player, Enemy, Coin, MovingPlatform, etc.)
+│   │   ├── systems/                 # Game systems (TimeManager, StateMachine, InputManager, etc.)
+│   │   ├── assets/                  # Sprites, audio, levels
+│   │   └── ui/                      # UI components (if any)
 │   ├── dist/                        # Built client files
 │   └── vite.config.js               # Vite configuration
 ├── server/                          # Backend server
-│   ├── src/
-│   │   ├── server.js                # Main server entry point
-│   │   ├── routes/                  # API routes
-│   │   ├── controllers/             # Business logic
-│   │   ├── models/                  # Data models
-│   │   └── middleware/              # Express middleware
-│   └── package.json                 # Server dependencies
+│   ├── models/                      # Data models
+│   ├── routes/                      # API routes
+│   ├── middleware/                  # Express middleware
+│   └── ...
 ├── tests/                           # Test files
+│   ├── unit/                        # Unit tests
+│   ├── integration/                 # Integration tests
 │   ├── mocks/                       # Centralized mocks
-│   └── utils/                       # Test utilities
-└── agent_docs/                      # Documentation
-    ├── comprehensive_documentation.md
-    ├── comprehensive_documentation_small.md
-    └── testing_best_practices.md
+│   └── ...
+├── agent_docs/                      # Documentation
+└── ...
 ```
 
 ### **14.2. Component Architecture**
-- **Scene Hierarchy**: BootScene → MenuScene → GameScene + UIScene → PauseScene/GameOverScene
-- **Entity System**: Entity (Base) → Player, Enemy, Collectible, Effect
-- **System Architecture**: TimeManager, AudioManager, InputManager, CollisionManager, ObjectPool, StateMachine
+- **Scene Hierarchy:**
+  - `BootScene` → `MenuScene` → `GameScene` + `UIScene` (parallel) → `PauseScene`/`GameOverScene`
+  - **Responsibilities:**
+    - **BootScene:** Asset loading, initialization
+    - **MenuScene:** Main menu, navigation
+    - **GameScene:** Core gameplay, physics, entity management
+    - **UIScene:** HUD overlay, real-time UI
+    - **PauseScene/GameOverScene:** Pause and end-of-game flows
+- **Entity System:**
+  - `Entity` (base)
+    - `Player`
+    - `Enemy` (base)
+      - `LoopHound`, other enemy types
+    - `Coin`, `MovingPlatform`, other collectibles/effects
+- **System Architecture:**
+  - `TimeManager` (time manipulation/rewind)
+  - `AudioManager` (Howler.js integration)
+  - `InputManager` (input abstraction)
+  - `CollisionManager` (collision setup/events)
+  - `ObjectPool` (performance, pooling)
+  - `StateMachine` (player/enemy state logic)
 
 ### **14.3. State Management**
-- **Global State**: Stored in Phaser's registry for cross-scene data
-- **Scene-Specific State**: Local to each scene for temporary data
-- **UI State**: Managed in parallel UIScene for HUD elements
+- **Global State:** Phaser's registry for cross-scene data (e.g., player stats, game flags)
+- **Scene-Specific State:** Local to each scene (e.g., current level objects)
+- **UI State:** Managed in parallel UIScene for HUD elements
+
+## **Moving Platform Architecture (Feature-Specific)**
+- **Configuration Schema:**
+  - Platforms can be static or moving. Moving platforms require a 'movement' object specifying type ('linear', 'circular', 'path'), speed, boundaries/waypoints, and mode (bounce/loop).
+  - Example:
+    ```json
+    {
+      "type": "moving",
+      "x": 400,
+      "y": 300,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true,
+      "movement": {
+        "type": "linear",
+        "speed": 60,
+        "startX": 400,
+        "startY": 300,
+        "endX": 600,
+        "endY": 300,
+        "mode": "bounce",
+        "autoStart": true
+      }
+    }
+    ```
+- **PlatformMovement System:**
+  - Pure logic class (no Phaser dependencies) for deterministic, testable movement calculations.
+  - Supports linear, circular, and path-based movement.
+- **Integration Points:**
+  - SceneFactory: Adds moving platforms to group before configuration; loads movement parameters.
+  - TimeManager: Registers moving platforms, calls custom state methods for rewind.
+  - CollisionManager: Enhanced collision setup for moving platforms, preserves rider/platform state during rewind.
 
 ## **Conclusions**
 This guide establishes the definitive technical foundation for the "Time Oddity" game project. The key architectural decisions are:
@@ -390,3 +461,8 @@ This guide establishes the definitive technical foundation for the "Time Oddity"
 5. **Testing is Integral to Quality**: Comprehensive testing strategy with TDD/BDD methodologies (see `testing_best_practices.md`).
 
 **For detailed testing methodologies, advanced mocking strategies, and LLM-assisted development workflows, refer to `testing_best_practices.md`.**
+
+## **Additional Notes**
+- **Audio System:** Phaser's built-in audio is explicitly disabled (`audio: { noAudio: true }` in config) to prevent conflicts and ensure all sound is managed by Howler.js. This is a deliberate architectural decision for reliability and LLM compatibility.
+- **Animation:** GSAP is used for all advanced animation, as Phaser's native animation system is limited for complex timelines and effects. This separation ensures maintainability and testability.
+- **Scene Communication:** The project standardizes on the global event emitter (`this.game.events`) for decoupled communication between scenes (e.g., GameScene and UIScene), avoiding tight coupling and enabling robust, testable UI overlays.

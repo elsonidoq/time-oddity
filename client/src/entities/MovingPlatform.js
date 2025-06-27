@@ -15,6 +15,41 @@ import { gsap } from 'gsap';
  * - linear: Move between two points with bounce or loop behavior
  * - circular: Move in circular paths with configurable radius and center
  * - path: Follow predefined waypoints with loop or one-way behavior
+ * 
+ * Player Carrying Mechanics:
+ * The platform's ability to carry the player requires careful coordination
+ * between physics updates and position tracking:
+ * 
+ * 1. Position Delta Tracking:
+ *    • deltaX/deltaY: Store movement since last frame
+ *    • oldX/oldY: Previous frame position
+ *    • Calculated in update() before movement
+ * 
+ * 2. Update Loop Order (Critical):
+ *    a) Store previous position (oldX/oldY)
+ *    b) Update platform movement
+ *    c) Calculate position delta
+ *    d) Apply delta to carried player
+ *    e) Update collision state
+ * 
+ * 3. Player Detection:
+ *    • Uses Phaser's built-in collision detection
+ *    • Checks body.touching flags for accurate standing detection
+ *    • Only carries player when standing on top (not side collision)
+ * 
+ * 4. Movement Application:
+ *    • Player position updated by exact platform delta
+ *    • Maintains relative position during platform movement
+ *    • Preserves player's own movement/velocity
+ * 
+ * 5. Edge Cases:
+ *    • Handles platform direction changes
+ *    • Maintains carrying through time rewind
+ *    • Preserves player physics state
+ *    • Gracefully handles player jump-off
+ * 
+ * @class
+ * @extends Entity
  */
 export default class MovingPlatform extends Entity {
   constructor(scene, x, y, texture, movementConfig = {}, frame = null, mockScene = null) {

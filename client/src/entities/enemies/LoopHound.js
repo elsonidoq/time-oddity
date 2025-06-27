@@ -1,6 +1,46 @@
 import { Enemy } from '../Enemy.js';
 import StateMachine from '../../systems/StateMachine.js';
 
+/**
+ * LoopHound - A patrolling enemy that moves back and forth along a fixed path.
+ * 
+ * @class
+ * @extends Enemy
+ * @description A specialized enemy that patrols a fixed horizontal path and maintains
+ * its patrol state through time manipulation.
+ * 
+ * Custom State Recording:
+ * The LoopHound implements custom state recording methods to preserve its patrol behavior
+ * during time manipulation. This is necessary because the default Entity state recording
+ * does not capture patrol-specific properties.
+ * 
+ * Additional Recorded State:
+ * 1. Patrol Properties:
+ *    • direction: Current patrol direction (-1 or 1)
+ *    • patrolStartX: Left boundary of patrol
+ *    • patrolEndX: Right boundary of patrol
+ * 
+ * 2. Enemy State:
+ *    • isFrozen: Freeze status from ChronoPulse
+ *    • health: Current health value
+ * 
+ * 3. Lifecycle Properties:
+ *    • active: Phaser GameObject active state
+ *    • visible: Visibility state
+ *    • bodyEnable: Physics body enabled state
+ * 
+ * State Recording Implementation:
+ * - getStateForRecording(): Captures all patrol and enemy state
+ * - setStateFromRecording(state): Restores complete patrol behavior
+ * - Ensures perfect rewind/restore of patrol pattern
+ * 
+ * Integration with TimeManager:
+ * - Patrol boundaries persist through rewind
+ * - Movement direction properly reverses
+ * - Freeze effects maintain consistency
+ * 
+ * @see TimeManager for complete state recording contract
+ */
 export class LoopHound extends Enemy {
   /**
    * @param {Phaser.Scene} scene

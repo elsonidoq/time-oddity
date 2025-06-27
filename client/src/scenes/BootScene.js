@@ -12,6 +12,8 @@ export default class BootScene extends BaseScene {
     this.load.atlasXML('tiles', '/src/assets/sprites/spritesheet-tiles-default.png', '/src/assets/sprites/spritesheet-tiles-default.xml');
     // Load Kenney enemy spritesheet atlas with XML file
     this.load.atlasXML('enemies', '/src/assets/sprites/spritesheet-enemies-default.png', '/src/assets/sprites/spritesheet-enemies-default.xml');
+    // Load Kenney background spritesheet atlas with XML file
+    this.load.atlasXML('backgrounds', '/src/assets/sprites/spritesheet-backgrounds-default.png', '/src/assets/sprites/spritesheet-backgrounds-default.xml');
   }
 
   create() {

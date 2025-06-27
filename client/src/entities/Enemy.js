@@ -5,7 +5,48 @@ import StateMachine from '../systems/StateMachine.js';
  * Base class for all enemy entities in the game.
  * Provides common functionality for AI behavior, health management, and movement.
  * 
+ * @class
  * @extends Entity
+ * @description Base enemy class with common functionality for AI behavior, health management,
+ * movement, and time manipulation effects.
+ * 
+ * Freeze/Unfreeze Contract:
+ * - State Properties:
+ *   • isFrozen: Boolean flag indicating frozen status
+ *   • _frozenUntil: Timestamp when freeze expires
+ *   • _freezeTimer: Timer object for freeze duration
+ * 
+ * - Freeze Mechanics:
+ *   1. When frozen:
+ *      • Physics velocity set to zero
+ *      • AI state machine paused
+ *      • Visual effects applied (tint/animation)
+ *      • Collision detection remains active
+ * 
+ *   2. During frozen state:
+ *      • Cannot move or change state
+ *      • Can still be damaged
+ *      • Can still be rewound by TimeManager
+ *      • Maintains position and collision
+ * 
+ *   3. On unfreeze:
+ *      • Resumes normal physics
+ *      • Resumes AI state machine
+ *      • Clears visual effects
+ *      • Preserves health and position
+ * 
+ * - Time Management:
+ *   • Freeze effect persists through rewind
+ *   • State is properly recorded/restored
+ *   • Freeze timer adjusts with game pause
+ * 
+ * @property {number} maxHealth - Maximum health points (default: 100)
+ * @property {number} health - Current health points
+ * @property {number} damage - Damage dealt to player (default: 20)
+ * @property {number} speed - Movement speed (default: 100)
+ * @property {number} moveSpeed - Current movement speed (affected by status)
+ * @property {number} direction - Movement direction (1: right, -1: left)
+ * @property {boolean} isFrozen - Whether the enemy is currently frozen
  */
 export class Enemy extends Entity {
   /**

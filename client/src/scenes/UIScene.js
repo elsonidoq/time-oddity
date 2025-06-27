@@ -38,9 +38,9 @@ export default class UIScene extends BaseScene {
     this.healthBarForeground.fillRect(x, y, barWidth, barHeight);
 
     // Ability cooldown placeholders
-    const dashText = this.add.text(20, 50, 'Dash', { font: '16px Arial', fill: '#ffffff' });
+    const dashText = this.add.text(20, 50, 'Dash', { font: '16px Arial', fill: '#333333' });
     dashText.setOrigin(0, 0);
-    const pulseText = this.add.text(100, 50, 'Pulse', { font: '16px Arial', fill: '#ffffff' });
+    const pulseText = this.add.text(100, 50, 'Pulse', { font: '16px Arial', fill: '#333333' });
     pulseText.setOrigin(0, 0);
 
     this.cooldownIcons = { dashText, pulseText };

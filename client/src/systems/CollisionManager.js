@@ -1,6 +1,42 @@
 /**
  * Centralized collision detection management system.
  * See Section 1.4 "Collision Detection" in the comprehensive documentation.
+ * 
+ * @class
+ * @description Manages all collision detection and event emission for game entities.
+ * Uses Phaser's built-in collision system and emits standardized events for game logic.
+ * 
+ * Emitted Events:
+ * 1. 'playerEnemyCollision'
+ *    - Emitted when player collides with any enemy
+ *    - Payload: { player: Player, enemy: Enemy }
+ *    - Used for: Damage calculation, knockback effects
+ * 
+ * 2. 'playerPlatformCollision'
+ *    - Emitted when player lands on or touches a platform
+ *    - Payload: { player: Player, platform: MovingPlatform }
+ *    - Used for: Platform carrying logic, movement synchronization
+ * 
+ * 3. 'playerCoinCollision'
+ *    - Emitted when player collects a coin
+ *    - Payload: { player: Player, coin: Coin }
+ *    - Used for: Score updates, coin collection effects
+ * 
+ * 4. 'enemyPlatformCollision'
+ *    - Emitted when an enemy collides with a platform
+ *    - Payload: { enemy: Enemy, platform: MovingPlatform }
+ *    - Used for: Enemy movement boundaries, platform interaction
+ * 
+ * 5. 'chronoPulseEnemyOverlap'
+ *    - Emitted when ChronoPulse ability affects enemies
+ *    - Payload: { pulse: ChronoPulse, enemies: Enemy[] }
+ *    - Used for: Time freeze effects, visual feedback
+ * 
+ * Event Handling Contract:
+ * - All events include the relevant game objects as payload
+ * - Objects in payloads are guaranteed to be active and exist in the scene
+ * - Events are emitted before physics resolution to allow for custom handling
+ * - Multiple listeners can be attached to each event type
  */
 export default class CollisionManager {
   /**
