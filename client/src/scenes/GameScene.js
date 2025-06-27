@@ -87,37 +87,16 @@ export default class GameScene extends BaseScene {
       this.collisionManager.addOverlap(this.player, this.coins, this.handlePlayerCoinOverlap, null, this);
     }
     
-    // Add basic content (e.g., a label)
-    this.add.text(640, 100, 'Game Scene', { font: '32px Arial', fill: '#fff' }).setOrigin(0.5);
-
-    // Add a navigation button to return to MenuScene
-    const menuButton = this.add.text(640, 600, 'Back to Menu', { font: '24px Arial', fill: '#ff0', backgroundColor: '#222', padding: { x: 16, y: 8 } })
+    // Add a navigation button to return to MenuScene (top right, smaller)
+    const menuButton = this.add.text(1200, 50, 'Back to Menu', { font: '16px Arial', fill: '#ff0', backgroundColor: '#222', padding: { x: 8, y: 4 } })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
     menuButton.on('pointerdown', () => {
       this.scene.start('MenuScene');
     });
 
-    // Add a debug button to test ChronoPulse
-    const debugButton = this.add.text(640, 650, 'Debug: Test ChronoPulse', { font: '16px Arial', fill: '#0f0', backgroundColor: '#222', padding: { x: 8, y: 4 } })
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true });
-    debugButton.on('pointerdown', () => {
-      console.log('[Debug] Testing ChronoPulse manually');
-      if (this.player && this.player.chronoPulse) {
-        console.log('[Debug] Player position:', this.player.x, this.player.y);
-        console.log('[Debug] LoopHound position:', this.loophound ? this.loophound.x + ', ' + this.loophound.y : 'Not found');
-        console.log('[Debug] Enemies group:', this.enemies);
-        console.log('[Debug] Enemies count:', this.enemies ? this.enemies.getChildren().length : 0);
-        this.player.chronoPulse.activate();
-      } else {
-        console.log('[Debug] ChronoPulse not found on player');
-      }
-    });
-
     // Example: store references for cleanup
     this._menuButton = menuButton;
-    this._debugButton = debugButton;
 
     // Register shutdown event
     this.registerShutdown();
@@ -366,11 +345,6 @@ export default class GameScene extends BaseScene {
       this._menuButton.off('pointerdown');
       this._menuButton.destroy();
       this._menuButton = null;
-    }
-    if (this._debugButton) {
-      this._debugButton.off('pointerdown');
-      this._debugButton.destroy();
-      this._debugButton = null;
     }
   }
 

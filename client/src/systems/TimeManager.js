@@ -23,6 +23,9 @@ export default class TimeManager {
     this.recordInterval = 50; // Record state every 50ms for smoother playback
     this.playbackTimestamp = 0;
 
+    // Track original gravity states to restore after rewind
+    this.originalGravityStates = new Map();
+
     // Visual effect state
     this._rewindOverlay = null;
     this._rewindActive = false;
@@ -36,7 +39,17 @@ export default class TimeManager {
    * @param {Phaser.GameObjects.GameObject} object The object to manage.
    */
   register(object) {
+    if (!object) return;
+    
     this.managedObjects.add(object);
+    
+    // Store the original gravity state when registering
+    if (object.body && typeof object.body.setAllowGravity === 'function') {
+      // Get current gravity state (default to true if not explicitly set)
+      const currentGravityState = object.body.allowGravity !== false;
+      this.originalGravityStates.set(object, currentGravityState);
+      console.log(`[TimeManager] Registered object with gravity state: ${currentGravityState}`);
+    }
   }
 
   /**
@@ -65,9 +78,18 @@ export default class TimeManager {
         }
       }
       
+      // Restore original gravity states instead of blindly enabling gravity
       for (const object of this.managedObjects) {
         if (object.body && typeof object.body.setAllowGravity === 'function') {
-          object.body.setAllowGravity(true);
+          const originalGravityState = this.originalGravityStates.get(object);
+          if (originalGravityState !== undefined) {
+            object.body.setAllowGravity(originalGravityState);
+            console.log(`[TimeManager] Restored gravity state for object: ${originalGravityState}`);
+          } else {
+            // Fallback: enable gravity for objects without stored state
+            object.body.setAllowGravity(true);
+            console.log(`[TimeManager] No stored gravity state, defaulting to true for object`);
+          }
         }
       }
       this._deactivateRewindVisuals();

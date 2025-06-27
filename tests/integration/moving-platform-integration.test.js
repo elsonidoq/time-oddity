@@ -32,17 +32,54 @@ describe('Moving Platform Integration Tests', () => {
       },
       physics: { 
         add: { 
-          existing: jest.fn(),
+          existing: jest.fn((entity) => {
+            // Create a proper mock physics body that tracks state
+            entity.body = {
+              x: entity.x || 0,
+              y: entity.y || 0,
+              velocity: { x: 0, y: 0 },
+              allowGravity: true, // Default to true, will be set by platform configuration
+              immovable: false,   // Default to false, will be set by platform configuration
+              setVelocity: jest.fn().mockReturnThis(),
+              setImmovable: jest.fn(function(immovable) {
+                this.immovable = immovable;
+                return this;
+              }),
+              setAllowGravity: jest.fn(function(allowGravity) {
+                this.allowGravity = allowGravity;
+                return this;
+              }),
+              setSize: jest.fn().mockReturnThis(),
+              setOffset: jest.fn().mockReturnThis(),
+              setFriction: jest.fn().mockReturnThis(),
+              setBounce: jest.fn().mockReturnThis(),
+              setCollideWorldBounds: jest.fn().mockReturnThis()
+            };
+            return entity;
+          }),
           group: jest.fn(() => ({
             create: jest.fn((x, y, texture, frame) => ({
               x, y, texture, frame,
               setOrigin: jest.fn().mockReturnThis(),
               body: {
-                setImmovable: jest.fn(),
-                setAllowGravity: jest.fn(),
-                setSize: jest.fn(),
-                setOffset: jest.fn(),
-                velocity: { x: 0, y: 0 }
+                x, y,
+                velocity: { x: 0, y: 0 },
+                allowGravity: true,
+                immovable: false,
+                setVelocity: jest.fn().mockReturnThis(),
+                setImmovable: jest.fn(function(immovable) {
+                  this.immovable = immovable;
+                  return this;
+                }),
+                setAllowGravity: jest.fn(function(allowGravity) {
+                  this.allowGravity = allowGravity;
+                  return this;
+                }),
+                setSize: jest.fn().mockReturnThis(),
+                setOffset: jest.fn().mockReturnThis(),
+                setFriction: jest.fn().mockReturnThis(),
+                setBounce: jest.fn().mockReturnThis(),
+                setCollideWorldBounds: jest.fn().mockReturnThis()
               },
               width: 64,
               height: 64,
@@ -271,6 +308,125 @@ describe('Moving Platform Integration Tests', () => {
 
       movingPlatform.setStateFromRecording(state1);
       expect(movingPlatform.angle).toBe(0);
+    });
+
+    it('should maintain platform gravity state after time reversal', () => {
+      // Create a moving platform with gravity disabled
+      const movingPlatform = new MovingPlatform(
+        mockScene,
+        400,
+        300,
+        'tiles',
+        {
+          type: 'linear',
+          startX: 400,
+          startY: 300,
+          endX: 600,
+          endY: 300,
+          speed: 60,
+          autoStart: true
+        },
+        'terrain_grass_block_center'
+      );
+
+      // Configure the platform physics (this is what SceneFactory.configurePlatform does)
+      if (movingPlatform.body) {
+        movingPlatform.body.setImmovable(true);
+        movingPlatform.body.setAllowGravity(false);
+      }
+
+      // Verify gravity state after configuration - platforms should have gravity disabled
+      expect(movingPlatform.body.allowGravity).toBe(false);
+      expect(movingPlatform.body.immovable).toBe(true);
+
+      // Create TimeManager and register the platform
+      const timeManager = new TimeManager(mockScene);
+      timeManager.register(movingPlatform);
+
+      // Simulate some movement
+      movingPlatform.update(16, 16);
+      
+      // Start rewind (should disable gravity for all objects)
+      timeManager.toggleRewind(true);
+      expect(movingPlatform.body.allowGravity).toBe(false);
+
+      // End rewind (should restore original gravity state)
+      timeManager.toggleRewind(false);
+      
+      // Platform should still have gravity disabled after rewind
+      expect(movingPlatform.body.allowGravity).toBe(false);
+      expect(movingPlatform.body.immovable).toBe(true);
+    });
+
+    it('should preserve different gravity states for platforms vs players during time reversal', () => {
+      // Create a moving platform (should have gravity disabled)
+      const movingPlatform = new MovingPlatform(
+        mockScene,
+        400,
+        300,
+        'tiles',
+        {
+          type: 'linear',
+          startX: 400,
+          startY: 300,
+          endX: 600,
+          endY: 300,
+          speed: 60,
+          autoStart: false
+        },
+        'terrain_grass_block_center'
+      );
+
+      // Configure the platform physics
+      if (movingPlatform.body) {
+        movingPlatform.body.setImmovable(true);
+        movingPlatform.body.setAllowGravity(false);
+      }
+
+      // Create a mock player (should have gravity enabled)
+      const mockPlayer = {
+        x: 100,
+        y: 200,
+        body: {
+          x: 100,
+          y: 200,
+          velocity: { x: 0, y: 0 },
+          allowGravity: true, // Players should have gravity enabled
+          setAllowGravity: jest.fn(function(allowGravity) {
+            this.allowGravity = allowGravity;
+            return this;
+          })
+        },
+        active: true,
+        visible: true,
+        anims: { currentAnim: { key: 'player-idle' } },
+        getStateForRecording: jest.fn(() => ({
+          x: 100,
+          y: 200,
+          velocityX: 0,
+          velocityY: 0,
+          animation: 'player-idle',
+          isAlive: true,
+          isVisible: true
+        }))
+      };
+
+      // Create TimeManager and register both objects
+      const timeManager = new TimeManager(mockScene);
+      timeManager.register(movingPlatform);
+      timeManager.register(mockPlayer);
+
+      // Verify initial states
+      expect(movingPlatform.body.allowGravity).toBe(false);
+      expect(mockPlayer.body.allowGravity).toBe(true);
+
+      // Complete rewind cycle
+      timeManager.toggleRewind(true);
+      timeManager.toggleRewind(false);
+
+      // After rewind, platform should have gravity disabled, player should have gravity enabled
+      expect(movingPlatform.body.allowGravity).toBe(false);
+      expect(mockPlayer.body.allowGravity).toBe(true);
     });
   });
 
