@@ -75,20 +75,44 @@ export class SceneFactory {
   }
 
   /**
-   * Creates a single floating platform
+   * Creates a floating platform (optionally multi-tile wide)
    * @param {Object} platformConfig - Platform configuration
-   * @param {number} platformConfig.x - X position
+   * @param {number} platformConfig.x - X position (leftmost tile)
    * @param {number} platformConfig.y - Y position
+   * @param {number} [platformConfig.width] - Optional width in pixels (creates multiple tiles if > 64)
    * @param {string} platformConfig.tileKey - Tile atlas key
    * @param {boolean} platformConfig.isFullBlock - Whether to use full block hitbox
-   * @param {Phaser.Physics.Arcade.Group} platformsGroup - The physics group to add platform to
-   * @returns {Phaser.Physics.Arcade.Sprite|null} - Created platform sprite or null if creation failed
+   * @param {Phaser.Physics.Arcade.Group} platformsGroup - The physics group to add platform(s) to
+   * @returns {Array<Phaser.Physics.Arcade.Sprite>|Phaser.Physics.Arcade.Sprite|null} - Array of created platform sprites (if width specified), single sprite, or null if creation failed
+   *
+   * If width is specified and > 64, creates multiple adjacent tiles starting at x, each 64px wide.
+   * If width is omitted, creates a single tile at (x, y).
    */
   createFloatingPlatform(platformConfig, platformsGroup) {
     if (!platformsGroup || !platformsGroup.create) {
       return null;
     }
 
+    // If width is specified, create multiple tiles like ground platform
+    if (platformConfig.width) {
+      const platforms = [];
+      const tileWidth = 64; // Standard tile width
+      const tileCount = Math.ceil(platformConfig.width / tileWidth);
+
+      for (let i = 0; i < tileCount; i++) {
+        const x = platformConfig.x + (i * tileWidth);
+        const platform = platformsGroup.create(x, platformConfig.y, 'tiles', platformConfig.tileKey);
+        
+        platform.setOrigin(0, 0);
+        this.configurePlatform(platform, platformConfig.isFullBlock);
+        
+        platforms.push(platform);
+      }
+
+      return platforms;
+    }
+
+    // Default behavior: create single tile
     const platform = platformsGroup.create(
       platformConfig.x,
       platformConfig.y,
@@ -101,10 +125,11 @@ export class SceneFactory {
   }
 
   /**
-   * Creates a moving platform with configurable movement patterns
+   * Creates a moving platform with configurable movement patterns and width
    * @param {Object} movingConfig - Moving platform configuration
    * @param {number} movingConfig.x - X position
    * @param {number} movingConfig.y - Y position
+   * @param {number} [movingConfig.width] - Optional width in pixels (creates multiple sprites if > 64)
    * @param {string} movingConfig.tileKey - Tile atlas key
    * @param {boolean} movingConfig.isFullBlock - Whether to use full block hitbox
    * @param {Object} movingConfig.movement - Movement configuration
@@ -127,22 +152,24 @@ export class SceneFactory {
       return null;
     }
 
-    // Create MovingPlatform instance
+    // Create MovingPlatform instance with width support
     const platform = new MovingPlatform(
       this.scene,
       movingConfig.x,
       movingConfig.y,
       'tiles',
       movingConfig.movement,
-      movingConfig.tileKey
+      movingConfig.tileKey,
+      null,
+      { width: movingConfig.width }
     );
 
-    console.log(`[SceneFactory] Created MovingPlatform at (${platform.x}, ${platform.y}) - isMoving: ${platform.isMoving}, autoStart: ${platform.autoStart}`);
+    console.log(`[SceneFactory] Created MovingPlatform at (${platform.x}, ${platform.y}) - isMoving: ${platform.isMoving}, autoStart: ${platform.autoStart}, width: ${platform.width}, spriteCount: ${platform.spriteCount}`);
 
     // Add to platforms group
     platformsGroup.add(platform);
 
-    // Configure platform physics
+    // Configure platform physics for master sprite
     this.configurePlatform(platform, movingConfig.isFullBlock);
 
     if (platform.autoStart) {
@@ -173,8 +200,8 @@ export class SceneFactory {
           platforms = this.createGroundPlatform(platformConfig, platformsGroup);
           break;
         case 'floating':
-          const platform = this.createFloatingPlatform(platformConfig, platformsGroup);
-          platforms = platform ? [platform] : [];
+          const floatingResult = this.createFloatingPlatform(platformConfig, platformsGroup);
+          platforms = floatingResult ? (Array.isArray(floatingResult) ? floatingResult : [floatingResult]) : [];
           break;
         case 'moving':
           const movingPlatform = this.createMovingPlatform(platformConfig, platformsGroup);

@@ -434,7 +434,12 @@ describe('MovingPlatform Entity', () => {
         currentPathIndex: platform.currentPathIndex,
         isMovingToTarget: platform.isMovingToTarget,
         targetX: platform.targetX,
-        targetY: platform.targetY
+        targetY: platform.targetY,
+        // Multi-sprite state
+        spriteCount: platform.spriteCount,
+        width: platform.width,
+        masterX: platform.x,
+        masterY: platform.y
       });
     });
 

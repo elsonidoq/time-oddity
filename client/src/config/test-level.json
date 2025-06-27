@@ -12,6 +12,7 @@
       "type": "floating",
       "x": 200,
       "y": 1200,
+      "width": 300,
       "tileKey": "terrain_grass_block_center",
       "isFullBlock": true
     },
@@ -89,13 +90,14 @@
       "type": "moving",
       "x": 300,
       "y": 950,
+      "width": 300,
       "tileKey": "terrain_grass_block_center",
       "isFullBlock": true,
       "movement": {
         "type": "linear",
         "startX": 300,
         "startY": 950,
-        "endX": 700,
+        "endX": 7000,
         "endY": 950,
         "speed": 60,
         "mode": "bounce",

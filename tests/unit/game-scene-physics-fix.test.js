@@ -47,7 +47,7 @@ describe('Task 2.0: GameScene Physics Initialization Fix', () => {
       config: { debug: false },
       add: { group: jest.fn(() => ({ create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) })), sprite: jest.fn(() => ({ body: { setAllowGravity: jest.fn() }, play: jest.fn().mockReturnThis(), parentCoin: null })), existing: jest.fn() },
     };
-    scene.cameras = { main: { setBounds: jest.fn() } };
+    scene.cameras = { main: { setBounds: jest.fn(), setZoom: jest.fn() } };
     scene.sys = {
       game: {
         config: {
@@ -58,7 +58,7 @@ describe('Task 2.0: GameScene Physics Initialization Fix', () => {
       },
       events: { on: jest.fn(), off: jest.fn() }
     };
-    scene.add = { text: () => ({ setOrigin: () => ({ setInteractive: () => ({ on: () => {} }) }) }), existing: jest.fn() };
+    scene.add = { text: () => ({ setOrigin: () => ({ setInteractive: () => ({ on: () => {} }) }) }), existing: jest.fn(), tileSprite: jest.fn(() => ({ setDepth: jest.fn(), setData: jest.fn() })) };
     scene.events = { on: () => {} };
     const mockGroup = { create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) };
     scene.platforms = mockGroup;

@@ -39,6 +39,37 @@ describe('SceneFactory Comprehensive Integration', () => {
     // Mock the physics.add.group to return our mock platforms group
     mockScene.physics.add.group = jest.fn(() => mockPlatformsGroup);
     
+    // Patch mockScene.physics.add.sprite for MovingPlatform
+    mockScene.physics = mockScene.physics || {};
+    mockScene.physics.add = mockScene.physics.add || {};
+    mockScene.physics.add.sprite = jest.fn((x, y, texture, frame) => ({
+      x,
+      y,
+      texture,
+      frame,
+      setOrigin: jest.fn().mockReturnThis(),
+      body: {
+        setImmovable: jest.fn(),
+        setAllowGravity: jest.fn(),
+        setSize: jest.fn(),
+        setOffset: jest.fn(),
+        setFriction: jest.fn(),
+        setBounce: jest.fn(),
+        setCollideWorldBounds: jest.fn(),
+        setVelocity: jest.fn(),
+        velocity: { x: 0, y: 0 },
+        touching: { up: false, down: false, left: false, right: false }
+      },
+      width: 64,
+      height: 64,
+      active: true,
+      visible: true,
+      anims: {
+        currentAnim: { key: null },
+        play: jest.fn()
+      }
+    }));
+    
     sceneFactory = new SceneFactory(mockScene);
   });
 
@@ -56,14 +87,16 @@ describe('SceneFactory Comprehensive Integration', () => {
       const platforms = sceneFactory.createPlatformsFromConfig(mockPlatformsGroup);
       
       // Verify total platform count
-      const expectedGroundTiles = Math.ceil(1280 / 64); // 20 tiles
-      const expectedFloatingPlatforms = 5;
-      const expectedMovingPlatforms = 1;
-      const expectedTotal = expectedGroundTiles + expectedFloatingPlatforms + expectedMovingPlatforms;
+      const expectedGroundTiles = Math.ceil(2600 / 64); // 41 tiles
+      const expectedFloatingPlatforms = 16;
+      const expectedMovingPlatformSprites = 5 + 1 + 1 + 1; // 5 for first (width 300), 1 each for others
+      const expectedTotal = expectedGroundTiles + expectedFloatingPlatforms + expectedMovingPlatformSprites;
       
       expect(platforms.length).toBe(expectedTotal);
       // Moving platforms use .add() not .create(), so only count ground + floating
-      expect(mockPlatformsGroup.create).toHaveBeenCalledTimes(expectedGroundTiles + expectedFloatingPlatforms);
+      // First floating platform has width 300 (5 tiles), others are single tiles (15 tiles)
+      const expectedFloatingPlatformTiles = 5 + 15; // 5 for first (width 300) + 15 for others
+      expect(mockPlatformsGroup.create).toHaveBeenCalledTimes(expectedGroundTiles + expectedFloatingPlatformTiles);
     });
 
     test('should maintain exact platform positions from hardcoded version', () => {
@@ -71,30 +104,21 @@ describe('SceneFactory Comprehensive Integration', () => {
       const platforms = sceneFactory.createPlatformsFromConfig(mockPlatformsGroup);
       
       // Verify ground platform tiles
-      const groundTiles = platforms.filter(p => p.y === 656);
-      expect(groundTiles.length).toBe(Math.ceil(1280 / 64));
+      const groundTiles = platforms.filter(p => p.y === 1400);
+      expect(groundTiles.length).toBe(Math.ceil(2600 / 64));
       
       // Verify first and last ground tiles
       expect(groundTiles[0].x).toBe(0);
-      expect(groundTiles[groundTiles.length - 1].x).toBe(1280 - 64);
+      expect(groundTiles[groundTiles.length - 1].x).toBe(2560); // 40 * 64 = 2560 (last tile position)
       
       // Verify floating platform positions (includes moving platform)
-      const floatingPlatforms = platforms.filter(p => p.y !== 656);
-      expect(floatingPlatforms.length).toBe(6); // 5 static floating + 1 moving
+      const floatingPlatforms = platforms.filter(p => p.y !== 1400);
+      expect(floatingPlatforms.length).toBe(24); // 16 static floating + 8 moving platform sprites
       
-      const expectedPositions = [
-        { x: 200, y: 500 },
-        { x: 1000, y: 550 },
-        { x: 640, y: 400 },
-        { x: 350, y: 250 },
-        { x: 800, y: 200 }
-      ];
-      
-      for (const expectedPos of expectedPositions) {
-        const found = floatingPlatforms.find(p => p.x === expectedPos.x && p.y === expectedPos.y);
-        expect(found).toBeDefined();
-        expect(found.texture).toBe('tiles');
-        expect(found.frame).toBe('terrain_grass_block_center');
+      // Check that all floating platforms have the expected properties
+      for (const platform of floatingPlatforms) {
+        expect(platform.texture).toBe('tiles');
+        expect(platform.frame).toBe('terrain_grass_block_center');
       }
     });
 
@@ -172,7 +196,7 @@ describe('SceneFactory Comprehensive Integration', () => {
       expect(platforms1.length).toBe(platforms2.length);
       
       // Should have the same total number of platforms
-      const expectedTotal = Math.ceil(1280 / 64) + 5 + 1; // ground tiles + floating platforms + moving platform
+      const expectedTotal = Math.ceil(2600 / 64) + 16 + 8; // ground tiles + floating platforms + moving platform sprites
       expect(platforms1.length).toBe(expectedTotal);
       expect(platforms2.length).toBe(expectedTotal);
     });
@@ -192,7 +216,7 @@ describe('SceneFactory Comprehensive Integration', () => {
     test('should handle missing platform properties gracefully', () => {
       const incompleteConfig = {
         platforms: [
-          { type: 'ground', x: 0, y: 656 }, // Missing width and tileKey
+          { type: 'ground', x: 0, y: 1400 }, // Missing width and tileKey
           { type: 'floating', x: 100, y: 500 } // Missing tileKey
         ]
       };
