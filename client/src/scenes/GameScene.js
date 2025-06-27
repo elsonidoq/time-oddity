@@ -5,6 +5,8 @@ import CollisionManager from '../systems/CollisionManager.js';
 import Coin from '../entities/Coin.js';
 import TimeManager from '../systems/TimeManager.js';
 import { LoopHound } from '../entities/enemies/LoopHound.js';
+import { SceneFactory } from '../systems/SceneFactory.js';
+import testLevelConfig from '../config/test-level.json';
 
 export default class GameScene extends BaseScene {
   constructor(mockScene = null) {
@@ -50,28 +52,8 @@ export default class GameScene extends BaseScene {
     this.collisionManager = new CollisionManager(this, this._mockScene);
     this.timeManager = new TimeManager(this, this._mockScene);
 
-    // Create a basic platform layout
-    // Ground platform - using a looping tile
-    if (this.platforms) {
-      // The visual top of the ground should be at y=656 to be fully visible.
-      const groundY = 656;
-      for (let x = 0; x < this.sys.game.config.width; x += 64) {
-          const groundTile = this.platforms.create(x, groundY, 'tiles', 'terrain_grass_horizontal_middle').setOrigin(0, 0);
-          this.configurePlatform(groundTile, true); // Use full block for ground
-      }
-
-      // Floating platforms
-      const platform1 = this.platforms.create(200, 500, 'tiles', 'terrain_grass_block_center');
-      const platform2 = this.platforms.create(1000, 550, 'tiles', 'terrain_grass_block_center');
-      const platform3 = this.platforms.create(640, 400, 'tiles', 'terrain_grass_block_center');
-      const platform4 = this.platforms.create(350, 250, 'tiles', 'terrain_grass_block_center');
-      const platform5 = this.platforms.create(800, 200, 'tiles', 'terrain_grass_block_center');
-      this.configurePlatform(platform1, true); // `isFullBlock` = true
-      this.configurePlatform(platform2, true); // `isFullBlock` = true
-      this.configurePlatform(platform3, true); // `isFullBlock` = true
-      this.configurePlatform(platform4, true);
-      this.configurePlatform(platform5, true);
-    }
+    // Create platforms using SceneFactory
+    this.createPlatformsWithFactory();
 
     // Create coins
     if (this.coins) {
@@ -189,6 +171,84 @@ export default class GameScene extends BaseScene {
     }
   }
 
+  /**
+   * Creates platforms using SceneFactory instead of hardcoded creation
+   */
+  createPlatformsWithFactory() {
+    if (!this.platforms) return;
+
+    // Create SceneFactory instance
+    const sceneFactory = new SceneFactory(this);
+    
+    // Load the test level configuration
+    const configLoaded = sceneFactory.loadConfiguration(testLevelConfig);
+    
+    if (configLoaded) {
+      // Create all platforms from configuration
+      const createdPlatforms = sceneFactory.createPlatformsFromConfig(this.platforms);
+      
+      if (createdPlatforms.length === 0) {
+        console.warn('[GameScene] No platforms were created by SceneFactory, falling back to hardcoded creation');
+        this.createPlatformsHardcoded();
+      } else {
+        // Register MovingPlatform instances with TimeManager for time reversal
+        this.registerMovingPlatformsWithTimeManager(createdPlatforms);
+      }
+    } else {
+      console.warn('[GameScene] Failed to load level configuration, falling back to hardcoded creation');
+      this.createPlatformsHardcoded();
+    }
+  }
+
+  /**
+   * Registers MovingPlatform instances with TimeManager for time reversal support
+   * @param {Array} platforms - Array of all created platforms
+   */
+  registerMovingPlatformsWithTimeManager(platforms) {
+    if (!this.timeManager || !platforms) return;
+
+    // Filter for MovingPlatform instances and register them with TimeManager
+    const movingPlatforms = platforms.filter(platform => 
+      platform && 
+      typeof platform.getStateForRecording === 'function' && 
+      typeof platform.setStateFromRecording === 'function'
+    );
+
+    console.log(`[GameScene] Found ${movingPlatforms.length} moving platforms to register`);
+    console.log('[GameScene] All platforms:', platforms.map(p => ({ type: p.constructor.name, x: p.x, y: p.y, isMoving: p.isMoving })));
+
+    for (const movingPlatform of movingPlatforms) {
+      this.timeManager.register(movingPlatform);
+      console.log(`[GameScene] Registered MovingPlatform at (${movingPlatform.x}, ${movingPlatform.y}) with TimeManager - isMoving: ${movingPlatform.isMoving}`);
+    }
+  }
+
+  /**
+   * Fallback method for hardcoded platform creation (maintains backward compatibility)
+   */
+  createPlatformsHardcoded() {
+    if (!this.platforms) return;
+
+    // The visual top of the ground should be at y=656 to be fully visible.
+    const groundY = 656;
+    for (let x = 0; x < this.sys.game.config.width; x += 64) {
+        const groundTile = this.platforms.create(x, groundY, 'tiles', 'terrain_grass_horizontal_middle').setOrigin(0, 0);
+        this.configurePlatform(groundTile, true); // Use full block for ground
+    }
+
+    // Floating platforms
+    const platform1 = this.platforms.create(200, 500, 'tiles', 'terrain_grass_block_center');
+    const platform2 = this.platforms.create(1000, 550, 'tiles', 'terrain_grass_block_center');
+    const platform3 = this.platforms.create(640, 400, 'tiles', 'terrain_grass_block_center');
+    const platform4 = this.platforms.create(350, 250, 'tiles', 'terrain_grass_block_center');
+    const platform5 = this.platforms.create(800, 200, 'tiles', 'terrain_grass_block_center');
+    this.configurePlatform(platform1, true); // `isFullBlock` = true
+    this.configurePlatform(platform2, true); // `isFullBlock` = true
+    this.configurePlatform(platform3, true); // `isFullBlock` = true
+    this.configurePlatform(platform4, true);
+    this.configurePlatform(platform5, true);
+  }
+
   handlePlayerCoinOverlap(player, coinSprite) {
     if (coinSprite.parentCoin) {
         coinSprite.parentCoin.collect();
@@ -251,6 +311,37 @@ export default class GameScene extends BaseScene {
         this.registry.set('dashTimer', this.player.dashTimer);
       }
     }
+    
+    // Update all platforms (including moving platforms)
+    if (this.platforms && this.platforms.getChildren) {
+      console.log(`[GameScene] Updating ${this.platforms.getChildren().length} platforms`);
+      
+      this.platforms.getChildren().forEach((platform, index) => {
+        console.log(`[GameScene] Platform ${index}: type=${platform?.constructor?.name}, hasUpdate=${typeof platform.update === 'function'}, isMoving=${platform?.isMoving}`);
+        
+        if (platform && typeof platform.update === 'function') {
+          platform.update(time, delta);
+        }
+      });
+    }
+    
+    // Handle player carrying by moving platforms
+    if (this.player && this.player.body && this.platforms && this.platforms.getChildren) {
+      console.log(`[GameScene] Checking ${this.platforms.getChildren().length} platforms for player carrying`);
+      
+      this.platforms.getChildren().forEach((platform, index) => {
+        // Check if this is a MovingPlatform that can carry players
+        if (platform && typeof platform.carryPlayerIfStanding === 'function') {
+          console.log(`[GameScene] Platform ${index} is a MovingPlatform, calling carryPlayerIfStanding`);
+          platform.carryPlayerIfStanding(this.player.body);
+        } else {
+          console.log(`[GameScene] Platform ${index} is not a MovingPlatform (type: ${platform?.constructor?.name})`);
+        }
+      });
+    } else {
+      console.log('[GameScene] Player carrying check skipped - missing player, player.body, platforms, or platforms.getChildren');
+    }
+    
     if (this.loophound) {
       this.loophound.update(time, delta);
     }

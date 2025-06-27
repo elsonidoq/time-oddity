@@ -1,0 +1,64 @@
+{
+  "platforms": [
+    {
+      "type": "ground",
+      "x": 0,
+      "y": 656,
+      "width": 1280,
+      "tileKey": "terrain_grass_horizontal_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 200,
+      "y": 500,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 1000,
+      "y": 550,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 640,
+      "y": 400,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 350,
+      "y": 250,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 800,
+      "y": 200,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "moving",
+      "x": 450,
+      "y": 350,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true,
+      "movement": {
+        "type": "linear",
+        "startX": 450,
+        "startY": 350,
+        "endX": 750,
+        "endY": 350,
+        "speed": 80,
+        "mode": "bounce",
+        "autoStart": true
+      }
+    }
+  ]
+} 

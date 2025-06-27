@@ -21,13 +21,64 @@ const createMockTween = (target, vars) => {
   const tween = {
     kill: jest.fn(),
     target: target,
-    vars: vars
+    vars: vars,
+    _startValues: {},
+    _targetValues: {}
   };
   
-  // Execute onComplete callback if provided
+  // Store initial and target values for gradual animation simulation
+  if (target && typeof target === 'object' && vars) {
+    // Store starting values
+    if (vars.x !== undefined) tween._startValues.x = target.x;
+    if (vars.y !== undefined) tween._startValues.y = target.y;
+    if (vars.rotation !== undefined) tween._startValues.rotation = target.rotation || 0;
+    if (vars.alpha !== undefined) tween._startValues.alpha = target.alpha || 1;
+    if (vars.scale !== undefined) tween._startValues.scale = target.scale || 1;
+    
+    // Store target values
+    if (vars.x !== undefined) tween._targetValues.x = vars.x;
+    if (vars.y !== undefined) tween._targetValues.y = vars.y;
+    if (vars.rotation !== undefined) tween._targetValues.rotation = vars.rotation;
+    if (vars.alpha !== undefined) tween._targetValues.alpha = vars.alpha;
+    if (vars.scale !== undefined) tween._targetValues.scale = vars.scale;
+    
+    // For testing purposes, we'll simulate gradual movement
+    // Apply 50% of the movement immediately to simulate animation progress
+    const progress = 0.5;
+    
+    if (vars.x !== undefined) {
+      const startX = tween._startValues.x;
+      target.x = startX + (vars.x - startX) * progress;
+    }
+    if (vars.y !== undefined) {
+      const startY = tween._startValues.y;
+      target.y = startY + (vars.y - startY) * progress;
+    }
+    
+    // Call onUpdate if provided
+    if (vars.onUpdate) {
+      vars.onUpdate();
+    }
+  }
+  
+  // Execute onComplete callback if provided (simulate completion)
   if (vars && vars.onComplete) {
     // Simulate async behavior by calling onComplete after a small delay
     setTimeout(() => {
+      // Apply final target values before calling onComplete
+      if (target && typeof target === 'object') {
+        if (tween._targetValues.x !== undefined) target.x = tween._targetValues.x;
+        if (tween._targetValues.y !== undefined) target.y = tween._targetValues.y;
+        if (tween._targetValues.rotation !== undefined) target.rotation = tween._targetValues.rotation;
+        if (tween._targetValues.alpha !== undefined) target.alpha = tween._targetValues.alpha;
+        if (tween._targetValues.scale !== undefined) target.scale = tween._targetValues.scale;
+        
+        // Call onUpdate one more time with final values
+        if (vars.onUpdate) {
+          vars.onUpdate();
+        }
+      }
+      
       vars.onComplete(...(vars.onCompleteParams || []));
     }, 0);
   }

@@ -107,6 +107,29 @@ If you change key bindings ensure **all getters** in `InputManager` continue to 
 ## 12. Level / Platform Geometry
 1. Ground top pixel-row sits at **y = 656** in 720 p canvas; camera bounds & player spawn rely on this magic number.
 2. `configurePlatform(platform, isFullBlock)` sets hit-box to full sprite when `isFullBlock` is `true`; altering this function may break jump/fall tests.
+3. **Platform Configuration Ordering (CRITICAL)**: Platforms (including MovingPlatform instances) **MUST** be added to their physics group **BEFORE** calling `configurePlatform()` or any other physics configuration methods. Configuring platforms before adding them to the group causes the configuration to be lost when the group processes the platform. This ordering requirement applies to:
+   - `configurePlatform()` calls
+   - `setImmovable()`, `setAllowGravity()`, `setFriction()` physics body methods
+   - Any custom physics configuration in platform constructors
+   - Movement initialization that depends on physics body state
+
+   **Correct Order**: `new Platform()` → `group.add(platform)` → `configurePlatform(platform)` → `platform.initializeMovement()`
+   
+   **Incorrect Order**: `new Platform()` → `configurePlatform(platform)` → `group.add(platform)` ← **Configuration gets lost**
+
+4. **Moving Platform Player Carrying (CRITICAL)**: Phaser's Arcade Physics does **NOT** automatically carry objects on moving platforms. Moving platforms must implement manual player carrying logic:
+   - **Movement Tracking**: Platforms must track `previousX` and `previousY` positions for delta calculation
+   - **Collision Detection**: Use `playerBody.touching.down && platformBody.touching.up` to detect when player is standing on platform
+   - **Delta Application**: Calculate movement delta (`current - previous`) and apply it to player position
+   - **Update Timing**: Player carrying must happen **AFTER** platform movement in the update loop
+   - **GameScene Integration**: GameScene must call `platform.carryPlayerIfStanding(player.body)` for each MovingPlatform instance
+
+   **Required Methods**:
+   - `updatePreviousPosition()` - Called after movement to store current position as previous
+   - `isPlayerStandingOnTop(playerBody)` - Detects player-platform contact
+   - `carryPlayerIfStanding(playerBody)` - Applies platform movement delta to player
+
+   **GameScene Update Order**: `platform.update()` → `platform.updatePreviousPosition()` → `platform.carryPlayerIfStanding(player.body)`
 
 ---
 
