@@ -4,7 +4,7 @@
       "type": "ground",
       "x": 0,
       "y": 1400,
-      "width": 2600,
+      "width": 6000,
       "tileKey": "terrain_grass_horizontal_middle",
       "isFullBlock": true
     },

@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Rule: Document all state and invariant changes
+
+Whenever you make changes that affect how **game state is stored or shared**, or that modify **any invariant**, you must:
+
+1. **Update `invariants.md`**  
+   - Clearly describe the change.
+   - Justify why the invariant or state logic was modified.
+   - Include examples if relevant.
+
+2. **Add inline documentation** in the code:  
+   - Wherever the modified invariant or shared state is used or changed.
+   - Highlight any assumptions future engineers or LLMs must be aware of.
+
+⚠️ This rule is critical: undocumented changes to invariants or shared state may cause regressions that are hard to trace during time-travel, replay, or test execution.
+
+If you're unsure whether something qualifies, **document it anyway**.

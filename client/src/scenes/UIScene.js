@@ -37,6 +37,32 @@ export default class UIScene extends BaseScene {
     this.healthBarForeground.fillStyle(0x00ff00, 1);
     this.healthBarForeground.fillRect(x, y, barWidth, barHeight);
 
+    // ------------------------------------------------------------------
+    // Subscribe to Player damage events from GameScene to update HUD ASAP
+    // ------------------------------------------------------------------
+    const gameScene = this.scene && this.scene.get ? this.scene.get('GameScene') : null;
+    if (gameScene && gameScene.events && typeof gameScene.events.on === 'function') {
+      gameScene.events.on('playerDamaged', (payload) => {
+        const newHealth = payload && payload.health !== undefined ? payload.health : null;
+        if (newHealth !== null) {
+          if (this.registry && typeof this.registry.set === 'function') {
+            this.registry.set('playerHealth', newHealth);
+          }
+          // Immediately refresh HUD rather than waiting for next update tick
+          this.updateHealthDisplay(newHealth);
+        }
+      });
+    }
+
+    // Helper to draw health bar based on value 0-100
+    this.updateHealthDisplay = (currentHealth) => {
+      const clampedHealth = Math.max(0, Math.min(100, currentHealth));
+      const currentWidth = Math.floor((clampedHealth / 100) * barWidth);
+      this.healthBarForeground.clear();
+      this.healthBarForeground.fillStyle(0x00ff00, 1);
+      this.healthBarForeground.fillRect(x, y, currentWidth, barHeight);
+    };
+
     // Ability cooldown placeholders
     const dashText = this.add.text(20, 50, 'Dash', { font: '16px Arial', fill: '#333333' });
     dashText.setOrigin(0, 0);

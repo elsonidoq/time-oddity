@@ -86,6 +86,12 @@ export default class CollisionManager {
 
     // Create a wrapper callback that handles both the custom callback and event emission
     const handleCollision = (playerSprite, enemySprite) => {
+      // Inflict damage to player before emitting event (Task 02.02)
+      if (playerSprite && typeof playerSprite.takeDamage === 'function' && enemySprite) {
+        const dmg = enemySprite.damage !== undefined ? enemySprite.damage : 10;
+        playerSprite.takeDamage(dmg);
+      }
+
       // Emit collision event for other systems to listen to
       if (this.scene.events && this.scene.events.emit) {
         this.scene.events.emit('playerEnemyCollision', playerSprite, enemySprite);

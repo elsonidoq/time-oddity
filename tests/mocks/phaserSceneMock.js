@@ -50,9 +50,11 @@ class BodyMock {
     this.setVelocityY = createMockFn(() => this);
     this.setBounce = createMockFn(() => this);
     this.setCollideWorldBounds = createMockFn(() => this);
+    this.setImmovable = createMockFn(() => this);
     this.setAllowGravity = createMockFn(() => this);
     this.setGravity = createMockFn(() => this);
     this.setDrag = createMockFn(() => this);
+    this.setFriction = createMockFn(() => this);
     this.setVelocity = createMockFn(() => this);
     this.setSize = createMockFn(() => this);
     this.setOffset = createMockFn(() => this);
@@ -100,6 +102,7 @@ class GameObjectMock {
     this.setActive = createMockFn(() => this);
     this.setVisible = createMockFn(() => this);
     this.play = createMockFn(() => this);
+    this.setData = createMockFn(() => this);
     this.destroy = createMockFn();
   }
 }
@@ -214,12 +217,14 @@ export class PhaserSceneMock {
       world: {
         gravity: { x: 0, y: 980 },
         bounds: { setTo: createMockFn() }
-      }
+      },
+      config: { arcade: { debug: false } }
     };
     
     // Graphics/UI system
     this.add = {
       sprite: createMockFn((x, y, texture) => new GameObjectMock(x, y, texture)),
+      tileSprite: createMockFn((x, y, width, height, texture, frame) => new GameObjectMock(x, y, texture)),
       graphics: createMockFn(() => new GraphicsMock()),
       text: createMockFn((x, y, text, style) => new TextMock(x, y, text, style)),
       bitmapText: createMockFn((x, y, font, text) => new TextMock(x, y, text)),
@@ -250,8 +255,12 @@ export class PhaserSceneMock {
         setZoom: createMockFn(),
         startFollow: createMockFn(),
         stopFollow: createMockFn(),
+        setDeadzone: createMockFn(),
         setTint: createMockFn(),
-        clearTint: createMockFn()
+        clearTint: createMockFn(),
+        followOffset: { x: 0, y: 0 },
+        scrollX: 0,
+        scrollY: 0
       }
     };
     
@@ -264,7 +273,12 @@ export class PhaserSceneMock {
       game: {
         config: {
           width: 1280,
-          height: 720
+          height: 720,
+          physics: {
+            arcade: {
+              debug: false
+            }
+          }
         }
       }
     };

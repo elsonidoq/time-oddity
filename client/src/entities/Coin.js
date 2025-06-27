@@ -15,15 +15,30 @@ export default class Coin {
     
     // Create the physics sprite for the coin
     this.sprite = this.scene.physics.add.sprite(x, y, texture);
+
+    // Set a reference back to this Coin object from the sprite
+    this.sprite.parentCoin = this;
+
+    // Add coin sprite to the scene's coins physics group for collision detection FIRST
+    // This MUST happen before physics configuration per invariants.md §13.3
+    if (this.scene.coins && this.scene.coins.add) {
+      this.scene.coins.add(this.sprite);
+    }
     
+    // THEN configure physics properties (after adding to group)
     // Coins should not be affected by gravity
     this.sprite.body.setAllowGravity(false);
     
     // Play the spinning animation
     this.sprite.play('coin_spin', true);
 
-    // Set a reference back to this Coin object from the sprite
-    this.sprite.parentCoin = this;
+    // Task 04.01.1: Initialize collection state for time reversal
+    this.isCollected = false;
+    
+    // Store initial properties for state restoration
+    this.initialX = x;
+    this.initialY = y;
+    this.initialTexture = texture;
   }
 
   /**
@@ -31,8 +46,80 @@ export default class Coin {
    * Typically called when the player overlaps with the coin.
    */
   collect() {
-    // For now, simply destroy the sprite.
-    // Later, this could involve playing a sound, updating a score, etc.
+    // Task 04.01.2: Prevent double collection
+    if (this.isCollected) {
+      return;
+    }
+
+    // Set collection state
+    this.isCollected = true;
+
+    // Increment global counter
+    if (this.scene.registry && typeof this.scene.registry.get === 'function' && typeof this.scene.registry.set === 'function') {
+      const currentCoins = this.scene.registry.get('coinsCollected') || 0;
+      const newCoins = currentCoins + 1;
+      this.scene.registry.set('coinsCollected', newCoins);
+      
+      // Log the updated coinsCollected value
+      console.log(`[Coin Collection] coinsCollected: ${newCoins} (incremented by 1)`);
+    }
+
+    // Play pickup sound effect
+    if (typeof Howl !== 'undefined') {
+      const pickupSound = new Howl({
+        src: ['assets/audio/sfx_coin.ogg'],
+        volume: 0.5
+      });
+      pickupSound.play();
+    }
+
+    // Hide the sprite and destroy it for cleanup
+    this.sprite.visible = false;
     this.sprite.destroy();
+    this.sprite = null;
+  }
+
+  /**
+   * Task 04.01.1: Custom state recording for time reversal
+   * Returns the current state of the coin for recording.
+   * @returns {Object} The coin's current state
+   */
+  getStateForRecording() {
+    return {
+      isCollected: this.isCollected,
+      x: this.sprite ? this.sprite.x : this.initialX,
+      y: this.sprite ? this.sprite.y : this.initialY
+    };
+  }
+
+  /**
+   * Task 04.01.1: Custom state restoration for time reversal
+   * Restores the coin's state from recorded data.
+   * @param {Object} state The state to restore
+   */
+  setStateFromRecording(state) {
+    if (state && typeof state.isCollected === 'boolean') {
+      this.isCollected = state.isCollected;
+      
+      // If restoring to uncollected state and sprite was destroyed, recreate it
+      if (!this.isCollected && !this.sprite) {
+        this.sprite = this.scene.physics.add.sprite(state.x || this.initialX, state.y || this.initialY, this.initialTexture);
+        this.sprite.parentCoin = this;
+        this.sprite.visible = true;
+        
+        // Add recreated sprite back to the coins group for collision detection FIRST
+        // This MUST happen before physics configuration per invariants.md §13.3
+        if (this.scene.coins && this.scene.coins.add) {
+          this.scene.coins.add(this.sprite);
+        }
+        
+        // THEN configure physics properties (after adding to group)
+        this.sprite.body.setAllowGravity(false);
+        this.sprite.play('coin_spin', true);
+      } else if (this.isCollected && this.sprite) {
+        // If restoring to collected state, ensure sprite is hidden
+        this.sprite.visible = false;
+      }
+    }
   }
 } 

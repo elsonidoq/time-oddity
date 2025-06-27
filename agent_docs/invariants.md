@@ -142,6 +142,17 @@ If you change key bindings ensure **all getters** in `InputManager` continue to 
 
    **GameScene Update Order**: `platform.update()` → `platform.updatePreviousPosition()` → `platform.carryPlayerIfStanding(player.body)`
 
+5. **Coin Physics Configuration (CRITICAL)**: Coins must follow the same physics configuration order as platforms to prevent gravity from affecting them. The proper sequence is:
+   - Create physics sprite: `this.scene.physics.add.sprite(x, y, texture)`
+   - Set parentCoin reference: `sprite.parentCoin = this`
+   - Add to physics group: `this.scene.coins.add(sprite)` 
+   - **THEN** configure physics: `sprite.body.setAllowGravity(false)`
+   
+   **Incorrect Order**: Configure physics → Add to group ← **Configuration gets lost, coins fall**
+   **Correct Order**: Create sprite → Add to group → Configure physics ← **Configuration preserved**
+
+6. **Coin Registry Time Reversal (CRITICAL)**: The `coinsCollected` registry value is recorded in TimeManager snapshots and restored during time reversal to ensure the HUD always matches the actual world state. This ensures consistency between the number of coins visible in the scene and the registry counter.
+
 ---
 
 ## 14. Testing Assumptions

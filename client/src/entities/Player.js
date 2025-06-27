@@ -102,6 +102,12 @@ export default class Player extends Entity {
 
     // Track previous rewind state
     this._wasRewinding = false;
+
+    // --- Health Registry Initialization ------------------------------------
+    // Ensure UIScene & other systems can query current health immediately.
+    if (this.scene && this.scene.registry && typeof this.scene.registry.set === 'function') {
+      this.scene.registry.set('playerHealth', this.health);
+    }
   }
 
   /**
@@ -183,5 +189,39 @@ export default class Player extends Entity {
     if (now >= this.dashTimer) {
       this.canDash = true;
     }
+  }
+
+  /**
+   * Override Entity.takeDamage to add registry sync and event emission.
+   * @param {number} amount - Damage to apply.
+   * @returns {boolean} True if player died (health<=0).
+   */
+  takeDamage(amount) {
+    // Delegate core health reduction to Entity implementation
+    const isDead = super.takeDamage(amount);
+
+    // Synchronise health with Phaser registry for UI consumption
+    if (this.scene && this.scene.registry && typeof this.scene.registry.set === 'function') {
+      this.scene.registry.set('playerHealth', this.health);
+    }
+
+    // Emit runtime event for other systems (UIScene, audio, etc.)
+    if (this.scene && this.scene.events && typeof this.scene.events.emit === 'function') {
+      this.scene.events.emit('playerDamaged', {
+        damage: amount,
+        health: this.health,
+        player: this
+      });
+    }
+
+    // Optional: quick hit-flash feedback (harmless if scene.time undefined in mocks)
+    if (this.setTint && this.scene && this.scene.time && typeof this.scene.time.delayedCall === 'function') {
+      this.setTint(0xff0000);
+      this.scene.time.delayedCall(100, () => {
+        if (this.clearTint) this.clearTint();
+      });
+    }
+
+    return isDead;
   }
 } 

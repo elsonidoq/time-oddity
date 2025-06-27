@@ -9,6 +9,12 @@ import { SceneFactory } from '../systems/SceneFactory.js';
 import testLevelConfig from '../config/test-level.json';
 
 export default class GameScene extends BaseScene {
+  // Camera follow constants for easy tuning
+  static CAMERA_LERP_X = 0.1;
+  static CAMERA_LERP_Y = 0.1;
+  static CAMERA_DEADZONE_X = 0.3;
+  static CAMERA_DEADZONE_Y = 0.25;
+
   constructor(mockScene = null) {
     super('GameScene', mockScene);
     this._mockScene = mockScene;
@@ -51,20 +57,61 @@ export default class GameScene extends BaseScene {
       this.coins = this.physics.add.group();
     }
 
+    // === Determine level dimensions from configuration (width/height) ===
+    let configLevelWidth = this.sys.game.config.width;
+    let configLevelHeight = this.sys.game.config.height;
+
+    if (testLevelConfig && Array.isArray(testLevelConfig.platforms)) {
+      for (const p of testLevelConfig.platforms) {
+        const tileWidth = 64;
+        const platWidth = p.width ? p.width : tileWidth;
+        const platHeight = 64;
+        const maxX = p.x + platWidth;
+        const maxY = p.y + platHeight;
+        if (maxX > configLevelWidth) configLevelWidth = maxX;
+        if (maxY > configLevelHeight) configLevelHeight = maxY;
+      }
+    }
+
+    // Store for global access before any visual elements are created
+    this.levelWidth = configLevelWidth;
+    this.levelHeight = configLevelHeight;
+
     // Create parallax background layers
     this.createParallaxBackground();
 
     this.collisionManager = new CollisionManager(this, this._mockScene);
     this.timeManager = new TimeManager(this, this._mockScene);
 
+    // Task 04.01.3: Initialize coin registry counter
+    if (this.registry && typeof this.registry.set === 'function') {
+      this.registry.set('coinsCollected', 0);
+      console.log('[GameScene] coinsCollected registry initialized to 0');
+    }
+
     // Create platforms using SceneFactory
     this.createPlatformsWithFactory();
 
-    // Create coins
+    // Create coins and register them with TimeManager for time reversal
     if (this.coins) {
-        new Coin(this, 200, 450, 'tiles', this._mockScene);
-        new Coin(this, 1000, 500, 'tiles', this._mockScene);
-        new Coin(this, 640, 350, 'tiles', this._mockScene);
+        const coin1 = new Coin(this, 200, 950, 'tiles', this._mockScene);
+        const coin2 = new Coin(this, 1000, 500, 'tiles', this._mockScene);
+        const coin3 = new Coin(this, 640, 350, 'tiles', this._mockScene);
+        
+        // Register coins with TimeManager for time reversal support
+        if (this.timeManager) {
+            this.timeManager.register(coin1);
+            this.timeManager.register(coin2);
+            this.timeManager.register(coin3);
+        }
+        
+        // Store references for cleanup and future use
+        this.gameCoins = [coin1, coin2, coin3];
+    }
+
+    // === Camera world bounds based on level configuration ===
+    if (this.cameras && this.cameras.main && typeof this.cameras.main.setBounds === 'function') {
+      this.cameras.main.setBounds(0, 0, this.levelWidth, this.levelHeight);
     }
 
     // --- Player Integration ---
@@ -84,6 +131,32 @@ export default class GameScene extends BaseScene {
     // Register player with TimeManager
     if (this.timeManager && this.player) {
         this.timeManager.register(this.player);
+    }
+
+    /* =========================
+       Camera – Task 03.01
+       Set world bounds (already set earlier), then follow player with smooth lerp and dead-zone.
+       Order: bounds → follow → deadzone to respect Phaser contract.
+    ========================== */
+    if (this.cameras && this.cameras.main && this.player) {
+      // Ensure bounds have been set; reuse existing dimensions
+      const worldWidth  = this.levelWidth;
+      const worldHeight = this.levelHeight;
+      if (typeof this.cameras.main.setBounds === 'function') {
+        this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
+      }
+
+      // Enable smooth follow with small lerp values (0.1 by default)
+      if (typeof this.cameras.main.startFollow === 'function') {
+        this.cameras.main.startFollow(this.player, true, GameScene.CAMERA_LERP_X, GameScene.CAMERA_LERP_Y);
+      }
+
+      // Dead-zone keeps player roughly centred
+      const viewW = this.sys.game.config.width;
+      const viewH = this.sys.game.config.height;
+      if (typeof this.cameras.main.setDeadzone === 'function') {
+        this.cameras.main.setDeadzone(viewW * GameScene.CAMERA_DEADZONE_X, viewH * GameScene.CAMERA_DEADZONE_Y);
+      }
     }
 
     // Set up collision detection
@@ -190,8 +263,10 @@ export default class GameScene extends BaseScene {
   createParallaxBackground() {
     // Calculate the new visible area based on camera zoom (0.5)
     const zoom = 0.5;
-    const bgWidth = 1280 / zoom; // 2560
-    const bgHeight = 720 / zoom; // 1440
+    const levelW = this.levelWidth || (1280);
+    const levelH = this.levelHeight || (720);
+    const bgWidth = levelW / zoom;
+    const bgHeight = levelH / zoom;
     const centerX = bgWidth / 2;
     const centerY = bgHeight / 2;
 
@@ -221,12 +296,10 @@ export default class GameScene extends BaseScene {
       typeof platform.setStateFromRecording === 'function'
     );
 
-    console.log(`[GameScene] Found ${movingPlatforms.length} moving platforms to register`);
-    console.log('[GameScene] All platforms:', platforms.map(p => ({ type: p.constructor.name, x: p.x, y: p.y, isMoving: p.isMoving })));
+    // Debug logs removed for production cleanliness
 
     for (const movingPlatform of movingPlatforms) {
       this.timeManager.register(movingPlatform);
-      console.log(`[GameScene] Registered MovingPlatform at (${movingPlatform.x}, ${movingPlatform.y}) with TimeManager - isMoving: ${movingPlatform.isMoving}`);
     }
   }
 
@@ -258,6 +331,7 @@ export default class GameScene extends BaseScene {
 
   handlePlayerCoinOverlap(player, coinSprite) {
     if (coinSprite.parentCoin) {
+        console.log('[Coin Overlap] Player overlapped with coin, triggering collection');
         coinSprite.parentCoin.collect();
     }
   }
@@ -329,11 +403,7 @@ export default class GameScene extends BaseScene {
     
     // Update all platforms (including moving platforms)
     if (this.platforms && this.platforms.getChildren) {
-      console.log(`[GameScene] Updating ${this.platforms.getChildren().length} platforms`);
-      
       this.platforms.getChildren().forEach((platform, index) => {
-        console.log(`[GameScene] Platform ${index}: type=${platform?.constructor?.name}, hasUpdate=${typeof platform.update === 'function'}, isMoving=${platform?.isMoving}`);
-        
         if (platform && typeof platform.update === 'function') {
           platform.update(time, delta);
         }
@@ -342,19 +412,14 @@ export default class GameScene extends BaseScene {
     
     // Handle player carrying by moving platforms
     if (this.player && this.player.body && this.platforms && this.platforms.getChildren) {
-      console.log(`[GameScene] Checking ${this.platforms.getChildren().length} platforms for player carrying`);
-      
       this.platforms.getChildren().forEach((platform, index) => {
         // Check if this is a MovingPlatform that can carry players
         if (platform && typeof platform.carryPlayerIfStanding === 'function') {
-          console.log(`[GameScene] Platform ${index} is a MovingPlatform, calling carryPlayerIfStanding`);
           platform.carryPlayerIfStanding(this.player.body);
-        } else {
-          console.log(`[GameScene] Platform ${index} is not a MovingPlatform (type: ${platform?.constructor?.name})`);
         }
       });
     } else {
-      console.log('[GameScene] Player carrying check skipped - missing player, player.body, platforms, or platforms.getChildren');
+      // Skip carrying if requirements missing
     }
     
     if (this.loophound) {

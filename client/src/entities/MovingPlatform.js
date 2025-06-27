@@ -124,20 +124,12 @@ export default class MovingPlatform extends Entity {
     this.previousX = x;
     this.previousY = y;
 
-    console.log(`[MovingPlatform] Created at (${x}, ${y}) with autoStart=${this.autoStart}, isMoving=${this.isMoving}`);
-    console.log(`[MovingPlatform] Movement config:`, movementConfig);
-    console.log(`[MovingPlatform] Movement type: ${this.movementType}, speed: ${this.speed}`);
-    console.log(`[MovingPlatform] Width: ${this.width}, Sprite count: ${this.spriteCount}`);
-    
     // Configure physics body for platform collision
     this.configurePhysicsBody();
     
     // Initialize movement if autoStart is enabled
     if (this.autoStart) {
-      console.log(`[MovingPlatform] autoStart is true, calling initializeMovement`);
       this.initializeMovement();
-    } else {
-      console.log(`[MovingPlatform] autoStart is false, not initializing movement`);
     }
   }
   
@@ -158,18 +150,14 @@ export default class MovingPlatform extends Entity {
    * Initialize movement based on configuration
    */
   initializeMovement() {
-    console.log(`[MovingPlatform] Initializing movement for ${this.movementType} movement`);
-    
     if (this.movementType === 'linear') {
       this.targetX = this.startX;
       this.targetY = this.startY;
       this.isMovingToTarget = true;
-      console.log(`[MovingPlatform] Linear movement initialized - target: (${this.targetX}, ${this.targetY})`);
       // Start actual movement
       this.startLinearMovement();
     } else if (this.movementType === 'circular') {
       this.angle = 0;
-      console.log(`[MovingPlatform] Circular movement initialized - center: (${this.centerX}, ${this.centerY}), radius: ${this.radius}`);
     } else if (this.movementType === 'path') {
       if (this.pathPoints.length > 0) {
         this.currentPathIndex = 0;
@@ -177,14 +165,12 @@ export default class MovingPlatform extends Entity {
         this.targetX = firstPoint.x;
         this.targetY = firstPoint.y;
         this.isMovingToTarget = true;
-        console.log(`[MovingPlatform] Path movement initialized - first target: (${this.targetX}, ${this.targetY})`);
         // Start actual movement
         this.startPathMovement();
       }
     }
     
     this.isMoving = true;
-    console.log(`[MovingPlatform] Movement initialized - isMoving: ${this.isMoving}`);
   }
   
   /**
@@ -278,8 +264,6 @@ export default class MovingPlatform extends Entity {
         }
       }
     }
-    
-    console.log(`[MovingPlatform] Moving to target (${targetX}, ${targetY}) with velocity (${dx}, ${dy})`);
   }
   
   /**
@@ -551,16 +535,12 @@ export default class MovingPlatform extends Entity {
    */
   update(time, delta) {
     if (this.isMoving) {
-      console.log(`[MovingPlatform] Updating movement at (${this.x}, ${this.y})`);
-      
       // Store current position before movement
       const oldX = this.x;
       const oldY = this.y;
       
       // Execute movement using the existing updateMovement method for compatibility
       this.updateMovement(delta);
-      
-      console.log(`[MovingPlatform] After movement: (${this.x}, ${this.y})`);
     }
     
     // Calculate frame delta (current frame's movement only)
@@ -581,8 +561,6 @@ export default class MovingPlatform extends Entity {
     
     // Update positions of all other sprites to follow master
     this.updateSpritePositions();
-    
-    console.log(`[MovingPlatform] Frame delta: (${frameDeltaX}, ${frameDeltaY})`);
   }
   
   /**
@@ -606,14 +584,12 @@ export default class MovingPlatform extends Entity {
    */
   isPlayerStandingOnAnySprite(playerBody) {
     if (!playerBody) {
-      console.log('[MovingPlatform] isPlayerStandingOnAnySprite: Missing playerBody');
       return false;
     }
     
     // Check if player is standing on any sprite
     for (const sprite of this.sprites) {
       if (sprite.body && playerBody.touching.down && sprite.body.touching.up) {
-        console.log(`[MovingPlatform] isPlayerStandingOnAnySprite: Player standing on sprite at (${sprite.x}, ${sprite.y})`);
         return true;
       }
     }
@@ -636,8 +612,6 @@ export default class MovingPlatform extends Entity {
    * @param {Phaser.Physics.Arcade.Body} playerBody - The player's physics body
    */
   carryPlayerIfStanding(playerBody) {
-    console.log(`[MovingPlatform] carryPlayerIfStanding called for player at (${playerBody.x}, ${playerBody.y})`);
-    
     if (!this.isPlayerStandingOnAnySprite(playerBody)) {
       return;
     }
@@ -652,18 +626,9 @@ export default class MovingPlatform extends Entity {
       deltaY = this.y - this.previousY;
     }
     
-    console.log(`[MovingPlatform] Platform moved by delta: (${deltaX}, ${deltaY})`);
-    console.log(`[MovingPlatform] Moving player from (${playerBody.x}, ${playerBody.y}) to (${playerBody.x + deltaX}, ${playerBody.y + deltaY})`);
-    
     // Move player by the same delta as the platform (using master sprite delta)
     playerBody.x += deltaX;
     playerBody.y += deltaY;
-    
-    console.log(`[MovingPlatform] Player carried successfully to (${playerBody.x}, ${playerBody.y})`);
-    
-    // Reset delta after carrying to prevent accumulation
-    this.deltaX = 0;
-    this.deltaY = 0;
   }
   
   /**

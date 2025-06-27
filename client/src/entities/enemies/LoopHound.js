@@ -203,10 +203,13 @@ export class LoopHound extends Enemy {
   }
   
   destroy() {
-    if (this.sprite && this.sprite.destroy) {
+    if (this.sprite && typeof this.sprite.destroy === 'function') {
       this.sprite.destroy();
     }
-    this.anims = null;
+    // Call Phaser cleanup BEFORE nullifying animations to avoid runtime errors
     super.destroy();
+
+    // Nullify animation reference after safe destroy
+    this.anims = null;
   }
 } 

@@ -1,3 +1,88 @@
+```
+# 🎯 Objective
+
+You are a **technical leader LLM**. Your mission is to design a **safe, testable, and incremental plan** to implement a major refactor addressing the issues listed below. These changes are necessary to reach MVP. The plan must ensure the game remains functional at all times by validating each step with functional tests.
+
+# 🧱 Functional Gaps (From Product Manager LLM)
+
+## Core Platforming
+- Platforms are restricted to a **single-block width**. This limits level design. You must generalize platform width.
+
+## Enemy Interactions
+- Enemies do **not deal damage**.
+- All enemy types (Loop Hounds, Chrono Leeches, The Archivist) must:
+  - Deal damage to the player
+  - Have a defined way to die (e.g., via Chrono Pulse or environment)
+
+## Camera System
+- The **camera does not follow** the player. Implement basic camera tracking.
+
+## Collectibles and Progression
+- **Time Shards are not collectible**:
+  - They must be visible, collectible, and trigger feedback
+  - Collecting them must update a counter
+
+- There is **no point system**:
+  - Add a basic scoring mechanism linked to Time Shards and/or enemy kills
+
+## Game Flow
+- **No level end condition**:
+  - Add at least one of:
+    - A goal tile
+    - A collectible threshold
+    - A time-based trigger
+
+## Audio
+- The game has **no sound**:
+  - Implement minimal audio: music loop, and SFX for actions like jump, shard pickup, damage, etc.
+
+# 📚 Mandatory Reading Before Planning
+
+Before writing any tasks, you MUST study these documents:
+
+- `@invariants.md`: core architecture and contracts
+- `@testing_best_practices.md`: how to test (TDD/BDD, workflows)
+- `@small_comprehensive_documentation.md`: implementation details and APIs
+- `@task_template.md`: format for writing tasks
+
+# 🛠️ What You Must Do
+
+For each issue listed above:
+
+1. Analyze current implementation and documentation to **identify the minimal set of changes** needed.
+2. Create a **modular and incremental execution plan**.
+3. Break each issue into a **series of tiny, testable tasks**, following these rules:
+
+   - One concern per task
+   - Clear start and end
+   - Tasks must be independently verifiable
+   - Use the format defined in `@task_template.md`
+
+4. Place the generated tasks in a file within the folder: `tasks/02_mvp_again`
+
+# ✅ Task Execution Rules
+
+- After completing each task, the LLM must:
+  1. Mark it as complete
+  2. Run all functional tests to ensure no regressions
+  3. Only then proceed to the next task
+
+- If any **new invariant** is introduced, add it to `@invariants.md`
+
+# 🧠 Before You Begin
+
+Do NOT generate the plan until you:
+
+- Fully understand the current architecture
+- Have carefully read the required documentation
+- Can guarantee an **incremental, safe, test-driven migration path**
+
+Only then, begin generating the task plan.
+```
+
+
+
+
 PLATFORM REFACTOR
 # 🎯 Objective
 
