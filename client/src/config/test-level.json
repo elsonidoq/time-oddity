@@ -49,8 +49,8 @@
         "type": "linear",
         "startX": 1200,
         "startY": 2150,
-        "endX": 2400,
-        "endY": 2150,
+        "endX": 2600,
+        "endY": 2350,
         "speed": 60,
         "mode": "bounce",
         "autoStart": true
