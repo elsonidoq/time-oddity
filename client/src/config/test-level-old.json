@@ -1,0 +1,194 @@
+{
+  "platforms": [
+    {
+      "type": "ground",
+      "x": 0,
+      "y": 1400,
+      "width": 6000,
+      "tileKey": "terrain_grass_horizontal_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 200,
+      "y": 1200,
+      "width": 300,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 400,
+      "y": 1100,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 600,
+      "y": 1000,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 800,
+      "y": 900,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 1000,
+      "y": 800,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 1200,
+      "y": 700,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 1400,
+      "y": 600,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 1600,
+      "y": 500,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 1800,
+      "y": 400,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 2000,
+      "y": 300,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 2200,
+      "y": 200,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "moving",
+      "x": 300,
+      "y": 950,
+      "width": 300,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true,
+      "movement": {
+        "type": "linear",
+        "startX": 300,
+        "startY": 950,
+        "endX": 7000,
+        "endY": 950,
+        "speed": 60,
+        "mode": "bounce",
+        "autoStart": true
+      }
+    },
+    {
+      "type": "moving",
+      "x": 1500,
+      "y": 750,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true,
+      "movement": {
+        "type": "linear",
+        "startX": 1500,
+        "startY": 750,
+        "endX": 1500,
+        "endY": 550,
+        "speed": 40,
+        "mode": "bounce",
+        "autoStart": true
+      }
+    },
+    {
+      "type": "moving",
+      "x": 1900,
+      "y": 650,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true,
+      "movement": {
+        "type": "linear",
+        "startX": 1900,
+        "startY": 650,
+        "endX": 2300,
+        "endY": 650,
+        "speed": 80,
+        "mode": "bounce",
+        "autoStart": true
+      }
+    },
+    {
+      "type": "floating",
+      "x": 500,
+      "y": 1300,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 900,
+      "y": 1250,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 1300,
+      "y": 1200,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 1700,
+      "y": 1150,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 2100,
+      "y": 1100,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "moving",
+      "x": 1100,
+      "y": 1050,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true,
+      "movement": {
+        "type": "linear",
+        "startX": 1100,
+        "startY": 1050,
+        "endX": 1500,
+        "endY": 1050,
+        "speed": 70,
+        "mode": "bounce",
+        "autoStart": true
+      }
+    }
+  ]
+} 
