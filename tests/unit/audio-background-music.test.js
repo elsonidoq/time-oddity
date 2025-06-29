@@ -1,13 +1,11 @@
 import '../mocks/phaserMock.js';
-import { HowlMock, HowlerMock } from '../mocks/howlerMock.js';
 import { jest } from '@jest/globals';
 import { existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-// Mock Howler.js globally
-global.Howl = HowlMock;
-global.Howler = HowlerMock;
+// Import the mocks that Jest will provide via moduleNameMapper
+let HowlMock, HowlerMock;
 
 describe('Task 06.01: AudioManager Background Music', () => {
   let AudioManager;
@@ -21,6 +19,11 @@ describe('Task 06.01: AudioManager Background Music', () => {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
     audioManagerPath = join(__dirname, '../../client/src/systems/AudioManager.js');
+    
+    // Import the mocks that Jest provides via moduleNameMapper
+    const howlerMock = await import('howler');
+    HowlMock = howlerMock.Howl;
+    HowlerMock = howlerMock.Howler;
     
     // AudioManager doesn't exist yet - this test will fail initially
     if (existsSync(audioManagerPath)) {
@@ -188,6 +191,7 @@ describe('Task 06.01: AudioManager Background Music', () => {
 
 describe('GameScene AudioManager Integration', () => {
   let GameScene;
+  let AudioManager;
   let gameScene;
   let scene;
 
@@ -198,12 +202,20 @@ describe('GameScene AudioManager Integration', () => {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
     const gameScenePath = join(__dirname, '../../client/src/scenes/GameScene.js');
+    const audioManagerPath = join(__dirname, '../../client/src/systems/AudioManager.js');
     
     if (existsSync(gameScenePath)) {
       const gameSceneModule = await import(gameScenePath);
       GameScene = gameSceneModule.default;
     } else {
       GameScene = null;
+    }
+    
+    if (existsSync(audioManagerPath)) {
+      const audioModule = await import(audioManagerPath);
+      AudioManager = audioModule.default;
+    } else {
+      AudioManager = null;
     }
   });
 
@@ -299,7 +311,7 @@ describe('GameScene AudioManager Integration', () => {
     };
   });
 
-  describe('GameScene Audio Asset Loading', () => {
+  describe('GameScene AudioAsset Loading', () => {
     test('should load background music asset in preload()', () => {
       if (!GameScene) {
         expect(GameScene).toBeNull();
@@ -323,17 +335,12 @@ describe('GameScene AudioManager Integration', () => {
         return;
       }
       
-      // Mock AudioManager import
-      const mockAudioManager = jest.fn();
-      jest.doMock('../../client/src/systems/AudioManager.js', () => ({
-        default: mockAudioManager
-      }));
-      
       gameScene = new GameScene(scene);
       gameScene.create();
       
-      // AudioManager should be instantiated
-      expect(mockAudioManager).toHaveBeenCalled();
+      // AudioManager should be instantiated and attached to the scene
+      expect(gameScene.audioManager).toBeDefined();
+      expect(gameScene.audioManager).toBeInstanceOf(AudioManager);
     });
 
     test('should call playMusic() on AudioManager in create()', () => {
@@ -342,20 +349,18 @@ describe('GameScene AudioManager Integration', () => {
         return;
       }
       
-      // Mock AudioManager with playMusic method
-      const mockPlayMusic = jest.fn();
-      const mockAudioManager = jest.fn(() => ({
-        playMusic: mockPlayMusic
-      }));
-      
-      jest.doMock('../../client/src/systems/AudioManager.js', () => ({
-        default: mockAudioManager
-      }));
+      // Spy on the AudioManager's playMusic method
+      const originalPlayMusic = AudioManager.prototype.playMusic;
+      const playMusicSpy = jest.fn();
+      AudioManager.prototype.playMusic = playMusicSpy;
       
       gameScene = new GameScene(scene);
       gameScene.create();
       
-      expect(mockPlayMusic).toHaveBeenCalledWith('background');
+      expect(playMusicSpy).toHaveBeenCalledWith('background');
+      
+      // Restore the original method
+      AudioManager.prototype.playMusic = originalPlayMusic;
     });
   });
 }); 
