@@ -114,5 +114,31 @@
     { "type": "floating", "x": 1500, "y": 700, "width": 250, "tileKey": "terrain_grass_block_center", "isFullBlock": true },
     { "type": "floating", "x": 3000, "y": 600, "width": 250, "tileKey": "terrain_grass_block_center", "isFullBlock": true },
     { "type": "floating", "x": 4500, "y": 500, "width": 250, "tileKey": "terrain_grass_block_center", "isFullBlock": true }
+  ],
+  "coins": [
+    {
+      "type": "coin",
+      "x": 400,
+      "y": 850,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin", 
+      "x": 500,
+      "y": 850,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 600,
+      "y": 850,
+      "properties": {
+        "value": 100
+      }
+    }
   ]
 } 

@@ -303,6 +303,68 @@ Task 04.02
 #### Integration Points
 - **Systems affected**: SceneFactory, CollisionManager (overlap setup already handles coins)
 
+### Example JSON Configuration
+
+#### Coin Object Schema
+```json
+{
+  "type": "coin",
+  "x": 400,
+  "y": 300,
+  "properties": {
+    "value": 100
+  }
+}
+```
+
+#### Sample Level Configuration with Coins
+```json
+{
+  "platforms": [
+    {
+      "type": "platform",
+      "x": 400,
+      "y": 500,
+      "width": 200,
+      "height": 32
+    }
+  ],
+  "coins": [
+    {
+      "type": "coin",
+      "x": 400,
+      "y": 450,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin", 
+      "x": 500,
+      "y": 450,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 600,
+      "y": 350,
+      "properties": {
+        "value": 100
+      }
+    }
+  ],
+  "enemies": [
+    {
+      "type": "loophound",
+      "x": 300,
+      "y": 450
+    }
+  ]
+}
+```
+
 ### Testing Strategy
 - **Test files to update**: `tests/integration/scene-factory-integration.test.js`
 - **Key test cases**:

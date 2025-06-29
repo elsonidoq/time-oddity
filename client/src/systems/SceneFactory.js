@@ -9,9 +9,13 @@
  * - ground: Looping ground tiles across a specified width
  * - floating: Single floating platform tiles
  * - moving: MovingPlatform entities with configurable movement patterns
+ * 
+ * Supported Collectible Types:
+ * - coin: Collectible coins with configurable value
  */
 
 import MovingPlatform from '../entities/MovingPlatform.js';
+import Coin from '../entities/Coin.js';
 
 export class SceneFactory {
   /**
@@ -218,6 +222,68 @@ export class SceneFactory {
     }
 
     return allPlatforms;
+  }
+
+  // ========================================
+  // Coin Creation Methods
+  // ========================================
+
+  /**
+   * Creates a single coin from configuration
+   * @param {Object} coinConfig - Coin configuration
+   * @param {number} coinConfig.x - X position
+   * @param {number} coinConfig.y - Y position
+   * @param {Object} [coinConfig.properties] - Optional coin properties
+   * @param {number} [coinConfig.properties.value] - Coin value (defaults to 100)
+   * @param {Phaser.Physics.Arcade.Group} coinsGroup - The physics group to add coin to
+   * @returns {Coin|null} - Created coin or null if creation failed
+   */
+  createCoin(coinConfig, coinsGroup) {
+    if (!coinConfig || typeof coinConfig.x !== 'number' || typeof coinConfig.y !== 'number') {
+      return null;
+    }
+
+    if (!coinsGroup || !coinsGroup.add) {
+      return null;
+    }
+
+    // Temporarily set this.scene.coins so Coin constructor adds to the correct group
+    const prevCoinsGroup = this.scene.coins;
+    this.scene.coins = coinsGroup;
+    const coin = new Coin(
+      this.scene,
+      coinConfig.x,
+      coinConfig.y,
+      'coin_spin',
+      this.scene._mockScene // Pass mock scene for testing
+    );
+    this.scene.coins = prevCoinsGroup; // Restore previous value
+
+    // Return the coin sprite (not the coin object) for consistency with other create methods
+    return coin.sprite;
+  }
+
+  /**
+   * Creates multiple coins from configuration array
+   * @param {Array} coinConfigs - Array of coin configurations
+   * @param {Phaser.Physics.Arcade.Group} coinsGroup - The physics group to add coins to
+   * @returns {Array} - Array of created coin sprites
+   */
+  createCoinsFromConfig(coinConfigs, coinsGroup) {
+    if (!coinConfigs || !Array.isArray(coinConfigs) || !coinsGroup) {
+      return [];
+    }
+
+    const coins = [];
+
+    for (const coinConfig of coinConfigs) {
+      const coin = this.createCoin(coinConfig, coinsGroup);
+      if (coin) {
+        coins.push(coin);
+      }
+    }
+
+    return coins;
   }
 
   // ========================================

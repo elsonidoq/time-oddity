@@ -92,22 +92,8 @@ export default class GameScene extends BaseScene {
     // Create platforms using SceneFactory
     this.createPlatformsWithFactory();
 
-    // Create coins and register them with TimeManager for time reversal
-    if (this.coins) {
-        const coin1 = new Coin(this, 200, 950, 'tiles', this._mockScene);
-        const coin2 = new Coin(this, 1000, 500, 'tiles', this._mockScene);
-        const coin3 = new Coin(this, 640, 350, 'tiles', this._mockScene);
-        
-        // Register coins with TimeManager for time reversal support
-        if (this.timeManager) {
-            this.timeManager.register(coin1);
-            this.timeManager.register(coin2);
-            this.timeManager.register(coin3);
-        }
-        
-        // Store references for cleanup and future use
-        this.gameCoins = [coin1, coin2, coin3];
-    }
+    // Create coins using SceneFactory
+    this.createCoinsWithFactory();
 
     // === Camera world bounds based on level configuration ===
     if (this.cameras && this.cameras.main && typeof this.cameras.main.setBounds === 'function') {
@@ -254,6 +240,76 @@ export default class GameScene extends BaseScene {
     } else {
       console.warn('[GameScene] Failed to load level configuration, falling back to hardcoded creation');
       this.createPlatformsHardcoded();
+    }
+  }
+
+  /**
+   * Creates coins using SceneFactory instead of hardcoded creation
+   */
+  createCoinsWithFactory() {
+    if (!this.coins) return;
+
+    // Create SceneFactory instance
+    const sceneFactory = new SceneFactory(this);
+    
+    // Load the test level configuration
+    const configLoaded = sceneFactory.loadConfiguration(testLevelConfig);
+    
+    if (configLoaded && testLevelConfig.coins && Array.isArray(testLevelConfig.coins)) {
+      // Create all coins from configuration
+      const createdCoins = sceneFactory.createCoinsFromConfig(testLevelConfig.coins, this.coins);
+      
+      if (createdCoins.length === 0) {
+        console.warn('[GameScene] No coins were created by SceneFactory, falling back to hardcoded creation');
+        this.createCoinsHardcoded();
+      } else {
+        // Register coins with TimeManager for time reversal support
+        this.registerCoinsWithTimeManager(createdCoins);
+        
+        // Store references for cleanup and future use
+        this.gameCoins = createdCoins.map(c => c.parentCoin || c);
+        
+        console.log(`[GameScene] Created ${createdCoins.length} coins using SceneFactory`);
+      }
+    } else {
+      console.warn('[GameScene] No coin configuration found, falling back to hardcoded creation');
+      this.createCoinsHardcoded();
+    }
+  }
+
+  /**
+   * Fallback method for hardcoded coin creation (maintains backward compatibility)
+   */
+  createCoinsHardcoded() {
+    if (!this.coins) return;
+
+    const coin1 = new Coin(this, 200, 950, 'tiles', this._mockScene);
+    const coin2 = new Coin(this, 1000, 500, 'tiles', this._mockScene);
+    const coin3 = new Coin(this, 640, 350, 'tiles', this._mockScene);
+    
+    // Register coins with TimeManager for time reversal support
+    if (this.timeManager) {
+      this.timeManager.register(coin1);
+      this.timeManager.register(coin2);
+      this.timeManager.register(coin3);
+    }
+    
+    // Store references for cleanup and future use
+    this.gameCoins = [coin1, coin2, coin3];
+  }
+
+  /**
+   * Registers coin sprites with TimeManager for time reversal support
+   * @param {Array} coins - Array of coin sprites
+   */
+  registerCoinsWithTimeManager(coins) {
+    if (!this.timeManager || !coins) return;
+
+    // Register each coin with TimeManager
+    for (const coinSprite of coins) {
+      if (coinSprite && coinSprite.parentCoin) {
+        this.timeManager.register(coinSprite.parentCoin);
+      }
     }
   }
 

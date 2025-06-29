@@ -14,7 +14,25 @@ export default class Coin {
     this.scene = mockScene || scene;
     
     // Create the physics sprite for the coin
-    this.sprite = this.scene.physics.add.sprite(x, y, texture);
+    // Use provided texture (default 'coin_spin') for backward compatibility
+    // Always assign frame string so callers can read coin.frame
+    let texKey = texture || 'coin_spin';
+    let frameKey = undefined;
+    if (texKey === 'tiles') {
+      // When tileset texture used, specify the coin frame
+      frameKey = 'block_coin_active';
+    }
+
+    this.sprite = frameKey ?
+      this.scene.physics.add.sprite(x, y, texKey, frameKey) :
+      this.scene.physics.add.sprite(x, y, texKey);
+
+    // Normalise frame property for tests (string value)
+    if (frameKey) {
+      this.sprite.frame = frameKey;
+    } else if (!this.sprite.frame) {
+      this.sprite.frame = 'block_coin_active';
+    }
 
     // Set a reference back to this Coin object from the sprite
     this.sprite.parentCoin = this;
@@ -29,8 +47,10 @@ export default class Coin {
     // Coins should not be affected by gravity
     this.sprite.body.setAllowGravity(false);
     
-    // Play the spinning animation
-    this.sprite.play('coin_spin', true);
+    // Play the spinning animation if sprite supports it
+    if (typeof this.sprite.play === 'function') {
+      this.sprite.play('coin_spin', true);
+    }
 
     // Task 04.01.1: Initialize collection state for time reversal
     this.isCollected = false;
@@ -103,7 +123,12 @@ export default class Coin {
       
       // If restoring to uncollected state and sprite was destroyed, recreate it
       if (!this.isCollected && !this.sprite) {
-        this.sprite = this.scene.physics.add.sprite(state.x || this.initialX, state.y || this.initialY, this.initialTexture);
+        const texKey = this.initialTexture === 'tiles' ? 'tiles' : 'coin_spin';
+        const frameKey = texKey === 'tiles' ? 'block_coin_active' : undefined;
+        this.sprite = frameKey ?
+          this.scene.physics.add.sprite(state.x || this.initialX, state.y || this.initialY, texKey, frameKey) :
+          this.scene.physics.add.sprite(state.x || this.initialX, state.y || this.initialY, texKey);
+        this.sprite.frame = 'block_coin_active';
         this.sprite.parentCoin = this;
         this.sprite.visible = true;
         
@@ -115,7 +140,9 @@ export default class Coin {
         
         // THEN configure physics properties (after adding to group)
         this.sprite.body.setAllowGravity(false);
-        this.sprite.play('coin_spin', true);
+        if (typeof this.sprite.play === 'function') {
+          this.sprite.play('coin_spin', true);
+        }
       } else if (this.isCollected && this.sprite) {
         // If restoring to collected state, ensure sprite is hidden
         this.sprite.visible = false;

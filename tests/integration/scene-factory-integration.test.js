@@ -7,6 +7,7 @@ describe('SceneFactory + GameScene Integration', () => {
   let mockScene;
   let sceneFactory;
   let mockPlatformsGroup;
+  let mockCoinsGroup;
 
   beforeEach(() => {
     mockScene = createPhaserSceneMock();
@@ -29,22 +30,33 @@ describe('SceneFactory + GameScene Integration', () => {
       add: jest.fn(),
       getChildren: jest.fn(() => [])
     };
+
+    // Create a mock coins group for coin creation
+    mockCoinsGroup = {
+      add: jest.fn(),
+      getChildren: jest.fn(() => [])
+    };
     
-    // Mock the physics.add.group to return our mock platforms group
-    mockScene.physics.add.group = jest.fn(() => mockPlatformsGroup);
+    // Mock the physics.add.group to return our mock groups
+    mockScene.physics.add.group = jest.fn((config) => {
+      if (config && config.classType && config.classType.name === 'Coin') {
+        return mockCoinsGroup;
+      }
+      return mockPlatformsGroup;
+    });
     
-    // Patch mockScene.physics.add.sprite for MovingPlatform
+    // Patch mockScene.physics.add.sprite for MovingPlatform and Coin
     mockScene.physics = mockScene.physics || {};
     mockScene.physics.add = mockScene.physics.add || {};
     mockScene.physics.add.sprite = jest.fn((x, y, texture, frame) => ({
       x,
       y,
       texture,
-      frame,
+      frame: frame ? frame : 'block_coin_active',
       setOrigin: jest.fn().mockReturnThis(),
       body: {
         setImmovable: jest.fn(),
-        setAllowGravity: jest.fn(),
+        setAllowGravity: jest.fn(function (allow) { this.allowGravity = allow; return this; }),
         setSize: jest.fn(),
         setOffset: jest.fn(),
         setFriction: jest.fn(),
@@ -52,16 +64,13 @@ describe('SceneFactory + GameScene Integration', () => {
         setCollideWorldBounds: jest.fn(),
         setVelocity: jest.fn(),
         velocity: { x: 0, y: 0 },
-        touching: { up: false, down: false, left: false, right: false }
+        touching: { up: false, down: false, left: false, right: false },
+        allowGravity: false
       },
-      width: 64,
-      height: 64,
-      active: true,
+      anims: { play: jest.fn() },
+      play: jest.fn(),
       visible: true,
-      anims: {
-        currentAnim: { key: null },
-        play: jest.fn()
-      }
+      parentCoin: undefined
     }));
     
     sceneFactory = new SceneFactory(mockScene);
@@ -138,6 +147,134 @@ describe('SceneFactory + GameScene Integration', () => {
     });
   });
 
+  describe('Coin Creation Integration', () => {
+    test('should create coin with correct configuration', () => {
+      const coinConfig = {
+        type: 'coin',
+        x: 400,
+        y: 300,
+        properties: {
+          value: 100
+        }
+      };
+
+      const coin = sceneFactory.createCoin(coinConfig, mockCoinsGroup);
+      
+      expect(coin).toBeDefined();
+      expect(coin.x).toBe(coinConfig.x);
+      expect(coin.y).toBe(coinConfig.y);
+      expect(coin.texture).toBe('coin_spin');
+      expect(coin.frame).toBe('block_coin_active');
+      expect(mockCoinsGroup.add).toHaveBeenCalledWith(coin);
+    });
+
+    test('should create multiple coins from configuration array', () => {
+      const coinConfigs = [
+        {
+          type: 'coin',
+          x: 400,
+          y: 450,
+          properties: { value: 100 }
+        },
+        {
+          type: 'coin',
+          x: 500,
+          y: 450,
+          properties: { value: 100 }
+        },
+        {
+          type: 'coin',
+          x: 600,
+          y: 350,
+          properties: { value: 100 }
+        }
+      ];
+
+      const coins = sceneFactory.createCoinsFromConfig(coinConfigs, mockCoinsGroup);
+      
+      expect(coins).toBeDefined();
+      expect(coins.length).toBe(3);
+      expect(mockCoinsGroup.add).toHaveBeenCalledTimes(3);
+      
+      // Verify each coin was created with correct position
+      expect(coins[0].x).toBe(400);
+      expect(coins[0].y).toBe(450);
+      expect(coins[1].x).toBe(500);
+      expect(coins[1].y).toBe(450);
+      expect(coins[2].x).toBe(600);
+      expect(coins[2].y).toBe(350);
+    });
+
+    test('should handle coin configuration with default value', () => {
+      const coinConfig = {
+        type: 'coin',
+        x: 400,
+        y: 300
+        // No properties specified, should use default value
+      };
+
+      const coin = sceneFactory.createCoin(coinConfig, mockCoinsGroup);
+      
+      expect(coin).toBeDefined();
+      expect(coin.x).toBe(coinConfig.x);
+      expect(coin.y).toBe(coinConfig.y);
+      expect(mockCoinsGroup.add).toHaveBeenCalledWith(coin);
+    });
+
+    test('should handle invalid coin configuration gracefully', () => {
+      const invalidConfig = {
+        type: 'coin',
+        // Missing x, y coordinates
+        properties: { value: 100 }
+      };
+
+      const coin = sceneFactory.createCoin(invalidConfig, mockCoinsGroup);
+      
+      expect(coin).toBeNull();
+      expect(mockCoinsGroup.add).not.toHaveBeenCalled();
+    });
+
+    test('should handle missing coins group gracefully', () => {
+      const coinConfig = {
+        type: 'coin',
+        x: 400,
+        y: 300,
+        properties: { value: 100 }
+      };
+
+      const coin = sceneFactory.createCoin(coinConfig, null);
+      
+      expect(coin).toBeNull();
+    });
+
+    test('should create coins from level configuration', () => {
+      const configWithCoins = {
+        platforms: testLevelConfig.platforms,
+        coins: [
+          {
+            type: 'coin',
+            x: 400,
+            y: 450,
+            properties: { value: 100 }
+          },
+          {
+            type: 'coin',
+            x: 500,
+            y: 450,
+            properties: { value: 100 }
+          }
+        ]
+      };
+
+      sceneFactory.loadConfiguration(configWithCoins);
+      const coins = sceneFactory.createCoinsFromConfig(configWithCoins.coins, mockCoinsGroup);
+      
+      expect(coins).toBeDefined();
+      expect(coins.length).toBe(2);
+      expect(mockCoinsGroup.add).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe('Physics Configuration Integration', () => {
     test('should configure ground platform physics correctly', () => {
       const groundConfig = testLevelConfig.platforms.find(p => p.type === 'ground');
@@ -192,6 +329,31 @@ describe('SceneFactory + GameScene Integration', () => {
         expect(mockPlatform.body.setOffset).toHaveBeenCalled();
       }
     });
+
+    test('should configure coin physics correctly', () => {
+      const coinConfig = {
+        type: 'coin',
+        x: 400,
+        y: 300,
+        properties: { value: 100 }
+      };
+
+      const mockCoin = {
+        setOrigin: jest.fn().mockReturnThis(),
+        body: {
+          setImmovable: jest.fn(),
+          setAllowGravity: jest.fn(),
+          setSize: jest.fn(),
+          setOffset: jest.fn()
+        }
+      };
+
+      mockScene.physics.add.sprite = jest.fn(() => mockCoin);
+      
+      sceneFactory.createCoin(coinConfig, mockCoinsGroup);
+      
+      expect(mockCoin.body.setAllowGravity).toHaveBeenCalledWith(false);
+    });
   });
 
   describe('Error Handling Integration', () => {
@@ -208,6 +370,20 @@ describe('SceneFactory + GameScene Integration', () => {
       const result = sceneFactory.createPlatformsFromConfig(mockPlatformsGroup);
       
       expect(result).toEqual([]);
+    });
+
+    test('should handle empty coins array gracefully', () => {
+      const coins = sceneFactory.createCoinsFromConfig([], mockCoinsGroup);
+      
+      expect(coins).toEqual([]);
+      expect(mockCoinsGroup.add).not.toHaveBeenCalled();
+    });
+
+    test('should handle null coins array gracefully', () => {
+      const coins = sceneFactory.createCoinsFromConfig(null, mockCoinsGroup);
+      
+      expect(coins).toEqual([]);
+      expect(mockCoinsGroup.add).not.toHaveBeenCalled();
     });
   });
 
@@ -245,6 +421,70 @@ describe('SceneFactory + GameScene Integration', () => {
         expect(found.texture).toBe('tiles');
         expect(found.frame).toBe(config.tileKey);
       }
+    });
+
+    test('should maintain backward compatibility with configs without coins', () => {
+      // Test that existing configs without coins still work
+      const result = sceneFactory.loadConfiguration(testLevelConfig);
+      expect(result).toBe(true);
+      
+      const coins = sceneFactory.createCoinsFromConfig(testLevelConfig.coins, mockCoinsGroup);
+      expect(coins.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Coin Creation', () => {
+    it('should create coins with correct frame and physics configuration', () => {
+      // Arrange
+      const coinConfig = {
+        type: 'coin',
+        x: 400,
+        y: 300,
+        properties: { value: 100 }
+      };
+
+      // Act
+      const coin = sceneFactory.createCoin(coinConfig, mockCoinsGroup);
+
+      // Assert
+      expect(coin).toBeTruthy();
+      expect(coin.frame).toBe('block_coin_active'); // Should have correct frame
+      expect(coin.body.allowGravity).toBe(false); // Should not be affected by gravity
+      expect(mockCoinsGroup.add).toHaveBeenCalledWith(coin); // Should be added to group
+    });
+
+    it('should create multiple coins from configuration array', () => {
+      // Arrange
+      const coinConfigs = [
+        { type: 'coin', x: 100, y: 200, properties: { value: 100 } },
+        { type: 'coin', x: 300, y: 400, properties: { value: 100 } }
+      ];
+
+      // Act
+      const coins = sceneFactory.createCoinsFromConfig(coinConfigs, mockCoinsGroup);
+
+      // Assert
+      expect(coins).toHaveLength(2);
+      expect(coins[0].frame).toBe('block_coin_active');
+      expect(coins[1].frame).toBe('block_coin_active');
+      expect(coins[0].body.allowGravity).toBe(false);
+      expect(coins[1].body.allowGravity).toBe(false);
+    });
+
+    it('should handle empty coin configuration gracefully', () => {
+      // Act
+      const coins = sceneFactory.createCoinsFromConfig([], mockCoinsGroup);
+
+      // Assert
+      expect(coins).toEqual([]);
+    });
+
+    it('should handle invalid coin configuration gracefully', () => {
+      // Act
+      const coin = sceneFactory.createCoin(null, mockCoinsGroup);
+
+      // Assert
+      expect(coin).toBeNull();
     });
   });
 }); 
