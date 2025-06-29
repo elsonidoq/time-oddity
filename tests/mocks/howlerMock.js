@@ -1,3 +1,5 @@
+import { jest } from '@jest/globals';
+
 // Centralized Howler.js mock for all tests
 export const mockHowlInstance = {
   play: jest.fn().mockReturnValue(Math.random()), // Return a unique sound ID

@@ -6,6 +6,7 @@ import Coin from '../entities/Coin.js';
 import TimeManager from '../systems/TimeManager.js';
 import { LoopHound } from '../entities/enemies/LoopHound.js';
 import { SceneFactory } from '../systems/SceneFactory.js';
+import AudioManager from '../systems/AudioManager.js';
 import testLevelConfig from '../config/test-level.json';
 
 export default class GameScene extends BaseScene {
@@ -26,6 +27,8 @@ export default class GameScene extends BaseScene {
 
   preload() {
     // Preload assets for the game scene if needed
+    // Task 06.01.2: Pre-load placeholder music for background audio
+    this.load.audio('background', ['assets/audio/cancion.ogg']);
   }
 
   create(data) {
@@ -83,6 +86,10 @@ export default class GameScene extends BaseScene {
 
     this.collisionManager = new CollisionManager(this, this._mockScene);
     this.timeManager = new TimeManager(this, this._mockScene);
+
+    // Task 06.01.3: Initialize AudioManager and start background music
+    this.audioManager = new AudioManager();
+    this.audioManager.playMusic('background');
 
     // Task 04.01.3: Initialize coin registry counter
     if (this.registry && typeof this.registry.set === 'function') {
