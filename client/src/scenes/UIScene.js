@@ -71,6 +71,13 @@ export default class UIScene extends BaseScene {
 
     this.cooldownIcons = { dashText, pulseText };
 
+    // Task 04.03: Coin counter display
+    const coinCounter = this.add.text(180, 50, 'Coins: 0', { font: '16px Arial', fill: '#333333' });
+    if (coinCounter && typeof coinCounter.setOrigin === 'function') {
+      coinCounter.setOrigin(0, 0);
+    }
+    this.coinCounter = coinCounter;
+
     // Create pause menu if needed
     if (this.isPaused) {
       this.createPauseMenu();
@@ -173,6 +180,12 @@ export default class UIScene extends BaseScene {
         this.cooldownIcons.pulseText.setTint(0xffffff); // White
         this.cooldownIcons.pulseText.setAlpha(1.0);
       }
+    }
+
+    // Task 04.03: Update coin counter display
+    if (this.coinCounter && typeof this.coinCounter.setText === 'function') {
+      const coinsCollected = this.registry ? (this.registry.get('coinsCollected') || 0) : 0;
+      this.coinCounter.setText(`Coins: ${coinsCollected}`);
     }
   }
 } 

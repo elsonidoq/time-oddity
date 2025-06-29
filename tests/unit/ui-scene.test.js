@@ -52,7 +52,16 @@ describe('UIScene', () => {
         addKey: jest.fn(() => ({ isDown: false, isUp: true }))
       }
     };
-    scene.add = scene.add || {};
+    scene.add = scene.add || {
+      text: jest.fn(() => ({
+        setOrigin: jest.fn().mockReturnThis(),
+        setTint: jest.fn().mockReturnThis(),
+        setAlpha: jest.fn().mockReturnThis(),
+        setText: jest.fn().mockReturnThis(),
+        setInteractive: jest.fn().mockReturnThis(),
+        on: jest.fn().mockReturnThis()
+      }))
+    };
     scene.registry = scene.registry || { get: jest.fn() };
     scene.time = scene.time || { now: 0 };
     return scene;

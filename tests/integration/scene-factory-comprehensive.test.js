@@ -228,8 +228,9 @@ describe('SceneFactory Comprehensive Integration', () => {
       
       // Test invalid configurations
       expect(sceneFactory.loadConfiguration(null)).toBe(false);
-      expect(sceneFactory.loadConfiguration({})).toBe(false);
-      expect(sceneFactory.loadConfiguration({ platforms: [] })).toBe(false);
+      // Empty object and empty platforms array are now valid (supports goal-only levels)
+      expect(sceneFactory.loadConfiguration({})).toBe(true);
+      expect(sceneFactory.loadConfiguration({ platforms: [] })).toBe(true);
     });
 
     test('should handle missing platform properties gracefully', () => {

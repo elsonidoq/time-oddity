@@ -162,22 +162,22 @@ describe('SceneFactory', () => {
       expect(sceneFactory.config).toBeNull();
     });
 
-    test('should return false for configuration without platforms array', () => {
-      const invalidConfig = { otherProperty: 'value' };
+    test('should accept configuration without platforms array (adds empty array)', () => {
+      const config = { otherProperty: 'value' };
       
-      const result = sceneFactory.loadConfiguration(invalidConfig);
+      const result = sceneFactory.loadConfiguration(config);
       
-      expect(result).toBe(false);
-      expect(sceneFactory.config).toBeNull();
+      expect(result).toBe(true);
+      expect(sceneFactory.config).toEqual({ otherProperty: 'value', platforms: [] });
     });
 
-    test('should return false for configuration with empty platforms array', () => {
-      const invalidConfig = { platforms: [] };
+    test('should accept configuration with empty platforms array', () => {
+      const config = { platforms: [] };
       
-      const result = sceneFactory.loadConfiguration(invalidConfig);
+      const result = sceneFactory.loadConfiguration(config);
       
-      expect(result).toBe(false);
-      expect(sceneFactory.config).toBeNull();
+      expect(result).toBe(true);
+      expect(sceneFactory.config).toEqual({ platforms: [] });
     });
   });
 

@@ -124,19 +124,26 @@ describe('Task 2.0: GameScene Physics Initialization Fix', () => {
     test('should create platforms physics group', () => {
       scene.create(); patchAllSceneRefs();
       expect(scene.physics.add.group).toHaveBeenCalled();
-      expect(scene.physics.add.group).toHaveBeenCalledTimes(4);
+      expect(scene.physics.add.group).toHaveBeenCalledTimes(5); // Updated: now includes goalTiles group
     });
 
     test('should create players physics group', () => {
       scene.create(); patchAllSceneRefs();
       expect(scene.physics.add.group).toHaveBeenCalled();
-      expect(scene.physics.add.group).toHaveBeenCalledTimes(4);
+      expect(scene.physics.add.group).toHaveBeenCalledTimes(5); // Updated: now includes goalTiles group
     });
 
     test('should create enemies physics group', () => {
       scene.create(); patchAllSceneRefs();
       expect(scene.physics.add.group).toHaveBeenCalled();
-      expect(scene.physics.add.group).toHaveBeenCalledTimes(4);
+      expect(scene.physics.add.group).toHaveBeenCalledTimes(5); // Updated: now includes goalTiles group
+    });
+
+    test('should create goalTiles physics group', () => {
+      scene.create(); patchAllSceneRefs();
+      expect(scene.physics.add.group).toHaveBeenCalled();
+      expect(scene.physics.add.group).toHaveBeenCalledTimes(5); // New: goalTiles group added
+      expect(scene.goalTiles).toBeDefined();
     });
   });
 

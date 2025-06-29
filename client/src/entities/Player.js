@@ -21,7 +21,7 @@ import gsap from 'gsap';
  * Dash Mechanic:
  * - Properties:
  *   • dashCooldown: 1000ms (1 second) between dashes
- *   • dashDuration: 240ms of dash movement (doubled from 120ms)
+ *   • dashDuration: 20ms of dash movement
  *   • dashSpeed: 1000 pixels/second during dash
  * 
  * - State Management:
@@ -76,7 +76,7 @@ export default class Player extends Entity {
 
     // Dash properties
     this.dashCooldown = 1000; // ms - 1 second default cooldown
-    this.dashDuration = 240; // ms - doubled from 120ms to increase dash distance
+    this.dashDuration = 120; // ms
     this.dashSpeed = 1000; // px/sec
     this.dashTimer = 0;
     this.canDash = true;
@@ -102,12 +102,6 @@ export default class Player extends Entity {
 
     // Track previous rewind state
     this._wasRewinding = false;
-
-    // --- Health Registry Initialization ------------------------------------
-    // Ensure UIScene & other systems can query current health immediately.
-    if (this.scene && this.scene.registry && typeof this.scene.registry.set === 'function') {
-      this.scene.registry.set('playerHealth', this.health);
-    }
   }
 
   /**
@@ -192,70 +186,45 @@ export default class Player extends Entity {
   }
 
   /**
-   * Enhanced floor detection that considers moving platform collision.
-   * This method provides stable floor detection when the player is on moving platforms,
-   * solving the rapid state transition issue.
-   * 
-   * @returns {boolean} True if player is on the floor or on a moving platform
+   * Enhanced floor detection for moving platform stability.
+   * This method provides more reliable floor detection when standing on moving platforms
+   * by checking both physics collision and platform-specific detection.
+   * @returns {boolean} - True if player is on the floor or on a moving platform
    */
   isOnFloorEnhanced() {
-    // First, check standard floor detection from Phaser
+    // First check normal physics collision
     if (this.body && this.body.onFloor && this.body.onFloor()) {
       return true;
     }
-    
-    // If standard detection fails, perform enhanced check for moving platforms.
-    // This is crucial for stability on platforms moving upwards.
-    if (this.body && this.body.touching && this.scene && this.scene.platforms) {
-      const platforms = this.scene.platforms.getChildren();
-      const playerBottom = this.body.bottom;
-      const tolerance = 5; // Allow a small gap (in pixels)
 
+    // Check if standing on any moving platforms in the scene
+    if (this.scene && this.scene.platforms) {
+      const platforms = this.scene.platforms.getChildren ? this.scene.platforms.getChildren() : [];
+      
       for (const platform of platforms) {
-        if (!platform || !platform.body) continue;
-
-        const platformTop = platform.body.top;
-
-        // Check if the player is physically touching or just slightly above the platform.
-        const isTouchingDown = this.body.touching.down && platform.body.touching.up;
-        const isJustAbove = Math.abs(playerBottom - platformTop) < tolerance;
-
-        if (isJustAbove) {
-          // Additionally, ensure the player's horizontal range overlaps with the platform's.
-          const playerBounds = this.body;
-          const platformBounds = platform.getBounds(); // We need a getBounds() on platform
-          
-          if (playerBounds.right > platformBounds.left && playerBounds.left < platformBounds.right) {
+        if (platform && typeof platform.isPlayerStandingOnAnySprite === 'function') {
+          if (platform.isPlayerStandingOnAnySprite(this.body)) {
             return true;
           }
         }
       }
     }
-    
-    return false;
+
+    // Fallback to basic touching.down check
+    return this.body && this.body.touching && this.body.touching.down;
   }
 
   /**
-   * Override Entity.takeDamage to add registry sync and event emission.
-   * @param {number} amount - Damage to apply.
-   * @returns {boolean} True if player died (health<=0).
+   * Handle taking damage.
+   * @param {number} amount - The amount of damage to take.
+   * @returns {boolean} - True if the player died, false otherwise.
    */
   takeDamage(amount) {
-    // Delegate core health reduction to Entity implementation
     const isDead = super.takeDamage(amount);
 
-    // Synchronise health with Phaser registry for UI consumption
-    if (this.scene && this.scene.registry && typeof this.scene.registry.set === 'function') {
+    // Update player health in scene registry
+    if (this.scene && this.scene.registry && this.scene.registry.set) {
       this.scene.registry.set('playerHealth', this.health);
-    }
-
-    // Emit runtime event for other systems (UIScene, audio, etc.)
-    if (this.scene && this.scene.events && typeof this.scene.events.emit === 'function') {
-      this.scene.events.emit('playerDamaged', {
-        damage: amount,
-        health: this.health,
-        player: this
-      });
     }
 
     // Optional: quick hit-flash feedback (harmless if scene.time undefined in mocks)

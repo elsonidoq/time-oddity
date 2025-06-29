@@ -45,7 +45,7 @@ export default class GameScene extends BaseScene {
     if (this.cameras && this.cameras.main) {
       this.cameras.main.setBounds(0, 0, this.sys.game.config.width, this.sys.game.config.height);
       // Zoom out to make scene 2 times bigger
-      this.cameras.main.setZoom(0.5);
+      this.cameras.main.setZoom(1);
     }
 
     // Initialize physics groups with proper error handling
@@ -55,6 +55,7 @@ export default class GameScene extends BaseScene {
       this.players = this.physics.add.group();
       this.enemies = this.physics.add.group();
       this.coins = this.physics.add.group();
+      this.goalTiles = this.physics.add.group();
     }
 
     // === Determine level dimensions from configuration (width/height) ===
@@ -94,6 +95,9 @@ export default class GameScene extends BaseScene {
 
     // Create coins using SceneFactory
     this.createCoinsWithFactory();
+
+    // Create goal tiles using SceneFactory
+    this.createGoalsWithFactory();
 
     // === Camera world bounds based on level configuration ===
     if (this.cameras && this.cameras.main && typeof this.cameras.main.setBounds === 'function') {
@@ -314,11 +318,38 @@ export default class GameScene extends BaseScene {
   }
 
   /**
+   * Creates goal tiles using SceneFactory from level configuration
+   */
+  createGoalsWithFactory() {
+    if (!this.goalTiles) return;
+
+    // Create SceneFactory instance
+    const sceneFactory = new SceneFactory(this);
+    
+    // Load the test level configuration
+    const configLoaded = sceneFactory.loadConfiguration(testLevelConfig);
+    
+    if (configLoaded) {
+      // Create goal tile from configuration if it exists, passing physics group
+      const createdGoalTile = sceneFactory.createGoalFromConfig(this.goalTiles);
+      
+      if (createdGoalTile) {        
+        // Register with TimeManager for time reversal support
+        if (this.timeManager) {
+          this.timeManager.register(createdGoalTile);
+        }
+        
+        console.log(`[GameScene] Created goal tile at (${createdGoalTile.x}, ${createdGoalTile.y})`);
+      }
+    }
+  }
+
+  /**
    * Creates a simple 2-layer parallax background
    */
   createParallaxBackground() {
-    // Calculate the new visible area based on camera zoom (0.5)
-    const zoom = 0.5;
+    // Calculate the new visible area based on camera zoom (1)
+    const zoom = 1;
     const levelW = this.levelWidth || (1280);
     const levelH = this.levelHeight || (720);
     const bgWidth = levelW / zoom;

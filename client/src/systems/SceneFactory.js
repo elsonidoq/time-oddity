@@ -16,6 +16,7 @@
 
 import MovingPlatform from '../entities/MovingPlatform.js';
 import Coin from '../entities/Coin.js';
+import GoalTile from '../entities/GoalTile.js';
 
 export class SceneFactory {
   /**
@@ -33,7 +34,14 @@ export class SceneFactory {
    * @returns {boolean} - True if configuration is valid and loaded, false otherwise
    */
   loadConfiguration(config) {
-    if (!config || !config.platforms || !Array.isArray(config.platforms) || config.platforms.length === 0) {
+    if (!config || typeof config !== 'object') {
+      return false;
+    }
+
+    // Ensure platforms is an array (can be empty)
+    if (!config.platforms) {
+      config.platforms = [];
+    } else if (!Array.isArray(config.platforms)) {
       return false;
     }
 
@@ -284,6 +292,84 @@ export class SceneFactory {
     }
 
     return coins;
+  }
+
+  // ========================================
+  // Goal Tile Creation Methods
+  // ========================================
+
+  /**
+   * Creates a goal tile entity through physics group (follows invariants.md §13.3)
+   * @param {number} x - X position
+   * @param {number} y - Y position
+   * @param {string} tileKey - The tile key from the tiles atlas (defaults to 'block_coin')
+   * @param {Phaser.Physics.Arcade.Group} goalTilesGroup - The physics group to add goal tile to
+   * @param {boolean} isFullBlock - Whether to use full block hitbox (defaults to true for goal tiles)
+   * @returns {Phaser.Physics.Arcade.Sprite} - Created goal tile sprite
+   */
+  createGoalTile(x, y, tileKey = 'block_coin', goalTilesGroup, isFullBlock = true) {
+    if (typeof x !== 'number' || typeof y !== 'number') {
+      console.warn('[SceneFactory] Invalid coordinates for goal tile:', { x, y });
+      return null;
+    }
+
+    if (!tileKey || typeof tileKey !== 'string') {
+      console.warn('[SceneFactory] Invalid tileKey for goal tile, using default:', tileKey);
+      tileKey = 'block_coin';
+    }
+
+    if (!goalTilesGroup || !goalTilesGroup.create) {
+      console.warn('[SceneFactory] Invalid goalTilesGroup provided for goal tile creation');
+      return null;
+    }
+
+    try {
+      // Create goal tile through physics group (correct ordering per invariants.md §13.3)
+      const goalTile = goalTilesGroup.create(x, y, 'tiles', tileKey);
+      
+      // Set origin for proper positioning
+      goalTile.setOrigin(0, 0);
+      
+      // Configure physics AFTER adding to group to prevent configuration loss
+      this.configurePlatform(goalTile, isFullBlock);
+      
+      console.log(`[SceneFactory] Created GoalTile at (${x}, ${y}) with tileKey: ${tileKey}`);
+      return goalTile;
+    } catch (error) {
+      console.error('[SceneFactory] Failed to create GoalTile:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Creates a goal tile from the loaded configuration
+   * @param {Phaser.Physics.Arcade.Group} goalTilesGroup - The physics group to add goal tile to
+   * @returns {Phaser.Physics.Arcade.Sprite|null} - Created goal tile sprite or null if no goal in config
+   */
+  createGoalFromConfig(goalTilesGroup) {
+    if (!this.config || !this.config.goal) {
+      return null;
+    }
+
+    const goalConfig = this.config.goal;
+
+    // Validate coordinates
+    if (typeof goalConfig.x !== 'number' || typeof goalConfig.y !== 'number') {
+      console.warn('[SceneFactory] Invalid goal coordinates in config');
+      return null;
+    }
+
+    // Handle missing or invalid tileKey
+    let tileKey = goalConfig.tileKey;
+    if (!tileKey || typeof tileKey !== 'string') {
+      console.warn('[SceneFactory] Goal tileKey missing, using default');
+      tileKey = 'block_coin';
+    }
+
+    // Handle isFullBlock configuration (defaults to true for goal tiles)
+    const isFullBlock = goalConfig.isFullBlock !== undefined ? goalConfig.isFullBlock : true;
+
+    return this.createGoalTile(goalConfig.x, goalConfig.y, tileKey, goalTilesGroup, isFullBlock);
   }
 
   // ========================================

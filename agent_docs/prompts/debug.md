@@ -1,10 +1,4 @@
 # Context: 
-- Fact: There is a bug. All platforms are affected by gravity and fall.
-- Fact: all tests pass
-
-# Conclusion: 
-- Either there are missing tests, or there is a bug in the mocks
-- Something was broken in the when we integrated Platform with Game Scene
 
 # Required Documentation Review
 Before beginning any task, you MUST review these documents:

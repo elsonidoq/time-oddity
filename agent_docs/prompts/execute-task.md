@@ -10,8 +10,8 @@ Before beginning any task, you MUST review these documents:
 
 ## Task Assignment
 - Read all documentation
-- read  task 1.4 described in @01_core_platforming.md . Make sure you handle all cases in the same way. The MovablePlatform must use an array of sprites. For the case  when the array is of size 1, that reproduces current behavior
-- Make sure to think the proper abstraction in order not to break the player deltas computation when the player is over the platform
+- read  task 1.4 described in @01_core_platforming.md . 
+- Make sure to think the proper abstraction 
 - Write down a plan to implement it. Identify new states, invariants that need preservation
 - Follow a STRICT TDD approach and implement your plan to execute task 1.4 described in @01_core_platforming.md 
 - After finishing a task, double check the task description to make sure you actually finished

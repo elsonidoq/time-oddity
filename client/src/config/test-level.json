@@ -1,4 +1,10 @@
 {
+  "goal": {
+    "x": 400,
+    "y": 850,
+    "tileKey": "sign_exit",
+    "isFullBlock": true
+  },
   "platforms": [
     {
       "type": "ground",
