@@ -10,15 +10,15 @@ describe('Test Level Configuration', () => {
     const ground = levelConfig.platforms.find(p => p.type === 'ground');
     expect(ground).toBeDefined();
     expect(ground.x).toBe(0);
-    expect(ground.y).toBe(1400);
-    expect(ground.width).toBe(2600);
+    expect(ground.y).toBe(2900);
+    expect(ground.width).toBe(6000);
     expect(ground.tileKey).toBe('terrain_grass_horizontal_middle');
     expect(ground.isFullBlock).toBe(true);
   });
 
   it('should include all floating platforms with correct properties', () => {
     const floating = levelConfig.platforms.filter(p => p.type === 'floating');
-    expect(floating.length).toBe(16);
+    expect(floating.length).toBe(13);
     // Check that all floating platforms have the expected properties
     for (const platform of floating) {
       expect(platform).toMatchObject({

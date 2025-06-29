@@ -252,7 +252,7 @@ this.attackPower = 20             // Damage dealt to enemies
 
 // Dash System (critical for time reversal)
 this.dashCooldown = 1000          // Cooldown in ms
-this.dashDuration = 120           // Dash duration in ms  
+this.dashDuration = 240           // Dash duration in ms (doubled from 120ms)
 this.dashSpeed = 1000             // Dash velocity
 this.dashTimer = 0                // Absolute time when dash becomes available
 this.canDash = true               // Whether dash is currently allowed

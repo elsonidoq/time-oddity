@@ -38,10 +38,10 @@ Task 04.01.1
 - **Mock requirements**: Reuse existing `phaserSceneMock.js`
 
 ### Task Breakdown & Acceptance Criteria
-- [ ] Add `isCollected` property initialized to `false`
-- [ ] Implement `getStateForRecording()` returning `{ isCollected: this.isCollected }`
-- [ ] Implement `setStateFromRecording(state)` setting `this.isCollected = state.isCollected`
-- [ ] Unit tests pass for state recording methods
+- [x] Add `isCollected` property initialized to `false`
+- [x] Implement `getStateForRecording()` returning `{ isCollected: this.isCollected }`
+- [x] Implement `setStateFromRecording(state)` setting `this.isCollected = state.isCollected`
+- [x] Unit tests pass for state recording methods
 
 ### Expected Output
 Coin entity with proper state recording methods that preserve collection state during time reversal.
@@ -52,9 +52,11 @@ Coin entity with proper state recording methods that preserve collection state d
 - **Fallback plan**: If custom recording fails, fall back to default TemporalState
 
 ### Definition of Done
-- [ ] State recording methods implemented correctly
-- [ ] Unit tests pass
-- [ ] No linter/type errors
+- [x] State recording methods implemented correctly
+- [x] Unit tests pass
+- [x] No linter/type errors
+
+**TASK COMPLETED** ✅
 
 ---
 
@@ -99,12 +101,12 @@ Task 04.01.2
 - **Mock requirements**: Reuse existing `phaserSceneMock.js` & Howler mocks
 
 ### Task Breakdown & Acceptance Criteria
-- [ ] Implement `collect()` method
-- [ ] Set `isCollected = true`
-- [ ] Increment registry counter
-- [ ] Play pickup SFX
-- [ ] Deactivate sprite
-- [ ] Unit tests pass
+- [x] Implement `collect()` method
+- [x] Set `isCollected = true`
+- [x] Increment registry counter
+- [x] Play pickup SFX
+- [x] Deactivate sprite
+- [x] Unit tests pass
 
 ### Expected Output
 Coin collection method that properly updates state and provides feedback.
@@ -115,9 +117,11 @@ Coin collection method that properly updates state and provides feedback.
 - **Fallback plan**: If SFX fails, continue without sound
 
 ### Definition of Done
-- [ ] Collection method works correctly
-- [ ] Unit tests pass
-- [ ] No linter/type errors
+- [x] Collection method works correctly
+- [x] Unit tests pass
+- [x] No linter/type errors
+
+**TASK COMPLETED** ✅
 
 ---
 
@@ -159,8 +163,8 @@ Task 04.01.3
 - **Mock requirements**: Reuse existing `phaserSceneMock.js`
 
 ### Task Breakdown & Acceptance Criteria
-- [ ] Add `this.registry.set('coinsCollected', 0)` in GameScene `create()`
-- [ ] Unit tests pass
+- [x] Add `this.registry.set('coinsCollected', 0)` in GameScene `create()`
+- [x] Unit tests pass
 
 ### Expected Output
 Global coin counter properly initialized and accessible.
@@ -171,9 +175,11 @@ Global coin counter properly initialized and accessible.
 - **Fallback plan**: None needed
 
 ### Definition of Done
-- [ ] Registry counter initialized
-- [ ] Unit tests pass
-- [ ] No linter/type errors
+- [x] Registry counter initialized
+- [x] Unit tests pass
+- [x] No linter/type errors
+
+**TASK COMPLETED** ✅
 
 ---
 
@@ -216,8 +222,8 @@ Task 04.01.4
 - **Mock requirements**: Reuse existing `phaserSceneMock.js`
 
 ### Task Breakdown & Acceptance Criteria
-- [ ] Add `this.physics.add.overlap(player, coins, (player, coin) => coin.collect())`
-- [ ] Integration tests pass
+- [x] Add `this.physics.add.overlap(player, coins, (player, coin) => coin.collect())`
+- [x] Integration tests pass
 
 ### Expected Output
 Player can collect coins by overlapping with them.
@@ -228,9 +234,11 @@ Player can collect coins by overlapping with them.
 - **Fallback plan**: None needed
 
 ### Definition of Done
-- [ ] Overlap detection configured
-- [ ] Integration tests pass
-- [ ] No linter/type errors
+- [x] Overlap detection configured
+- [x] Integration tests pass
+- [x] No linter/type errors
+
+**TASK COMPLETED** ✅
 
 ---
 
@@ -255,11 +263,13 @@ Task 04.01.5
   - Registry counter must be properly initialized
 
 ### Definition of Done
-- [ ] All acceptance criteria met
-- [ ] Project tests pass
-- [ ] No linter/type errors
-- [ ] Time reversal properly restores coin collection state
-- [ ] Physics configuration follows proper ordering
+- [x] All acceptance criteria met
+- [x] Project tests pass
+- [x] No linter/type errors
+- [x] Time reversal properly restores coin collection state
+- [x] Physics configuration follows proper ordering
+
+**TASK COMPLETED** ✅
 
 ---
 

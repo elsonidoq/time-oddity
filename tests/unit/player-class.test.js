@@ -44,7 +44,7 @@ describe('Task 2.2: Player Class', () => {
           this.stateMachine = null;
           this.inputManager = null;
           this.dashCooldown = 1000;
-          this.dashDuration = 120;
+          this.dashDuration = 240; // Updated to match doubled duration
           this.dashSpeed = 1000;
           this.dashTimer = 0;
           this.canDash = true;
@@ -165,8 +165,8 @@ describe('Player Dash Cooldown Integration', () => {
           
           // Dash properties matching real Player
           this.dashCooldown = 1000; // ms - 1 second default cooldown
-          this.dashDuration = 300; // ms
-          this.dashSpeed = 400; // px/sec
+          this.dashDuration = 240; // ms - updated to match doubled duration
+          this.dashSpeed = 1000; // px/sec - updated to match real Player
           this.dashTimer = 0;
           this.canDash = true;
           this.isDashing = false;

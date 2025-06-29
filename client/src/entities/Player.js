@@ -21,7 +21,7 @@ import gsap from 'gsap';
  * Dash Mechanic:
  * - Properties:
  *   • dashCooldown: 1000ms (1 second) between dashes
- *   • dashDuration: 120ms of dash movement
+ *   • dashDuration: 240ms of dash movement (doubled from 120ms)
  *   • dashSpeed: 1000 pixels/second during dash
  * 
  * - State Management:
@@ -76,7 +76,7 @@ export default class Player extends Entity {
 
     // Dash properties
     this.dashCooldown = 1000; // ms - 1 second default cooldown
-    this.dashDuration = 120; // ms
+    this.dashDuration = 240; // ms - doubled from 120ms to increase dash distance
     this.dashSpeed = 1000; // px/sec
     this.dashTimer = 0;
     this.canDash = true;
@@ -189,6 +189,50 @@ export default class Player extends Entity {
     if (now >= this.dashTimer) {
       this.canDash = true;
     }
+  }
+
+  /**
+   * Enhanced floor detection that considers moving platform collision.
+   * This method provides stable floor detection when the player is on moving platforms,
+   * solving the rapid state transition issue.
+   * 
+   * @returns {boolean} True if player is on the floor or on a moving platform
+   */
+  isOnFloorEnhanced() {
+    // First, check standard floor detection from Phaser
+    if (this.body && this.body.onFloor && this.body.onFloor()) {
+      return true;
+    }
+    
+    // If standard detection fails, perform enhanced check for moving platforms.
+    // This is crucial for stability on platforms moving upwards.
+    if (this.body && this.body.touching && this.scene && this.scene.platforms) {
+      const platforms = this.scene.platforms.getChildren();
+      const playerBottom = this.body.bottom;
+      const tolerance = 5; // Allow a small gap (in pixels)
+
+      for (const platform of platforms) {
+        if (!platform || !platform.body) continue;
+
+        const platformTop = platform.body.top;
+
+        // Check if the player is physically touching or just slightly above the platform.
+        const isTouchingDown = this.body.touching.down && platform.body.touching.up;
+        const isJustAbove = Math.abs(playerBottom - platformTop) < tolerance;
+
+        if (isJustAbove) {
+          // Additionally, ensure the player's horizontal range overlaps with the platform's.
+          const playerBounds = this.body;
+          const platformBounds = platform.getBounds(); // We need a getBounds() on platform
+          
+          if (playerBounds.right > platformBounds.left && playerBounds.left < platformBounds.right) {
+            return true;
+          }
+        }
+      }
+    }
+    
+    return false;
   }
 
   /**

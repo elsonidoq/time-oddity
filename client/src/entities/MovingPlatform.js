@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import Entity from './Entity.js';
 import { gsap } from 'gsap';
 
@@ -587,10 +588,36 @@ export default class MovingPlatform extends Entity {
       return false;
     }
     
-    // Check if player is standing on any sprite
+    const tolerance = 5; // pixels
+    const playerBottom = playerBody.bottom;
+
     for (const sprite of this.sprites) {
-      if (sprite.body && playerBody.touching.down && sprite.body.touching.up) {
+      if (!sprite || !sprite.body) continue;
+
+      // Primary physics contact check
+      const isTouching = playerBody.touching.down && sprite.body.touching.up;
+
+      if (isTouching) {
         return true;
+      }
+
+      // Fallback: player is just slightly above the platform within tolerance
+      const platformTop = sprite.body.top;
+      const isJustAbove = Math.abs(playerBottom - platformTop) < tolerance;
+
+      if (isJustAbove) {
+        // Ensure horizontal overlap
+        const platformBounds = typeof sprite.getBounds === 'function'
+          ? sprite.getBounds()
+          : Phaser.GameObjects.Sprite.prototype.getBounds.call(sprite);
+        const playerLeft = playerBody.left;
+        const playerRight = playerBody.right;
+
+        const overlapsHorizontally = playerRight > platformBounds.left && playerLeft < platformBounds.right;
+
+        if (overlapsHorizontally) {
+          return true;
+        }
       }
     }
     
@@ -629,6 +656,10 @@ export default class MovingPlatform extends Entity {
     // Move player by the same delta as the platform (using master sprite delta)
     playerBody.x += deltaX;
     playerBody.y += deltaY;
+    
+    // Reset delta after carrying to prevent double-application
+    this.deltaX = 0;
+    this.deltaY = 0;
   }
   
   /**
@@ -742,5 +773,28 @@ export default class MovingPlatform extends Entity {
     
     // Update positions of all other sprites to follow master
     this.updateSpritePositions();
+  }
+
+  getBounds() {
+    if (!this.sprites || this.sprites.length === 0) {
+      // Ensure Phaser is available for this call
+      return new Phaser.Geom.Rectangle(this.x, this.y, 0, 0);
+    }
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    this.sprites.forEach(sprite => {
+      // Explicitly call the base sprite's getBounds to avoid recursion
+      const bounds = Phaser.GameObjects.Sprite.prototype.getBounds.call(sprite);
+      minX = Math.min(minX, bounds.left);
+      minY = Math.min(minY, bounds.top);
+      maxX = Math.max(maxX, bounds.right);
+      maxY = Math.max(maxY, bounds.bottom);
+    });
+
+    return new Phaser.Geom.Rectangle(minX, minY, maxX - minX, maxY - minY);
   }
 } 

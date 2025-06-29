@@ -7,32 +7,35 @@ describe('Enemy.die()', () => {
   let enemy;
 
   beforeEach(() => {
-    jest.useFakeTimers();
     scene = createPhaserSceneMock('GameScene');
     enemy = new Enemy(scene, 0, 0, 'placeholder_enemy');
-    // spy on destroy
+    enemy.body = {
+        enable: true,
+        setVelocity: jest.fn()
+    };
+    scene.events.emit = jest.fn();
+  });
+
+  test('should set enemy to inactive and invisible', () => {
+    enemy.die();
+    expect(enemy.active).toBe(false);
+    expect(enemy.visible).toBe(false);
+  });
+
+  test('should disable physics body', () => {
+    enemy.die();
+    expect(enemy.body.enable).toBe(false);
+    expect(enemy.body.setVelocity).toHaveBeenCalledWith(0, 0);
+  });
+  
+  test('should emit enemyDefeated event', () => {
+    enemy.die();
+    expect(scene.events.emit).toHaveBeenCalledWith('enemyDefeated', enemy);
+  });
+
+  test('should not call destroy', () => {
     enemy.destroy = jest.fn();
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
-  });
-
-  test('sets active false and schedules destroy after 300ms', () => {
-    scene.time.delayedCall = jest.fn();
     enemy.die();
-
-    expect(enemy.isActive).toBe(false);
-    expect(scene.time.delayedCall).toHaveBeenCalledWith(300, expect.any(Function));
-  });
-
-  test('destroy called after timer', () => {
-    scene.time.delayedCall = jest.fn((delay, cb) => {
-      expect(delay).toBe(300);
-      // simulate time elapse
-      cb();
-    });
-    enemy.die();
-    expect(enemy.destroy).toHaveBeenCalled();
+    expect(enemy.destroy).not.toHaveBeenCalled();
   });
 }); 

@@ -27,7 +27,9 @@ export default class RunState {
     }
 
     // Transition to FallState if not on the ground
-    if (!body.onFloor()) {
+    // Use enhanced floor detection for moving platform stability
+    const isOnFloor = this.player.isOnFloorEnhanced ? this.player.isOnFloorEnhanced() : body.onFloor();
+    if (!isOnFloor) {
       this.player.stateMachine.setState('fall');
       return;
     }

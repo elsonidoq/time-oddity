@@ -16,7 +16,9 @@ export default class FallState {
     const now = this.player.scene.time.now;
 
     // Transition to IdleState when on the ground
-    if (body.onFloor()) {
+    // Use enhanced floor detection for moving platform stability
+    const isOnFloor = this.player.isOnFloorEnhanced ? this.player.isOnFloorEnhanced() : body.onFloor();
+    if (isOnFloor) {
       stateMachine.setState('idle');
       return;
     }

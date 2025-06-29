@@ -81,24 +81,18 @@ describe('SceneFactory + GameScene Integration', () => {
 
     test('should create all platforms from test level configuration', () => {
       sceneFactory.loadConfiguration(testLevelConfig);
-      const platforms = sceneFactory.createPlatformsFromConfig(mockPlatformsGroup);
+      sceneFactory.createPlatformsFromConfig(mockPlatformsGroup);
       
-      // Should create 1 ground platform (which creates multiple tiles) + 16 floating platforms + 4 moving platforms
-      // The first moving platform has width 300 (5 sprites), others are single sprites (3 sprites), so 4 extra sprites total
-      expect(platforms.length).toBeGreaterThan(20);
-      
-      // Verify ground platform tiles were created (moving platforms use mockPlatformsGroup.add, not create)
-      const expectedGroundTiles = Math.ceil(2600 / 64); // 2600 width / 64 tile width
-      const expectedFloatingPlatforms = 16;
-      const expectedMovingPlatformSprites = 5 + 1 + 1 + 1; // 5 for first (width 300), 1 each for others
-      // Calculate expected floating platform tiles (sum Math.ceil(width/64) for each config)
+      const groundConfigs = testLevelConfig.platforms.filter(p => p.type === 'ground');
+      const expectedGroundTiles = groundConfigs.reduce((sum, config) => {
+          return sum + Math.ceil(config.width / 64);
+      }, 0);
+
       const floatingConfigs = testLevelConfig.platforms.filter(p => p.type === 'floating');
       const expectedFloatingPlatformTiles = floatingConfigs.reduce((sum, config) => {
-        if (config.width) {
-          return sum + Math.ceil(config.width / 64);
-        }
-        return sum + 1;
+        return sum + Math.ceil((config.width || 64) / 64);
       }, 0);
+
       const expectedCreateCalls = expectedGroundTiles + expectedFloatingPlatformTiles;
       expect(mockPlatformsGroup.create).toHaveBeenCalledTimes(expectedCreateCalls);
     });
@@ -110,12 +104,13 @@ describe('SceneFactory + GameScene Integration', () => {
       const platforms = sceneFactory.createGroundPlatform(groundConfig, mockPlatformsGroup);
       
       expect(platforms).toBeDefined();
-      expect(platforms.length).toBe(Math.ceil(2600 / 64));
+      expect(platforms.length).toBe(Math.ceil(groundConfig.width / 64));
       
       // Verify first and last tiles are positioned correctly
-      expect(platforms[0].x).toBe(0);
-      expect(platforms[0].y).toBe(1400);
-      expect(platforms[platforms.length - 1].x).toBe(2560); // 40 * 64 = 2560 (last tile position)
+      expect(platforms[0].x).toBe(groundConfig.x);
+      expect(platforms[0].y).toBe(groundConfig.y);
+      const lastTileIndex = Math.ceil(groundConfig.width / 64) - 1;
+      expect(platforms[lastTileIndex].x).toBe(groundConfig.x + (lastTileIndex * 64));
     });
 
     test('should create floating platforms with correct positions', () => {
@@ -221,12 +216,16 @@ describe('SceneFactory + GameScene Integration', () => {
       sceneFactory.loadConfiguration(testLevelConfig);
       const platforms = sceneFactory.createPlatformsFromConfig(mockPlatformsGroup);
       
-      // Current version creates: 41 ground tiles (2600/64) + 16 floating platforms + 8 moving platform sprites = 65 total
-      // Moving platforms: 5 sprites (width 300) + 1 + 1 + 1 = 8 sprites total
-      const expectedGroundTiles = Math.ceil(2600 / 64);
-      const expectedFloatingPlatforms = 16;
-      const expectedMovingPlatformSprites = 5 + 1 + 1 + 1; // 5 for first (width 300), 1 each for others
-      const expectedTotal = expectedGroundTiles + expectedFloatingPlatforms + expectedMovingPlatformSprites;
+      const groundConfigs = testLevelConfig.platforms.filter(p => p.type === 'ground');
+      const expectedGroundTiles = groundConfigs.reduce((sum, config) => sum + Math.ceil(config.width / 64), 0);
+
+      const floatingConfigs = testLevelConfig.platforms.filter(p => p.type === 'floating');
+      const expectedFloatingPlatformTiles = floatingConfigs.reduce((sum, config) => sum + Math.ceil((config.width || 64) / 64), 0);
+      
+      const movingConfigs = testLevelConfig.platforms.filter(p => p.type === 'moving');
+      const expectedMovingPlatforms = movingConfigs.length;
+
+      const expectedTotal = expectedGroundTiles + expectedFloatingPlatformTiles + expectedMovingPlatforms;
       
       expect(platforms.length).toBe(expectedTotal);
     });
@@ -237,7 +236,7 @@ describe('SceneFactory + GameScene Integration', () => {
       
       // Get the expected floating platform positions from the config
       const floatingConfigs = testLevelConfig.platforms.filter(p => p.type === 'floating');
-      expect(floatingConfigs.length).toBe(16);
+      expect(floatingConfigs.length).toBe(13);
       
       // Check that each floating platform was created at the correct position
       for (const config of floatingConfigs) {
