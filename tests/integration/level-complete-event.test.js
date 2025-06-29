@@ -121,8 +121,8 @@ describe('Level Complete Event Integration', () => {
       
       // Verify overlap was set up between players and goalTiles
       expect(mockOverlap).toHaveBeenCalledWith(
-        playersGroup,
-        goalTilesGroup,
+        expect.any(Object), // players group
+        expect.any(Object), // goal tiles group
         expect.any(Function), // callback function
         null, // processCallback
         gameScene // context

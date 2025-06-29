@@ -42,7 +42,12 @@ describe('Task 1.21: Set Up World Boundaries in GameScene', () => {
     scene.physics = {
       world: { gravity: { y: 0 }, tileBias: 0, bounds: { setTo: jest.fn() } },
       config: { debug: false },
-      add: { group: jest.fn(() => ({ create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) })), sprite: jest.fn(() => ({ body: { setAllowGravity: jest.fn() }, play: jest.fn().mockReturnThis(), parentCoin: null })), existing: jest.fn() },
+      add: {
+        group: jest.fn(() => ({ create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) })),
+        sprite: jest.fn(() => ({ body: { setAllowGravity: jest.fn() }, play: jest.fn().mockReturnThis(), parentCoin: null })),
+        existing: jest.fn(),
+        overlap: jest.fn(),
+      },
     };
     scene.cameras = { main: { setBounds: jest.fn(), setZoom: jest.fn() } };
     scene.sys = {

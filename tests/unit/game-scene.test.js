@@ -88,6 +88,7 @@ describe('GameScene', () => {
         })), 
         existing: jest.fn(),
         collider: jest.fn(),
+        overlap: jest.fn(),
       },
     };
     scene.cameras = { main: { setBounds: jest.fn(), setZoom: jest.fn() } };

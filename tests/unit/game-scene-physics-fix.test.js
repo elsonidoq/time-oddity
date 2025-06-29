@@ -45,7 +45,12 @@ describe('Task 2.0: GameScene Physics Initialization Fix', () => {
     scene.physics = {
       world: { gravity: { y: 0 }, tileBias: 0, bounds: { setTo: jest.fn() } },
       config: { debug: false },
-      add: { group: jest.fn(() => ({ create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) })), sprite: jest.fn(() => ({ body: { setAllowGravity: jest.fn() }, play: jest.fn().mockReturnThis(), parentCoin: null })), existing: jest.fn() },
+      add: {
+        group: jest.fn(() => ({ create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) })),
+        sprite: jest.fn(() => ({ body: { setAllowGravity: jest.fn() }, play: jest.fn().mockReturnThis(), parentCoin: null })),
+        existing: jest.fn(),
+        overlap: jest.fn(),
+      },
     };
     scene.cameras = { main: { setBounds: jest.fn(), setZoom: jest.fn() } };
     scene.sys = {
