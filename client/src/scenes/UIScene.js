@@ -85,6 +85,12 @@ export default class UIScene extends BaseScene {
 
     // Initialize input manager for pause handling
     this.inputManager = new InputManager(this);
+
+    // Listen for levelCompleted event from GameScene
+    const gameSceneForLevelComplete = this.scene && this.scene.get ? this.scene.get('GameScene') : null;
+    if (gameSceneForLevelComplete && gameSceneForLevelComplete.events && typeof gameSceneForLevelComplete.events.on === 'function') {
+      gameSceneForLevelComplete.events.on('levelCompleted', this.onLevelCompleted, this);
+    }
   }
 
   createPauseMenu() {
@@ -186,6 +192,47 @@ export default class UIScene extends BaseScene {
     if (this.coinCounter && typeof this.coinCounter.setText === 'function') {
       const coinsCollected = this.registry ? (this.registry.get('coinsCollected') || 0) : 0;
       this.coinCounter.setText(`Coins: ${coinsCollected}`);
+    }
+
+    // --- Task 05.02.2: Handle SPACE key to return to menu ---
+    this.handleLevelCompleteInput();
+  }
+
+  onLevelCompleted() {
+    if (this.levelCompleteOverlay) return;
+    // Create a semi-transparent overlay container
+    const overlay = this.add.container(0, 0);
+    overlay.setDepth(1002);
+    overlay.setVisible(true);
+    // Optionally add a background graphics and text
+    const bg = this.add.graphics();
+    bg.fillStyle(0x000000, 0.7);
+    bg.fillRect(0, 0, 1280, 720);
+    bg.setDepth(1002);
+    overlay.add(bg);
+    const text = this.add.text(640, 360, 'Level Completed', { font: '48px Arial', fill: '#ffffff' });
+    text.setOrigin(0.5);
+    text.setDepth(1002);
+    overlay.add(text);
+    this.levelCompleteOverlay = overlay;
+    
+    // Set flag to indicate level complete overlay is active
+    this.levelCompleteActive = true;
+  }
+
+  // --- Task 05.02.2: Handle SPACE key to return to menu ---
+  handleLevelCompleteInput() {
+    if (this.levelCompleteActive && this.inputManager && this.inputManager.isJumpJustPressed) {
+      // Stop GameScene and start MenuScene
+      this.scene.stop('GameScene');
+      this.scene.start('MenuScene');
+      
+      // Clean up overlay and reset flag
+      if (this.levelCompleteOverlay) {
+        this.levelCompleteOverlay.destroy();
+        this.levelCompleteOverlay = null;
+      }
+      this.levelCompleteActive = false;
     }
   }
 } 

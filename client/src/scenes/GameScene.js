@@ -155,6 +155,29 @@ export default class GameScene extends BaseScene {
       this.collisionManager.addOverlap(this.player, this.coins, this.handlePlayerCoinOverlap, null, this);
     }
     
+    // --- Task 05.01.3: GoalTile overlap detection ---
+    if (this.players && this.goalTiles && this.physics && this.physics.add) {
+      // Only emit levelCompleted once per level
+      this._levelCompletedEmitted = false;
+      this.physics.add.overlap(
+        this.players,
+        this.goalTiles,
+        () => {
+          if (!this._levelCompletedEmitted) {
+            this._levelCompletedEmitted = true;
+            if (this.physics.world && typeof this.physics.world.pause === 'function') {
+              this.physics.world.pause();
+            }
+            if (this.events && typeof this.events.emit === 'function') {
+              this.events.emit('levelCompleted');
+            }
+          }
+        },
+        null,
+        this
+      );
+    }
+
     // Add a navigation button to return to MenuScene (top right, smaller)
     const menuButton = this.add.text(1200, 50, 'Back to Menu', { font: '16px Arial', fill: '#ff0', backgroundColor: '#222', padding: { x: 8, y: 4 } })
       .setOrigin(0.5)

@@ -187,6 +187,7 @@ Several systems communicate via the Phaser event-emitter. These string constants
 | Scene.events | `enemyFrozen` / `enemyUnfrozen` | `Enemy.freeze()` / `Enemy.unfreeze()` | Visual/audio feedback to be implemented, tests |
 | Scene.events | `gamePaused` | `GameScene.update()` when pause triggered | UI feedback systems, tests |
 | Scene.events | `gameResumed` | `UIScene.resumeGame()` when resume triggered | Game state restoration systems, tests |
+| Scene.events | `levelCompleted` | `GameScene` (on player-goal overlap) | UIScene, tests (level-complete overlay) |
 
 Do **not** rename these events without refactoring every `scene.events.on(...)` subscription and the test-suite.
 

@@ -117,9 +117,9 @@ End the level when the player overlaps any active `GoalTile`.
   – Mocks Scene, places player at goal tile, runs `update()`, asserts event emitted once & physics paused.
 
 #### Task Breakdown & Acceptance Criteria
-- [ ] Overlap sets up in `create()`.  
-- [ ] Callback dispatches event & pauses world.  
-- [ ] Integration test passes.
+- [x] Overlap sets up in `create()`.  
+- [x] Callback dispatches event & pauses world.  
+- [x] Integration test passes.
 
 #### Expected Output
 Game pauses and logs `levelCompleted` when touching goal.
@@ -155,9 +155,9 @@ Show a centred panel saying "Level Complete" when `levelCompleted` is emitted.
   – Emits fake event, asserts panel visible.
 
 #### Task Breakdown & Acceptance Criteria
-- [ ] Panel appears only after event.  
-- [ ] Depth above 1000.  
-- [ ] Unit test green.
+- [x] Panel appears only after event.  
+- [x] Depth above 1000.  
+- [x] Unit test green.
 
 #### Expected Output
 Overlay visible when level ends.
@@ -192,9 +192,9 @@ Allow player to press SPACE to transition back to `MenuScene` after overlay appe
   – Simulate event then SPACE key; assert `this.scene.start` called with `'MenuScene'`.
 
 #### Task Breakdown & Acceptance Criteria
-- [ ] Key press transitions scenes.  
-- [ ] Overlay cleaned up.  
-- [ ] Tests pass.
+- [x] Key press transitions scenes.  
+- [x] Overlay cleaned up.  
+- [x] Tests pass.
 
 #### Expected Output
 After finishing level, pressing SPACE returns to main menu.

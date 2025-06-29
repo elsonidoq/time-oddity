@@ -85,6 +85,15 @@ export default class InputManager {
   }
 
   /**
+   * Check if the jump key was just pressed (SPACE, UP, or W)
+   */
+  get isJumpJustPressed() {
+    return PhaserLib.Input.Keyboard.JustDown(this.up) || 
+           PhaserLib.Input.Keyboard.JustDown(this.w) || 
+           PhaserLib.Input.Keyboard.JustDown(this.space);
+  }
+
+  /**
    * Check if the rewind key is pressed.
    */
   get isRewindPressed() {
