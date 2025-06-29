@@ -34,11 +34,11 @@ Create a reusable, physics-enabled `GoalTile` entity that represents the level-e
 • Use `phaserSceneMock` + fake timers.
 
 #### Task Breakdown & Acceptance Criteria
-- [ ] Entity file created, exports class `GoalTile` with tileKey constructor parameter.  
-- [ ] BootScene loads goal tile textures (support multiple tileKeys as needed).  
-- [ ] SceneFactory can spawn goal tiles with specified tileKey.  
-- [ ] GoalTile renders the correct texture when instantiated.
-- [ ] Unit tests above are green.
+- [x] Entity file created, exports class `GoalTile` with tileKey constructor parameter.  
+- [x] BootScene loads goal tile textures (support multiple tileKeys as needed).  
+- [x] SceneFactory can spawn goal tiles with specified tileKey.  
+- [x] GoalTile renders the correct texture when instantiated.
+- [x] Unit tests above are green.
 
 #### Expected Output
 `npm test goal-tile` passes; game can render a static goal sprite with the configured texture in debug scene.
@@ -79,10 +79,10 @@ Allow JSON level files to define goal-tile coordinates and tileKey, spawning the
   – Fallback behavior works when tileKey is missing.
 
 #### Task Breakdown & Acceptance Criteria
-- [ ] JSON schema updated in sample `test-level.json` with tileKey field.  
-- [ ] SceneFactory spawns GoalTile with specified tileKey.  
-- [ ] GoalTile renders the correct texture from tileKey.
-- [ ] Integration tests pass.
+- [x] JSON schema updated in sample `test-level.json` with tileKey field.  
+- [x] SceneFactory spawns GoalTile with specified tileKey.  
+- [x] GoalTile renders the correct texture from tileKey.
+- [x] Integration tests pass.
 
 #### Expected Output
 `npm test scene-factory-goal-tile` green; running game shows goal tile loaded via config with correct texture.
