@@ -13,7 +13,8 @@ This document defines the **canonical JSON schema** for describing a level in Ti
 ```jsonc
 {
   "platforms": [ /* Array<PlatformConfig> */ ],
-  "coins":     [ /* Array<CoinConfig>     */ ]
+  "coins":     [ /* Array<CoinConfig>     */ ],
+  "enemies":   [ /* Array<EnemyConfig>    */ ]
 }
 ```
 Every field is **optional** – `SceneFactory` falls back to hard-coded layouts when an array is missing.
@@ -118,7 +119,56 @@ Field            | Type    | Required | Description
 
 ---
 
-## 4. Example Level Snippet (from `test-level.json`)
+## 4. Enemy Objects
+
+### 4.1 Common Enemy Fields
+Field            | Type    | Required | Description
+-----------------|---------|----------|------------
+`type`           | string  | yes      | Enemy type discriminator – see sub-types below.
+`x`, `y`         | number  | yes      | World-space spawn coordinates (**pixels**).
+`texture`        | string  | no       | Texture atlas key (default: `"enemies"`).
+`frame`          | string  | no       | Frame name or index (default: `"barnacle_attack_rest"`).
+
+### 4.2 LoopHound Enemy (`type: "LoopHound"`)
+A patrolling enemy that moves back and forth along a fixed horizontal path. Implements custom state recording for time reversal compatibility.
+
+Field            | Type    | Required | Description
+-----------------|---------|----------|------------
+`type`           | string  | yes      | Always `"LoopHound"`.
+`x`, `y`         | number  | yes      | Spawn position (y should be ground level).
+`patrolDistance` | number  | no (200) | Horizontal patrol range in pixels (50-500).
+`direction`      | number  | no (1)   | Initial patrol direction: `1` (right) or `-1` (left).
+`speed`          | number  | no (80)  | Movement speed in pixels/second (10-200).
+`texture`        | string  | no       | Texture atlas key (default: `"enemies"`).
+`frame`          | string  | no       | Frame name (default: `"barnacle_attack_rest"`).
+
+**Patrol Behavior**: The LoopHound patrols between `x` and `x + patrolDistance`, automatically reversing direction at boundaries.
+
+**Time Reversal**: LoopHound implements custom state recording to preserve patrol boundaries, direction, and freeze state during time manipulation.
+
+**Physics Configuration**: Follows §13 Physics Configuration Order - must be added to `enemies` group BEFORE physics configuration.
+
+```jsonc
+{
+  "type": "LoopHound",
+  "x": 300,
+  "y": 450,
+  "patrolDistance": 150,
+  "direction": 1,
+  "speed": 80
+}
+```
+
+**Validation Rules**:
+- `patrolDistance`: Must be between 50 and 500 pixels
+- `direction`: Must be `1` (right) or `-1` (left)
+- `speed`: Must be between 10 and 200 pixels/second
+- `x`, `y`: Must be within level bounds
+- `y`: Should be positioned on solid ground (platform level)
+
+---
+
+## 5. Example Level Snippet (from `test-level.json`)
 ```jsonc
 {
   "platforms": [
@@ -130,15 +180,21 @@ Field            | Type    | Required | Description
   ],
   "coins": [
     { "type": "coin", "x": 400, "y": 850, "properties": { "value": 100 } }
+  ],
+  "enemies": [
+    { "type": "LoopHound", "x": 300, "y": 450, "patrolDistance": 150, "direction": 1, "speed": 80 },
+    { "type": "LoopHound", "x": 800, "y": 350, "patrolDistance": 200, "direction": -1, "speed": 60 }
   ]
 }
 ```
 
 ---
 
-## 5. Extensibility Rules
+## 6. Extensibility Rules
 1. **New object types** must implement their own creation function in `SceneFactory` and be listed here.
 2. Tests must cover:
    * JSON validation logic.
    * Physics configuration order (see `invariants.md`).
-3. Keep this document and `available_tiles.md` in sync with assets and entity code. 
+3. Keep this document and `available_tiles.md` in sync with assets and entity code.
+4. **Enemy types** must implement the Enemy/Freeze Contract (§8 in `invariants.md`).
+5. **Custom state recording** is required for enemies with complex behavior (like LoopHound patrol patterns). 

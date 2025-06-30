@@ -17,6 +17,7 @@
 import MovingPlatform from '../entities/MovingPlatform.js';
 import Coin from '../entities/Coin.js';
 import GoalTile from '../entities/GoalTile.js';
+import { LoopHound } from '../entities/enemies/LoopHound.js';
 
 export class SceneFactory {
   /**
@@ -483,5 +484,69 @@ export class SceneFactory {
       body.setSize(platform.width, visibleHeight);
       body.setOffset(0, frameHeight - visibleHeight);
     }
+  }
+
+  // ========================================
+  // Enemy Creation Methods
+  // ========================================
+
+  /**
+   * Creates enemies from configuration array
+   * @param {Object} config - Configuration object containing enemies array
+   * @param {Array} config.enemies - Array of enemy configurations
+   * @returns {Array} - Array of created enemy instances
+   */
+  createEnemiesFromConfig(config) {
+    if (!config || !config.enemies || !Array.isArray(config.enemies)) {
+      return []; // Graceful fallback
+    }
+    
+    const enemies = [];
+    
+    config.enemies.forEach(enemyConfig => {
+      if (enemyConfig.type === 'LoopHound') {
+        // Validate required fields
+        if (typeof enemyConfig.x !== 'number' || typeof enemyConfig.y !== 'number') {
+          return; // Skip invalid config
+        }
+        
+        // Create LoopHound with configurable parameters
+        const enemy = new LoopHound(
+          this.scene, 
+          enemyConfig.x, 
+          enemyConfig.y,
+          enemyConfig.texture || 'enemies',
+          enemyConfig.frame || 'barnacle_attack_rest'
+        );
+        
+        // Configure patrol parameters if provided
+        if (typeof enemyConfig.patrolDistance === 'number') {
+          enemy.patrolDistance = enemyConfig.patrolDistance;
+          enemy.patrolEndX = enemyConfig.x + enemyConfig.patrolDistance;
+        }
+        
+        if (typeof enemyConfig.direction === 'number') {
+          enemy.direction = enemyConfig.direction;
+        }
+        
+        if (typeof enemyConfig.speed === 'number') {
+          enemy.speed = enemyConfig.speed;
+        }
+        
+        // CRITICAL: Add to group BEFORE configuration (§13)
+        if (this.scene.enemies && this.scene.enemies.add) {
+          this.scene.enemies.add(enemy);
+        }
+        
+        // Register with TimeManager for time reversal
+        if (this.scene.timeManager && this.scene.timeManager.register) {
+          this.scene.timeManager.register(enemy);
+        }
+        
+        enemies.push(enemy);
+      }
+    });
+    
+    return enemies;
   }
 } 
