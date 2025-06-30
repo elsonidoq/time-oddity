@@ -538,6 +538,11 @@ export class SceneFactory {
           this.scene.enemies.add(enemy);
         }
         
+        // Configure physics AFTER adding to group (per invariant §13)
+        if (typeof enemy.configurePhysicsAfterGroup === 'function') {
+          enemy.configurePhysicsAfterGroup();
+        }
+        
         // Register with TimeManager for time reversal
         if (this.scene.timeManager && this.scene.timeManager.register) {
           this.scene.timeManager.register(enemy);

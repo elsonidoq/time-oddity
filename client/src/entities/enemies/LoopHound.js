@@ -58,8 +58,8 @@ export class LoopHound extends Enemy {
     this.body.setSize(this.width * 0.5, this.height * 0.7);
     this.body.setOffset(this.width * 0.25, this.height * 0.3);
     
-    // Configure physics properly using parent method
-    this.configurePhysics();
+    // DEFER physics configuration until after group addition (per invariant §13)
+    // Physics config now happens in configurePhysicsAfterGroup()
     
     // LoopHound-specific properties
     this.patrolDistance = 200;
@@ -80,6 +80,14 @@ export class LoopHound extends Enemy {
     this.stateMachine.setState('patrol');
     
     // Animation will be added later when proper sprites are available
+  }
+  
+  /**
+   * Configure physics AFTER adding to group (per invariant §13)
+   * This method should be called by SceneFactory after enemy is added to the physics group
+   */
+  configurePhysicsAfterGroup() {
+    this.configurePhysics();
   }
   
   onPatrolEnter() {
@@ -189,6 +197,7 @@ export class LoopHound extends Enemy {
     this.direction = 1;
     if (this.body) {
       this.body.setVelocity(0, 0);
+      this.body.enable = true; // Re-enable physics body
     }
     this.activate();
     this.setActive(true);

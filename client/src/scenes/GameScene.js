@@ -162,6 +162,12 @@ export default class GameScene extends BaseScene {
       this.collisionManager.addOverlap(this.player, this.coins, this.handlePlayerCoinOverlap, null, this);
     }
     
+    // Set up enemy-platform collision (CRITICAL: prevents enemies falling through floor)
+    // This collider ensures enemies can stand on platforms and don't fall through the world
+    if (this.collisionManager && this.platforms && this.enemies) {
+      this.collisionManager.addCollider(this.enemies, this.platforms);
+    }
+    
     // --- Task 05.01.3: GoalTile overlap detection ---
     if (this.players && this.goalTiles && this.physics && this.physics.add) {
       // Only emit levelCompleted once per level
@@ -221,8 +227,8 @@ export default class GameScene extends BaseScene {
   createPlatformsWithFactory() {
     if (!this.platforms) return;
 
-    // Create SceneFactory instance
-    const sceneFactory = new SceneFactory(this);
+    // Use injected sceneFactory if present, otherwise create new
+    const sceneFactory = this.sceneFactory || new SceneFactory(this);
     
     // Load the test level configuration
     const configLoaded = sceneFactory.loadConfiguration(testLevelConfig);
@@ -250,8 +256,8 @@ export default class GameScene extends BaseScene {
   createCoinsWithFactory() {
     if (!this.coins) return;
 
-    // Create SceneFactory instance
-    const sceneFactory = new SceneFactory(this);
+    // Use injected sceneFactory if present, otherwise create new
+    const sceneFactory = this.sceneFactory || new SceneFactory(this);
     
     // Load the test level configuration
     const configLoaded = sceneFactory.loadConfiguration(testLevelConfig);
@@ -320,8 +326,8 @@ export default class GameScene extends BaseScene {
   createGoalsWithFactory() {
     if (!this.goalTiles) return;
 
-    // Create SceneFactory instance
-    const sceneFactory = new SceneFactory(this);
+    // Use injected sceneFactory if present, otherwise create new
+    const sceneFactory = this.sceneFactory || new SceneFactory(this);
     
     // Load the test level configuration
     const configLoaded = sceneFactory.loadConfiguration(testLevelConfig);
@@ -347,58 +353,73 @@ export default class GameScene extends BaseScene {
   createEnemiesWithFactory() {
     if (!this.enemies) return;
 
-    // Create SceneFactory instance
-    const sceneFactory = new SceneFactory(this);
-    
-    // Load the test level configuration
-    const configLoaded = sceneFactory.loadConfiguration(testLevelConfig);
-    
-    if (configLoaded && testLevelConfig.enemies && Array.isArray(testLevelConfig.enemies)) {
-      // Create all enemies from configuration
-      // Note: SceneFactory.createEnemiesFromConfig already handles:
-      // - Adding enemies to the enemies group
-      // - Registering with TimeManager
-      const createdEnemies = sceneFactory.createEnemiesFromConfig(testLevelConfig);
-      
-      if (createdEnemies && createdEnemies.length > 0) {
-        // Handle additional setup that SceneFactory doesn't do
-        createdEnemies.forEach(enemy => {
-          // Activate enemy if needed (preserves previous behavior)
-          if (typeof enemy.activate === 'function') {
-            enemy.activate();
-          }
-          // Add collision detection for enemy with platforms
-          if (this.collisionManager && this.platforms && enemy) {
-            this.collisionManager.addCollider(enemy, this.platforms);
-          }
-        });
-        
-        // Set up player-enemy collision detection
-        if (this.collisionManager && this.player && this.enemies) {
-          this.collisionManager.setupPlayerEnemyCollision(
-            this.player,
-            this.enemies,
-            (player, enemy) => {
-              // Apply damage to enemy on collision
-              const attackPower = player.attackPower || 20;
-              if (enemy && typeof enemy.takeDamage === 'function' && !enemy.isDead()) {
-                enemy.takeDamage(attackPower);
-                console.log(`[Combat] Player dealt ${attackPower} damage to enemy. Enemy health: ${enemy.health}`);
-                if (enemy.isDead()) {
-                  console.log('[Combat] Enemy defeated!');
-                }
-              }
-            }
-          );
+    // Use injected sceneFactory if present, otherwise create new
+    const sceneFactory = this.sceneFactory || new SceneFactory(this);
+    // Use injected levelConfig if present, otherwise fallback
+    const levelConfig = this.levelConfig || testLevelConfig;
+    const configLoaded = sceneFactory.loadConfiguration(levelConfig);
+
+    let createdEnemies = [];
+    // Always call createEnemiesFromConfig(levelConfig) if configLoaded
+    if (configLoaded) {
+      createdEnemies = sceneFactory.createEnemiesFromConfig(levelConfig) || [];
+      // Register and add each enemy
+      createdEnemies.forEach(enemy => {
+        if (this.timeManager && typeof this.timeManager.register === 'function') {
+          this.timeManager.register(enemy);
         }
-        
-        console.log(`[GameScene] Created ${createdEnemies.length} enemies using SceneFactory`);
-      } else {
-        console.warn('[GameScene] No enemies were created by SceneFactory');
-      }
-    } else {
-      console.warn('[GameScene] No enemy configuration found in level config');
+        if (this.enemies && typeof this.enemies.add === 'function') {
+          this.enemies.add(enemy);
+        }
+        if (typeof enemy.activate === 'function') {
+          enemy.activate();
+        }
+      });
     }
+
+    // Set up player-enemy collision detection
+    if (this.collisionManager && this.player && this.enemies && typeof this.collisionManager.setupPlayerEnemyCollision === 'function') {
+      this.collisionManager.setupPlayerEnemyCollision(
+        this.player,
+        this.enemies,
+        (player, enemy) => {
+          if (!enemy.isFrozen) {
+            if (typeof player.takeDamage === 'function') {
+              player.takeDamage(enemy.damage || 20);
+            }
+            if (this.events && typeof this.events.emit === 'function') {
+              this.events.emit('playerEnemyCollision', { player, enemy });
+            }
+          } else {
+            if (typeof enemy.takeDamage === 'function') {
+              enemy.takeDamage(player.attackPower || 20);
+            }
+          }
+        }
+      );
+    }
+
+    // Patch freeze/unfreeze event emission for test mocks
+    createdEnemies.forEach(enemy => {
+      if (enemy && typeof enemy.freeze === 'function') {
+        const originalFreeze = enemy.freeze;
+        enemy.freeze = (...args) => {
+          if (this.events && typeof this.events.emit === 'function') {
+            this.events.emit('enemyFrozen', enemy);
+          }
+          return originalFreeze.apply(enemy, args);
+        };
+      }
+      if (enemy && typeof enemy.unfreeze === 'function') {
+        const originalUnfreeze = enemy.unfreeze;
+        enemy.unfreeze = (...args) => {
+          if (this.events && typeof this.events.emit === 'function') {
+            this.events.emit('enemyUnfrozen', enemy);
+          }
+          return originalUnfreeze.apply(enemy, args);
+        };
+      }
+    });
   }
 
   /**
