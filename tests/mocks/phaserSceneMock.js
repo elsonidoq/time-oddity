@@ -91,16 +91,35 @@ class GameObjectMock {
     this.body = new BodyMock();
     this.anims = new AnimationsMock();
     
-    // Chainable methods
+    // Chainable methods with proper state updates
     this.setOrigin = createMockFn(() => this);
     this.setDepth = createMockFn(() => this);
-    this.setPosition = createMockFn(() => this);
+    this.setPosition = createMockFn((x, y) => {
+      if (x !== undefined) this.x = x;
+      if (y !== undefined) this.y = y;
+      return this;
+    });
     this.setTexture = createMockFn(() => this);
-    this.setFlipX = createMockFn(() => this);
-    this.setAlpha = createMockFn(() => this);
-    this.setScale = createMockFn(() => this);
-    this.setActive = createMockFn(() => this);
-    this.setVisible = createMockFn(() => this);
+    this.setFlipX = createMockFn((flipX) => {
+      this.flipX = flipX;
+      return this;
+    });
+    this.setAlpha = createMockFn((alpha) => {
+      this.alpha = alpha;
+      return this;
+    });
+    this.setScale = createMockFn((scale) => {
+      this.scale = scale;
+      return this;
+    });
+    this.setActive = createMockFn((active) => {
+      this.active = active;
+      return this;
+    });
+    this.setVisible = createMockFn((visible) => {
+      this.visible = visible;
+      return this;
+    });
     this.play = createMockFn(() => this);
     this.setData = createMockFn(() => this);
     this.destroy = createMockFn();
@@ -209,7 +228,25 @@ export class PhaserSceneMock {
     this.physics = {
       add: {
         sprite: createMockFn((x, y, texture) => new GameObjectMock(x, y, texture)),
-        existing: createMockFn(),
+        existing: createMockFn((gameObject) => {
+          // Wire up proper GameObject mock behavior to existing game objects
+          if (gameObject) {
+            // Ensure the setActive and setVisible methods work correctly
+            const originalSetActive = gameObject.setActive;
+            const originalSetVisible = gameObject.setVisible;
+            
+            gameObject.setActive = createMockFn((active) => {
+              gameObject.active = active;
+              return gameObject;
+            });
+            
+            gameObject.setVisible = createMockFn((visible) => {
+              gameObject.visible = visible;
+              return gameObject;
+            });
+          }
+          return gameObject;
+        }),
         group: createMockFn(() => new GroupMock()),
         collider: createMockFn(),
         overlap: createMockFn()

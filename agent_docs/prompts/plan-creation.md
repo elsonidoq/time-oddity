@@ -1,40 +1,34 @@
-```
 # 🎯 Objective
 
 You are a **technical leader LLM**. Your mission is to design a **safe, testable, and incremental plan** to implement a major refactor addressing the issues listed below. These changes are necessary to reach MVP. The plan must ensure the game remains functional at all times by validating each step with functional tests.
 
-# 🧱 Functional Gaps (From Product Manager LLM)
+# 🧱 Functional gaps
 
-## Core Platforming
-- Platforms are restricted to a **single-block width**. This limits level design. You must generalize platform width.
+## 🧠 Enemy Behavior & Rules
+- Enemy positions must be **configurable via the JSON level file**.
+- When the player touches a **LoopHound**, the player should **take damage**, but the **LoopHound must not** receive any.
+- **LoopHounds can only be killed** if they are **frozen by the ChronoPulse**.
 
-## Enemy Interactions
-- Enemies do **not deal damage**.
-- All enemy types (Loop Hounds, Chrono Leeches, The Archivist) must:
-  - Deal damage to the player
-  - Have a defined way to die (e.g., via Chrono Pulse or environment)
+## 🎨 Level & Visual Design Configuration
+- The **background** must be **configurable via the JSON level file**.
+- The **JSON level file** must support specifying **background sprites** to allow for richer and more diverse level design.
 
-## Camera System
-- The **camera does not follow** the player. Implement basic camera tracking.
+## 🗺️ Simplified Map View
+- When pressing the **`T` key**, a **simplified level map** must be displayed.
+  - It should clearly indicate:
+    - The **player's position**
+    - The **locations of coins**
+    - The **platform layout**, as described in the JSON
 
-## Collectibles and Progression
-- **Time Shards are not collectible**:
-  - They must be visible, collectible, and trigger feedback
-  - Collecting them must update a counter
+## 🛠️ Level Generation Algorithm (v1)
+- Develop a script to **generate full, playable levels** procedurally.
+  - Levels must include:
+    - **Coherent background and platform layout**
+    - **Strategically placed coins**
+    - **Strategically placed enemies**
+  - The script must support a `difficulty` parameter (1 = easy, 5 = hard) that affects level complexity and challenge.
 
-- There is **no point system**:
-  - Add a basic scoring mechanism linked to Time Shards and/or enemy kills
 
-## Game Flow
-- **No level end condition**:
-  - Add at least one of:
-    - A goal tile
-    - A collectible threshold
-    - A time-based trigger
-
-## Audio
-- The game has **no sound**:
-  - Implement minimal audio: music loop, and SFX for actions like jump, shard pickup, damage, etc.
 
 # 📚 Mandatory Reading Before Planning
 
@@ -47,7 +41,7 @@ Before writing any tasks, you MUST study these documents:
 
 # 🛠️ What You Must Do
 
-For each issue listed above:
+For each functional gap listed above:
 
 1. Analyze current implementation and documentation to **identify the minimal set of changes** needed.
 2. Create a **modular and incremental execution plan**.
@@ -58,7 +52,9 @@ For each issue listed above:
    - Tasks must be independently verifiable
    - Use the format defined in `@task_template.md`
 
-4. Place the generated tasks in a file within the folder: `tasks/02_mvp_again`
+4. Place the generated tasks in a file within the folder: `tasks/03_mvp_this_time`
+
+EACH FUNCTIONAL GAP MUST BE WRITTEN DOWN IN A DIFFERENT FILE
 
 # ✅ Task Execution Rules
 
@@ -78,7 +74,6 @@ Do NOT generate the plan until you:
 - Can guarantee an **incremental, safe, test-driven migration path**
 
 Only then, begin generating the task plan.
-```
 
 
 
@@ -178,4 +173,3 @@ Write the plan into the file `tasks/platform_class.md`
 # Think before you plan
 Before creating the plan, perform an in-depth analisis of the code and design an extensible Platform interface that can be used for the refactor. Document that platform interface in the plan itself
 
-```

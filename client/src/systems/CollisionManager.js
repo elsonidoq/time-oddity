@@ -86,13 +86,24 @@ export default class CollisionManager {
 
     // Create a wrapper callback that handles both the custom callback and event emission
     const handleCollision = (playerSprite, enemySprite) => {
-      // Inflict damage to player before emitting event (Task 02.02)
-      if (playerSprite && typeof playerSprite.takeDamage === 'function' && enemySprite) {
-        const dmg = enemySprite.damage !== undefined ? enemySprite.damage : 10;
-        playerSprite.takeDamage(dmg);
+      // Task 02.06: Implement freeze-to-kill mechanics (player damages frozen enemies, active enemies damage player)
+      if (playerSprite && enemySprite) {
+        if (enemySprite.isFrozen) {
+          // Frozen enemies can be defeated by player contact
+          if (typeof enemySprite.takeDamage === 'function') {
+            const attackPower = playerSprite.attackPower !== undefined ? playerSprite.attackPower : 20;
+            enemySprite.takeDamage(attackPower);
+          }
+        } else {
+          // Active enemies damage the player
+          if (typeof playerSprite.takeDamage === 'function') {
+            const damage = enemySprite.damage !== undefined ? enemySprite.damage : 20;
+            playerSprite.takeDamage(damage);
+          }
+        }
       }
 
-      // Emit collision event for other systems to listen to
+      // Emit collision event for other systems to listen to (preserve §16 Runtime Event Names)
       if (this.scene.events && this.scene.events.emit) {
         this.scene.events.emit('playerEnemyCollision', playerSprite, enemySprite);
       }

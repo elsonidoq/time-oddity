@@ -220,7 +220,22 @@ export default class Player extends Entity {
    * @returns {boolean} - True if the player died, false otherwise.
    */
   takeDamage(amount) {
+    const previousHealth = this.health;
     const isDead = super.takeDamage(amount);
+
+    // Task 02.06: Emit playerHealthChanged event for UI updates
+    if (this.scene && this.scene.events && this.scene.events.emit) {
+      this.scene.events.emit('playerHealthChanged', {
+        health: this.health,
+        damage: amount,
+        previousHealth: previousHealth
+      });
+    }
+
+    // Task 02.06: Emit playerDied event when player dies
+    if (isDead && this.scene && this.scene.events && this.scene.events.emit) {
+      this.scene.events.emit('playerDied', { player: this });
+    }
 
     // Task 06.02.4: Play hurt sound effect
     if (this.scene.audioManager) {

@@ -676,5 +676,47 @@
         "value": 200
       }
     }
+  ],
+  "enemies": [
+    {
+      "type": "LoopHound",
+      "x": 300,
+      "y": 4800,
+      "patrolDistance": 180,
+      "direction": 1,
+      "speed": 75
+    },
+    {
+      "type": "LoopHound",
+      "x": 1200,
+      "y": 4100,
+      "patrolDistance": 120,
+      "direction": -1,
+      "speed": 65
+    },
+    {
+      "type": "LoopHound",
+      "x": 2100,
+      "y": 2600,
+      "patrolDistance": 200,
+      "direction": 1,
+      "speed": 85
+    },
+    {
+      "type": "LoopHound",
+      "x": 3200,
+      "y": 2750,
+      "patrolDistance": 150,
+      "direction": -1,
+      "speed": 70
+    },
+    {
+      "type": "LoopHound",
+      "x": 4100,
+      "y": 4100,
+      "patrolDistance": 100,
+      "direction": 1,
+      "speed": 60
+    }
   ]
 } 

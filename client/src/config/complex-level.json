@@ -46,5 +46,55 @@
     { "type": "coin", "x": 2000, "y": 3400, "properties": { "value": 100 } },
     { "type": "coin", "x": 2500, "y": 3300, "properties": { "value": 100 } },
     { "type": "coin", "x": 4900, "y": 3450, "properties": { "value": 500 } }
+  ],
+  "enemies": [
+    {
+      "type": "LoopHound",
+      "x": 400,
+      "y": 4900,
+      "patrolDistance": 250,
+      "direction": 1,
+      "speed": 90
+    },
+    {
+      "type": "LoopHound",
+      "x": 800,
+      "y": 4900,
+      "patrolDistance": 180,
+      "direction": -1,
+      "speed": 80
+    },
+    {
+      "type": "LoopHound",
+      "x": 1500,
+      "y": 3450,
+      "patrolDistance": 300,
+      "direction": 1,
+      "speed": 95
+    },
+    {
+      "type": "LoopHound",
+      "x": 2500,
+      "y": 3250,
+      "patrolDistance": 200,
+      "direction": -1,
+      "speed": 85
+    },
+    {
+      "type": "LoopHound",
+      "x": 3500,
+      "y": 4900,
+      "patrolDistance": 150,
+      "direction": 1,
+      "speed": 75
+    },
+    {
+      "type": "LoopHound",
+      "x": 4200,
+      "y": 4000,
+      "patrolDistance": 120,
+      "direction": -1,
+      "speed": 70
+    }
   ]
 } 

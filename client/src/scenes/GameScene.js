@@ -199,48 +199,8 @@ export default class GameScene extends BaseScene {
     // Register shutdown event
     this.registerShutdown();
 
-    // Add LoopHound enemy for testing (only in non-test environment)
-    if (!this._mockScene) {
-      this.loophound = new LoopHound(this, 250, groundY, 'enemies', 'slime_normal_rest');
-      
-      // Register LoopHound with TimeManager for rewind
-      if (this.timeManager && this.loophound) {
-        this.timeManager.register(this.loophound);
-      }
-      
-      // Activate the LoopHound to start its movement behavior
-      this.loophound.activate();
-      
-      // Add collision detection for LoopHound with platforms
-      if (this.collisionManager && this.platforms && this.loophound) {
-        this.collisionManager.addCollider(this.loophound, this.platforms);
-      }
-
-      
-      // Add LoopHound to enemies physics group
-      if (this.enemies && this.enemies.add) {
-        this.enemies.add(this.loophound);
-      }
-
-      // Set up player-enemy collision detection
-      if (this.collisionManager && this.player && this.enemies) {
-        this.collisionManager.setupPlayerEnemyCollision(
-          this.player,
-          this.enemies,
-          (player, enemy) => {
-            // Apply damage to enemy on collision
-            const attackPower = player.attackPower || 20;
-            if (enemy && typeof enemy.takeDamage === 'function' && !enemy.isDead()) {
-              enemy.takeDamage(attackPower);
-              console.log(`[Combat] Player dealt ${attackPower} damage to enemy. Enemy health: ${enemy.health}`);
-              if (enemy.isDead()) {
-                console.log('[Combat] Enemy defeated!');
-              }
-            }
-          }
-        );
-      }
-    }
+    // Create enemies using SceneFactory from JSON configuration
+    this.createEnemiesWithFactory();
 
     // Launch UIScene overlay for HUD elements
     if (this.scene && typeof this.scene.launch === 'function') {
@@ -378,6 +338,66 @@ export default class GameScene extends BaseScene {
         
         console.log(`[GameScene] Created goal tile at (${createdGoalTile.x}, ${createdGoalTile.y})`);
       }
+    }
+  }
+
+  /**
+   * Creates enemies using SceneFactory from level configuration
+   */
+  createEnemiesWithFactory() {
+    if (!this.enemies) return;
+
+    // Create SceneFactory instance
+    const sceneFactory = new SceneFactory(this);
+    
+    // Load the test level configuration
+    const configLoaded = sceneFactory.loadConfiguration(testLevelConfig);
+    
+    if (configLoaded && testLevelConfig.enemies && Array.isArray(testLevelConfig.enemies)) {
+      // Create all enemies from configuration
+      // Note: SceneFactory.createEnemiesFromConfig already handles:
+      // - Adding enemies to the enemies group
+      // - Registering with TimeManager
+      const createdEnemies = sceneFactory.createEnemiesFromConfig(testLevelConfig);
+      
+      if (createdEnemies && createdEnemies.length > 0) {
+        // Handle additional setup that SceneFactory doesn't do
+        createdEnemies.forEach(enemy => {
+          // Activate enemy if needed (preserves previous behavior)
+          if (typeof enemy.activate === 'function') {
+            enemy.activate();
+          }
+          // Add collision detection for enemy with platforms
+          if (this.collisionManager && this.platforms && enemy) {
+            this.collisionManager.addCollider(enemy, this.platforms);
+          }
+        });
+        
+        // Set up player-enemy collision detection
+        if (this.collisionManager && this.player && this.enemies) {
+          this.collisionManager.setupPlayerEnemyCollision(
+            this.player,
+            this.enemies,
+            (player, enemy) => {
+              // Apply damage to enemy on collision
+              const attackPower = player.attackPower || 20;
+              if (enemy && typeof enemy.takeDamage === 'function' && !enemy.isDead()) {
+                enemy.takeDamage(attackPower);
+                console.log(`[Combat] Player dealt ${attackPower} damage to enemy. Enemy health: ${enemy.health}`);
+                if (enemy.isDead()) {
+                  console.log('[Combat] Enemy defeated!');
+                }
+              }
+            }
+          );
+        }
+        
+        console.log(`[GameScene] Created ${createdEnemies.length} enemies using SceneFactory`);
+      } else {
+        console.warn('[GameScene] No enemies were created by SceneFactory');
+      }
+    } else {
+      console.warn('[GameScene] No enemy configuration found in level config');
     }
   }
 
@@ -553,8 +573,13 @@ export default class GameScene extends BaseScene {
       // Skip carrying if requirements missing
     }
     
-    if (this.loophound) {
-      this.loophound.update(time, delta);
+    // Update all enemies
+    if (this.enemies && this.enemies.getChildren) {
+      this.enemies.getChildren().forEach(enemy => {
+        if (enemy && typeof enemy.update === 'function') {
+          enemy.update(time, delta);
+        }
+      });
     }
     if (this.timeManager) {
         this.timeManager.update(time, delta);

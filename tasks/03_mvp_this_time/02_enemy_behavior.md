@@ -587,14 +587,14 @@ Remove hardcoded LoopHound creation from GameScene and replace with SceneFactory
 ### Pre-Implementation Analysis
 
 #### Documentation Dependencies
-- [x] **invariants.md sections to review**: §3 Scene Lifecycle, §13 Physics Configuration Order, §7 TimeManager Rewind System
-- [x] **testing_best_practices.md sections to apply**: "Integration testing", "Regression testing"
-- [x] **small_comprehensive_documentation.md sections to reference**: GameScene architecture, SceneFactory integration patterns
+- [ ] **invariants.md sections to review**: §3 Scene Lifecycle, §13 Physics Configuration Order, §7 TimeManager Rewind System
+- [ ] **testing_best_practices.md sections to apply**: "Integration testing", "Regression testing"
+- [ ] **small_comprehensive_documentation.md sections to reference**: GameScene architecture, SceneFactory integration patterns
 
 #### State & Invariant Impact Assessment
-- [x] **Existing states to preserve**: Enemy physics group registration, TimeManager registration, collision setup
-- [x] **New states/invariants to create**: JSON-driven enemy initialization in GameScene
-- [x] **Time reversal compatibility**: Unchanged - enemies still registered with TimeManager
+- [ ] **Existing states to preserve**: Enemy physics group registration, TimeManager registration, collision setup
+- [ ] **New states/invariants to create**: JSON-driven enemy initialization in GameScene
+- [ ] **Time reversal compatibility**: Unchanged - enemies still registered with TimeManager
 
 ### Implementation Plan
 
@@ -620,10 +620,10 @@ Remove hardcoded LoopHound creation from GameScene and replace with SceneFactory
 ### Task Breakdown & Acceptance Criteria
 
 #### GameScene Integration
-- [x] **Remove Hardcoded Creation**: Delete hardcoded LoopHound instantiation from GameScene.create()
-- [x] **Add Factory Call**: Call SceneFactory.createEnemiesFromConfig() with level configuration
-- [x] **Preserve Integrations**: Ensure TimeManager and CollisionManager setup still works
-- [x] **Error Handling**: Graceful fallback if JSON config missing or invalid
+- [ ] **Remove Hardcoded Creation**: Delete hardcoded LoopHound instantiation from GameScene.create()
+- [ ] **Add Factory Call**: Call SceneFactory.createEnemiesFromConfig() with level configuration
+- [ ] **Preserve Integrations**: Ensure TimeManager and CollisionManager setup still works
+- [ ] **Error Handling**: Graceful fallback if JSON config missing or invalid
 
 #### Specific Implementation Guidelines
 ```javascript
@@ -669,12 +669,12 @@ GameScene creates enemies from JSON configuration instead of hardcoded creation;
 - **Fallback plan**: Keep hardcoded creation as fallback if JSON factory fails
 
 ### Definition of Done
-- [x] Hardcoded enemy creation removed from GameScene
-- [x] JSON-driven enemy creation working correctly
-- [x] All enemy integrations preserved (physics, TimeManager, collision)
-- [x] Integration test verifies complete enemy system works
-- [x] Game behavior identical to before (except JSON-driven)
-- [x] Task marked as complete
+- [ ] Hardcoded enemy creation removed from GameScene
+- [ ] JSON-driven enemy creation working correctly
+- [ ] All enemy integrations preserved (physics, TimeManager, collision)
+- [ ] Integration test verifies complete enemy system works
+- [ ] Game behavior identical to before (except JSON-driven)
+- [ ] Task marked as complete
 
 ---
 
@@ -692,13 +692,13 @@ Create comprehensive integration test covering the complete enemy behavior chain
 ### Pre-Implementation Analysis
 
 #### Documentation Dependencies
-- [x] **testing_best_practices.md sections to apply**: "Integration testing", "End-to-end testing patterns", "Test pyramid guidelines"
-- [x] **invariants.md sections to review**: All enemy-related sections for validation
+- [ ] **testing_best_practices.md sections to apply**: "Integration testing", "End-to-end testing patterns", "Test pyramid guidelines"
+- [ ] **invariants.md sections to review**: All enemy-related sections for validation
 
 #### State & Invariant Impact Assessment
-- [x] **Existing states to preserve**: All implemented enemy behaviors
-- [x] **New states/invariants to create**: Complete enemy system validation
-- [x] **Time reversal compatibility**: Full enemy time reversal testing
+- [ ] **Existing states to preserve**: All implemented enemy behaviors
+- [ ] **New states/invariants to create**: Complete enemy system validation
+- [ ] **Time reversal compatibility**: Full enemy time reversal testing
 
 ### Implementation Plan
 
@@ -725,16 +725,16 @@ Create comprehensive integration test covering the complete enemy behavior chain
 ### Task Breakdown & Acceptance Criteria
 
 #### Comprehensive Integration Test
-- [x] **End-to-End Scenario**: JSON config → enemy creation → collision → damage → freeze → defeat
-- [x] **Time Reversal Testing**: Verify complete enemy state restoration
-- [x] **Performance Validation**: Test with multiple enemies to ensure no performance regression
-- [x] **Error Handling**: Test invalid configurations and graceful degradation
+- [ ] **End-to-End Scenario**: JSON config → enemy creation → collision → damage → freeze → defeat
+- [ ] **Time Reversal Testing**: Verify complete enemy state restoration
+- [ ] **Performance Validation**: Test with multiple enemies to ensure no performance regression
+- [ ] **Error Handling**: Test invalid configurations and graceful degradation
 
 #### Documentation Updates
-- [x] **level-format.md**: Complete enemy configuration documentation with examples
-- [x] **Enemy System Architecture**: Document complete system interaction patterns
-- [x] **README.md**: Update feature list with enemy configuration capabilities
-- [x] **Code Comments**: Ensure all new code has comprehensive documentation
+- [ ] **level-format.md**: Complete enemy configuration documentation with examples
+- [ ] **Enemy System Architecture**: Document complete system interaction patterns
+- [ ] **README.md**: Update feature list with enemy configuration capabilities
+- [ ] **Code Comments**: Ensure all new code has comprehensive documentation
 
 #### Example Integration Test Structure
 ```javascript
@@ -786,13 +786,13 @@ Complete enemy behavior system working end-to-end with comprehensive test covera
 - **Fallback plan**: Focus on core scenarios if comprehensive testing proves too complex
 
 ### Definition of Done
-- [x] All acceptance criteria met
-- [x] Integration test covers complete enemy system lifecycle
-- [x] Documentation accurately reflects implemented system
-- [x] No performance regressions with enemy system
-- [x] All project tests pass (locally and in CI)
-- [x] Enemy system ready for production use
-- [x] Task marked as complete
+- [ ] All acceptance criteria met
+- [ ] Integration test covers complete enemy system lifecycle
+- [ ] Documentation accurately reflects implemented system
+- [ ] No performance regressions with enemy system
+- [ ] All project tests pass (locally and in CI)
+- [ ] Enemy system ready for production use
+- [ ] Task marked as complete
 
 ---
 

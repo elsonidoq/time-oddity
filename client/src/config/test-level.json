@@ -1,6 +1,6 @@
 {
   "goal": {
-    "x": 400,
+    "x": 4000,
     "y": 850,
     "tileKey": "sign_exit",
     "isFullBlock": true
@@ -145,6 +145,40 @@
       "properties": {
         "value": 100
       }
+    }
+  ],
+  "enemies": [
+    {
+      "type": "LoopHound",
+      "x": 300,
+      "y": 2900,
+      "patrolDistance": 150,
+      "direction": 1,
+      "speed": 80
+    },
+    {
+      "type": "LoopHound",
+      "x": 110,
+      "y": 300,
+      "patrolDistance": 150,
+      "direction": 1,
+      "speed": 80
+    },
+    {
+      "type": "LoopHound",
+      "x": 800,
+      "y": 2300,
+      "patrolDistance": 200,
+      "direction": -1,
+      "speed": 60
+    },
+    {
+      "type": "LoopHound",
+      "x": 3500,
+      "y": 900,
+      "patrolDistance": 120,
+      "direction": 1,
+      "speed": 70
     }
   ]
 } 
