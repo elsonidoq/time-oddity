@@ -246,6 +246,13 @@ export default class GameScene extends BaseScene {
     if (this.scene && typeof this.scene.launch === 'function') {
       this.scene.launch('UIScene');
     }
+
+    // Task 06.03.4: Listen for toggleMuteRequest events from UIScene
+    this.events.on('toggleMuteRequest', () => {
+      if (this.audioManager) {
+        this.audioManager.toggleMute();
+      }
+    });
   }
 
   /**
@@ -497,6 +504,13 @@ export default class GameScene extends BaseScene {
       this.events.emit('gamePaused');
       
       return; // Don't continue with normal update logic when pausing
+    }
+
+    // Task 06.03.4: Handle mute key input
+    if (this.player && this.player.inputManager && this.player.inputManager.isMutePressed) {
+      if (this.audioManager) {
+        this.audioManager.toggleMute();
+      }
     }
 
     // Update game objects

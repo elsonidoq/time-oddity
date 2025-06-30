@@ -222,6 +222,11 @@ export default class Player extends Entity {
   takeDamage(amount) {
     const isDead = super.takeDamage(amount);
 
+    // Task 06.02.4: Play hurt sound effect
+    if (this.scene.audioManager) {
+      this.scene.audioManager.playSfx('playerHurt');
+    }
+
     // Update player health in scene registry
     if (this.scene && this.scene.registry && this.scene.registry.set) {
       this.scene.registry.set('playerHealth', this.health);

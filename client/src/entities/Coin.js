@@ -85,12 +85,8 @@ export default class Coin {
     }
 
     // Play pickup sound effect
-    if (typeof Howl !== 'undefined') {
-      const pickupSound = new Howl({
-        src: ['assets/audio/sfx_coin.ogg'],
-        volume: 0.5
-      });
-      pickupSound.play();
+    if (this.scene.audioManager) {
+      this.scene.audioManager.playSfx('coin');
     }
 
     // Hide the sprite and destroy it for cleanup

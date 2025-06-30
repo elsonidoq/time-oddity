@@ -347,15 +347,15 @@ describe('Task 04.01.2: Coin Collection Logic', () => {
   });
 
   test('collect() should play pickup sound effect', () => {
-    // Mock Howler.js
-    global.Howl = jest.fn().mockImplementation(() => ({
-      play: jest.fn(),
-    }));
+    // Mock AudioManager
+    sceneMock.audioManager = {
+      playSfx: jest.fn()
+    };
     
     coinInstance.collect();
     
-    // Verify sound was played
-    expect(global.Howl).toHaveBeenCalled();
+    // Verify sound was played via AudioManager
+    expect(sceneMock.audioManager.playSfx).toHaveBeenCalledWith('coin');
   });
 });
 

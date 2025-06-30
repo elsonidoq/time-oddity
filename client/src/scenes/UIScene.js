@@ -78,6 +78,17 @@ export default class UIScene extends BaseScene {
     }
     this.coinCounter = coinCounter;
 
+    // Task 06.03.3: Create mute button
+    if (this.add && this.add.image) {
+      this.muteButton = this.add.image(1200, 50, 'mute_unmuted');
+      this.muteButton.setInteractive({ useHandCursor: true });
+      this.muteButton.setScale(0.5);
+      this.muteButton.setDepth(10);
+      this.muteButton.on('pointerdown', () => {
+        this.events.emit('toggleMuteRequest');
+      });
+    }
+
     // Create pause menu if needed
     if (this.isPaused) {
       this.createPauseMenu();
@@ -130,6 +141,17 @@ export default class UIScene extends BaseScene {
     
     // Emit resume event
     this.events.emit('gameResumed');
+  }
+
+  /**
+   * Update mute button texture based on mute state
+   * @param {boolean} isMuted - Whether audio is currently muted
+   */
+  updateMuteButtonState(isMuted) {
+    if (this.muteButton && this.muteButton.setTexture) {
+      const textureKey = isMuted ? 'mute_muted' : 'mute_unmuted';
+      this.muteButton.setTexture(textureKey);
+    }
   }
 
   update(time, delta) {

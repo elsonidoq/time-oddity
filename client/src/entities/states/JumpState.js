@@ -10,6 +10,11 @@ export default class JumpState {
   enter() {
     this.player.anims.play('player-jump', true);
     this.player.body.setVelocityY(-this.player.jumpPower);
+    
+    // Task 06.02.2: Play jump sound effect
+    if (this.player.scene.audioManager) {
+      this.player.scene.audioManager.playSfx('jump');
+    }
   }
 
   execute() {

@@ -37,6 +37,9 @@ export default class InputManager {
 
     // P key for pause
     this.p = scene.input.keyboard.addKey('P');
+
+    // M key for mute toggle
+    this.m = scene.input.keyboard.addKey('M');
   }
 
   /**
@@ -148,5 +151,12 @@ export default class InputManager {
    */
   get isPauseJustPressed() {
     return PhaserLib.Input.Keyboard.JustDown(this.p);
+  }
+
+  /**
+   * Check if the mute key is pressed (M)
+   */
+  get isMutePressed() {
+    return this.m.isDown;
   }
 } 

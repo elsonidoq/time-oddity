@@ -38,4 +38,43 @@ export default class AudioManager {
       this._backgroundMusic.stop();
     }
   }
+
+  /**
+   * Play a sound effect
+   * @param {string} key - The sound effect key to play
+   */
+  playSfx(key) {
+    const sfxConfig = {
+      jump: {
+        src: ['/src/assets/audio/sfx_jump.ogg'],
+        volume: 0.6
+      },
+      coin: {
+        src: ['/src/assets/audio/sfx_coin.ogg'],
+        volume: 0.7
+      },
+      playerHurt: {
+        src: ['/src/assets/audio/sfx_hurt.ogg'],
+        volume: 0.5
+      }
+    };
+
+    const config = sfxConfig[key];
+    if (config) {
+      const sound = new Howl(config);
+      sound.play();
+    }
+  }
+
+  /**
+   * Toggle mute state for all audio
+   */
+  toggleMute() {
+    try {
+      this.isMuted = !this.isMuted;
+      Howler.mute(this.isMuted);
+    } catch (error) {
+      console.warn('[AudioManager] Failed to toggle mute:', error);
+    }
+  }
 } 
