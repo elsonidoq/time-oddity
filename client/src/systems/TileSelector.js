@@ -49,7 +49,7 @@ export class TileSelector {
 
     // Handle single tile case
     if (totalTiles === 1) {
-      return isBlock ? `${prefix}_center` : `${prefix}_middle`;
+      return prefix;
     }
 
     // Handle two tiles case
