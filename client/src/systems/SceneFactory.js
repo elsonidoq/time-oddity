@@ -40,6 +40,7 @@ export class SceneFactory {
    */
   loadConfiguration(config) {
     if (!config || typeof config !== 'object') {
+      this.config = null;
       return false;
     }
 
@@ -47,42 +48,52 @@ export class SceneFactory {
     if (!config.platforms) {
       config.platforms = [];
     } else if (!Array.isArray(config.platforms)) {
+      this.config = null;
       return false;
     }
 
     // Validate backgrounds section if present
     if (config.backgrounds !== undefined) {
-      // Backgrounds must be an array if specified
       if (!Array.isArray(config.backgrounds)) {
+        this.config = null;
         return false;
       }
-
-      // Basic structure validation - reject configs with missing critical fields
-      // But allow configs with invalid sprite keys to be filtered during creation
       for (const backgroundConfig of config.backgrounds) {
-        // Only reject if fundamental structure is wrong (not an object)
         if (!backgroundConfig || typeof backgroundConfig !== 'object') {
+          this.config = null;
           return false;
         }
-
-        // Reject if critical required fields are missing (but allow invalid sprite keys)
         const criticalFields = ['type', 'x', 'y', 'width', 'height', 'depth'];
         for (const field of criticalFields) {
           if (backgroundConfig[field] === undefined || backgroundConfig[field] === null) {
+            this.config = null;
             return false;
           }
         }
-
-        // Ensure critical fields have correct types
         if (backgroundConfig.type !== 'layer') {
+          this.config = null;
           return false;
         }
-
         const numericFields = ['x', 'y', 'width', 'height', 'depth'];
         for (const field of numericFields) {
           if (typeof backgroundConfig[field] !== 'number') {
+            this.config = null;
             return false;
           }
+        }
+      }
+    }
+
+    // Validate decorativePlatforms section if present
+    if (config.decorativePlatforms !== undefined) {
+      if (!Array.isArray(config.decorativePlatforms)) {
+        this.config = null;
+        return false;
+      }
+      for (const decorativeConfig of config.decorativePlatforms) {
+        if (!this.validateDecorativeConfiguration(decorativeConfig)) {
+          this.config = null;
+          return false;
         }
       }
     }
@@ -716,6 +727,152 @@ export class SceneFactory {
       body.setSize(platform.width, visibleHeight);
       body.setOffset(0, frameHeight - visibleHeight);
     }
+  }
+
+  // ========================================
+  // Decorative Platform Creation Methods
+  // ========================================
+
+  /**
+   * Creates decorative platforms from configuration array
+   * @param {Array} decorativeConfigs - Array of decorative platform configurations
+   * @returns {Array} - Array of created decorative platform sprites
+   */
+  createDecorativePlatformsFromConfig(decorativeConfigs) {
+    if (!decorativeConfigs || !Array.isArray(decorativeConfigs)) {
+      return [];
+    }
+
+    if (decorativeConfigs.length === 0) {
+      return [];
+    }
+
+    if (!this.scene || !this.scene.add || !this.scene.add.image) {
+      return [];
+    }
+
+    const createdDecoratives = [];
+
+    for (const decorativeConfig of decorativeConfigs) {
+      const decoratives = this.createDecorativePlatform(decorativeConfig);
+      if (decoratives) {
+        if (Array.isArray(decoratives)) {
+          createdDecoratives.push(...decoratives);
+        } else {
+          createdDecoratives.push(decoratives);
+        }
+      }
+    }
+
+    return createdDecoratives;
+  }
+
+  /**
+   * Creates a single decorative platform from configuration
+   * @param {Object} decorativeConfig - Decorative platform configuration
+   * @param {string} decorativeConfig.type - Always "decorative"
+   * @param {number} decorativeConfig.x - X position
+   * @param {number} decorativeConfig.y - Y position
+   * @param {string} decorativeConfig.tilePrefix - Base tile prefix for automatic tile selection
+   * @param {number} [decorativeConfig.width] - Optional span in pixels (default 64)
+   * @param {number} decorativeConfig.depth - Z-index for rendering order (must be negative)
+   * @returns {Phaser.GameObjects.Image|Array|null} - Created decorative sprite(s) or null if validation failed
+   */
+  createDecorativePlatform(decorativeConfig) {
+    // Validate configuration
+    if (!this.validateDecorativeConfiguration(decorativeConfig)) {
+      return null;
+    }
+
+    if (!this.scene || !this.scene.add || !this.scene.add.image) {
+      return null;
+    }
+
+    // If width is specified, create multiple tiles like floating platform
+    if (decorativeConfig.width && decorativeConfig.width > 64) {
+      const decoratives = [];
+      const tileWidth = 64; // Standard tile width
+      const tileCount = Math.ceil(decorativeConfig.width / tileWidth);
+
+      for (let i = 0; i < tileCount; i++) {
+        const x = decorativeConfig.x + (i * tileWidth);
+        const tileKey = TileSelector.getTileKey(decorativeConfig.tilePrefix, x, tileCount, i);
+        const decorative = this.scene.add.image(x, decorativeConfig.y, 'tiles', tileKey);
+        
+        decorative.setOrigin(0, 0);
+        decorative.setDepth(decorativeConfig.depth);
+        
+        decoratives.push(decorative);
+      }
+
+      return decoratives;
+    }
+
+    // Default behavior: create single tile
+    const tileKey = TileSelector.getTileKey(decorativeConfig.tilePrefix, decorativeConfig.x, 1, 0);
+    const decorative = this.scene.add.image(
+      decorativeConfig.x,
+      decorativeConfig.y,
+      'tiles',
+      tileKey
+    );
+
+    decorative.setOrigin(0, 0);
+    decorative.setDepth(decorativeConfig.depth);
+
+    return decorative;
+  }
+
+  /**
+   * Validates a decorative platform configuration for creation
+   * @param {Object} decorativeConfig - Decorative configuration to validate
+   * @returns {boolean} - True if configuration is valid for creation, false otherwise
+   */
+  validateDecorativeConfiguration(decorativeConfig) {
+    // Basic structure check
+    if (!decorativeConfig || typeof decorativeConfig !== 'object') {
+      return false;
+    }
+
+    // Critical fields check
+    const requiredFields = ['type', 'x', 'y', 'tilePrefix', 'depth'];
+    for (const field of requiredFields) {
+      if (decorativeConfig[field] === undefined || decorativeConfig[field] === null) {
+        return false;
+      }
+    }
+
+    // Ensure type is correct
+    if (decorativeConfig.type !== 'decorative') {
+      return false;
+    }
+
+    // Validate numeric fields
+    const numericFields = ['x', 'y', 'depth'];
+    for (const field of numericFields) {
+      if (typeof decorativeConfig[field] !== 'number') {
+        return false;
+      }
+    }
+
+    // Validate tilePrefix is a string
+    if (typeof decorativeConfig.tilePrefix !== 'string') {
+      return false;
+    }
+
+    // Validate depth is negative for background rendering
+    if (decorativeConfig.depth >= 0) {
+      return false;
+    }
+
+    // Validate width if specified
+    if (decorativeConfig.width !== undefined) {
+      if (typeof decorativeConfig.width !== 'number' || decorativeConfig.width <= 0) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   // ========================================

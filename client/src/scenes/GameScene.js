@@ -88,6 +88,9 @@ export default class GameScene extends BaseScene {
     // Create parallax background layers using factory or fallback to hardcoded
     this.createBackgroundsWithFactory();
 
+    // Create decorative platforms (background tiles) after backgrounds but before regular platforms
+    this.createDecorativePlatformsWithFactory();
+
     this.collisionManager = new CollisionManager(this, this._mockScene);
     this.timeManager = new TimeManager(this, this._mockScene);
 
@@ -304,6 +307,32 @@ export default class GameScene extends BaseScene {
       if (coinSprite && coinSprite.parentCoin) {
         this.timeManager.register(coinSprite.parentCoin);
       }
+    }
+  }
+
+  /**
+   * Creates decorative platforms (background tiles) using SceneFactory
+   * These are visual-only elements that don't interfere with gameplay
+   */
+  createDecorativePlatformsWithFactory() {
+    if (!this.sceneFactory) {
+      console.warn('[GameScene] SceneFactory not available, skipping decorative platform creation');
+      return;
+    }
+
+    // Get decorative platforms configuration from SceneFactory
+    const decorativeConfig = this.sceneFactory.config ? this.sceneFactory.config.decorativePlatforms : undefined;
+
+    // Create decorative platforms from configuration
+    const createdDecoratives = this.sceneFactory.createDecorativePlatformsFromConfig(decorativeConfig);
+    
+    if (createdDecoratives && createdDecoratives.length > 0) {
+      console.log(`[GameScene] Created ${createdDecoratives.length} decorative platform tiles`);
+      
+      // Store references for cleanup (optional)
+      this.decorativePlatforms = createdDecoratives;
+    } else {
+      console.log('[GameScene] No decorative platforms configured for this level');
     }
   }
 

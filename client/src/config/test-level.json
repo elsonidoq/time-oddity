@@ -223,5 +223,15 @@
       "depth": -1,
       "scrollSpeed": 0.5
     }
+  ],
+  "decorativePlatforms": [
+    { "type": "decorative", "x": 310, "y": 850, "tilePrefix": "terrain_grass_block", "depth": -0.2 },
+    { "type": "decorative", "x": 310, "y": 820, "tilePrefix": "terrain_grass_block", "depth": -0.3 },
+    { "type": "decorative", "x": 300, "y": 200, "width": 192, "tilePrefix": "terrain_stone_block", "depth": -0.6 },
+    { "type": "decorative", "x": 600, "y": 250, "tilePrefix": "bush", "depth": -0.7 },
+    { "type": "decorative", "x": 800, "y": 250, "tilePrefix": "rock", "depth": -0.8 },
+    { "type": "decorative", "x": 1000, "y": 300, "width": 128, "tilePrefix": "terrain_dirt_block", "depth": -0.9 },
+    { "type": "decorative", "x": 1200, "y": 350, "tilePrefix": "mushroom_red", "depth": -0.4 },
+    { "type": "decorative", "x": 1400, "y": 400, "width": 256, "tilePrefix": "terrain_sand_block", "depth": -0.3 }
   ]
 } 

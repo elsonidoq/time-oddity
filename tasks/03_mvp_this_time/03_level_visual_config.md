@@ -529,10 +529,50 @@ Background animations that properly pause during time rewind and resume seamless
 
 ---
 
-## Task 03.04.1 – Create Background Asset Catalog
+## Decorative Platform Interface Design
+
+The new decorative platform system enables background level design using existing tiles from the available asset catalog. This approach is much simpler than complex background layers while providing rich visual design capabilities.
+
+### Interface Specification
+
+**Decorative Platform Type**: `"decorative"`
+
+**Key Features**:
+- **No collision detection**: Players and enemies pass through decorative platforms
+- **Multi-tile support**: Uses existing width parameter and tilePrefix system
+- **Background depth rendering**: Renders behind gameplay elements
+- **Existing tile compatibility**: Uses all tiles from `available_tiles.md`
+- **JSON configurable**: Follows existing platform configuration patterns
+
+**Schema Example**:
+```json
+{
+  "type": "decorative",
+  "x": 100,
+  "y": 200,
+  "width": 192,  // optional, defaults to 64 (3 tiles × 64px)
+  "tilePrefix": "terrain_grass_block",
+  "depth": -0.5  // negative depth renders behind gameplay elements
+}
+```
+
+**Rendering Behavior**:
+- Single tile (width ≤ 64): Uses base tilePrefix directly
+- Multi-tile: Uses `_left`, `_center`/`_middle`, `_right` suffixes (same as floating platforms)
+- Depth ordering: Decorative platforms render behind all gameplay elements (platforms, enemies, player)
+
+**Implementation Architecture**:
+- Extends existing SceneFactory platform creation system
+- No physics body creation (visual only)
+- Uses existing tile selection logic from floating platforms
+- Compatible with time reversal system (static elements)
+
+---
+
+## Task 03.04.1 – Add Decorative Platform Schema Documentation
 
 ### Objective
-Document available background assets and create design guidelines for background configuration.
+Add decorative platform type documentation to level-format.md to define the new non-interactive background tile system.
 
 ### Task ID
 03.04.1
@@ -540,20 +580,19 @@ Document available background assets and create design guidelines for background
 ### Pre-Implementation Analysis
 
 #### Documentation Dependencies
-- [ ] **invariants.md sections to review**: §15 Asset & Animation Keys (background atlas loading)
-- [ ] **available_tiles.md sections to reference**: Asset organization patterns
-- [ ] Kenney background spritesheet XML files for asset inventory
+- [ ] **invariants.md sections to review**: §13 Platform Geometry (depth ordering), §15 Asset & Animation Keys (tile atlas loading)
+- [ ] **testing_best_practices.md sections to apply**: "Documentation-First Approach"
+- [ ] **available_tiles.md sections to reference**: Complete tile catalog for decorative usage
 
 #### State & Invariant Impact Assessment
-- [ ] **Existing states to preserve**: BootScene background atlas loading
-- [ ] **New states/invariants to create**: Background asset catalog, design guidelines
-- [ ] **Time reversal compatibility**: N/A – documentation task
+- [ ] **Existing states to preserve**: All existing platform creation and tile selection logic
+- [ ] **New states/invariants to create**: Decorative platform schema validation, depth ordering rules
+- [ ] **Time reversal compatibility**: N/A – decorative platforms are static visual elements
 
 ### Implementation Plan
 
 #### Files/Classes to Change
-- **Create**: `agent_docs/level-creation/background-design-guidelines.md`
-- **Modify**: `agent_docs/level-creation/available_tiles.md` – add background asset section
+- **Modify**: `agent_docs/level-creation/level-format.md` – add decorative platform section
 
 #### Integration Points
 - **Systems affected**: None (documentation only)
@@ -562,38 +601,38 @@ Document available background assets and create design guidelines for background
 
 #### Testing Strategy
 - **Test files to create**: None (documentation task)
-- **Key test cases**: Asset validation will be tested in implementation tasks
+- **Key test cases**: Schema validation will be tested in implementation tasks
 - **Mock requirements**: None
 
 ### Task Breakdown & Acceptance Criteria
-- [ ] Catalog all available background sprites from Kenney spritesheet
-- [ ] Create background design guidelines document
-- [ ] Document best practices for background layer composition
-- [ ] Create visual hierarchy guidelines (backgrounds vs gameplay elements)
-- [ ] Document performance considerations for multiple background layers
-- [ ] Add background asset section to available_tiles.md
+- [x] Add "Decorative Platform" section to level-format.md after "Moving Platform" section
+- [x] Document decorative platform schema with all fields (type, x, y, width, tilePrefix, depth)
+- [x] Document depth ordering rules for background rendering
+- [x] Include example JSON snippets for single and multi-tile decorative platforms
+- [x] Reference existing tile selection behavior from floating platforms
+- [x] Document available tilePrefix options from available_tiles.md
 
 ### Expected Output
-Complete catalog of available background assets with design guidelines for level creators.
+Complete decorative platform schema documented in level-format.md with examples and validation rules.
 
 ### Risk Assessment
-- **Potential complexity**: Low – documentation and asset inventory
-- **Dependencies**: Kenney background assets, existing asset organization
+- **Potential complexity**: Low – documentation only, follows existing patterns
+- **Dependencies**: Existing tile selection system understanding
 - **Fallback plan**: N/A – documentation task
 
 ### Definition of Done
-- [ ] Background asset catalog complete
-- [ ] Design guidelines documented
-- [ ] Performance guidelines included
-- [ ] Visual hierarchy best practices documented
-- [ ] Integration with existing documentation structure
+- [x] Decorative platform schema section added to level-format.md
+- [x] Schema includes all required fields and validation rules
+- [x] Examples provided for single and multi-tile configurations
+- [x] Depth ordering documented for visual hierarchy
+- [x] Task marked complete
 
 ---
 
-## Task 03.04.2 – Update All Level Configurations with Rich Backgrounds
+## Task 03.04.2 – Create Decorative Platform Factory Method (TDD)
 
 ### Objective
-Update all existing level JSON files with appropriate background configurations using the new background system.
+Create SceneFactory.createDecorativePlatformsFromConfig() method using TDD approach to handle non-interactive background tiles.
 
 ### Task ID
 03.04.2
@@ -601,68 +640,196 @@ Update all existing level JSON files with appropriate background configurations 
 ### Pre-Implementation Analysis
 
 #### Documentation Dependencies
-- [ ] **level-format.md sections to reference**: Background configuration schema
-- [ ] **background-design-guidelines.md sections to reference**: Design guidelines from Task 03.04.1
-- [ ] **available_tiles.md sections to reference**: Background asset catalog
+- [ ] **invariants.md sections to review**: §13 Platform Geometry (tile selection patterns), §3 Scene Lifecycle (platform creation timing)
+- [ ] **testing_best_practices.md sections to apply**: "TDD Red-Green-Refactor", "Unit Testing"
+- [ ] **small_comprehensive_documentation.md sections to reference**: §1.2 Scene System (add.tileSprite usage)
 
 #### State & Invariant Impact Assessment
-- [ ] **Existing states to preserve**: Level playability, existing gameplay elements visibility
-- [ ] **New states/invariants to create**: Themed background configurations for each level
-- [ ] **Time reversal compatibility**: Unchanged – backgrounds remain static during gameplay
+- [ ] **Existing states to preserve**: Existing platform creation logic, tile selection system
+- [ ] **New states/invariants to create**: Decorative platform creation pattern in SceneFactory
+- [ ] **Time reversal compatibility**: Decorative platforms don't participate in time mechanics (static visual elements)
 
 ### Implementation Plan
 
 #### Files/Classes to Change
-- **Create**: `tests/integration/all-level-backgrounds.test.js`
-- **Modify**: `client/src/config/test-level.json` – rich background configuration
-- **Modify**: `client/src/config/adventure-level.json` – themed background configuration
-- **Modify**: `client/src/config/complex-level.json` – advanced background features
-- **Create**: New sample level configs showcasing different background themes
+- **Create**: `tests/unit/scene-factory-decorative-platforms.test.js`
+- **Modify**: `client/src/systems/SceneFactory.js` – add createDecorativePlatformsFromConfig method
 
 #### Integration Points
-- **Systems affected**: Level loading system, all level configurations
+- **Systems affected**: SceneFactory, decorative platform rendering system
 - **State machines**: None
 - **External libraries**: None
 
 #### Testing Strategy
-- **Test files to create**: `all-level-backgrounds.test.js`
+- **Test files to create**: `scene-factory-decorative-platforms.test.js`
 - **Key test cases**:
-  1. All level files load successfully with background configurations
-  2. Background themes appropriate for each level type
-  3. No visual conflicts between backgrounds and gameplay elements
-  4. Performance acceptable across all level configurations
-  5. Background configurations validate against schema
-- **Mock requirements**: Level loading mocks, performance measurement mocks
+  1. Single decorative tile creation with valid config
+  2. Multi-tile decorative platform with correct tile selection
+  3. Depth ordering for background rendering (negative depth values)
+  4. No physics body creation (visual only)
+  5. Invalid decorative config handling
+- **Mock requirements**: Use existing PhaserSceneMock.add.tileSprite
 
 ### Task Breakdown & Acceptance Criteria
-- [ ] Add appropriate background themes to test-level.json (grassland theme)
-- [ ] Add adventure-themed backgrounds to adventure-level.json
-- [ ] Add complex multi-layer backgrounds to complex-level.json
-- [ ] Create sample levels showcasing different background themes (desert, cave, industrial)
-- [ ] Validate all configurations against background schema
-- [ ] Performance test all level configurations
+- [x] Write failing test for single decorative tile creation
+- [x] Write failing test for multi-tile decorative platform with tile selection
+- [x] Write failing test for depth ordering (negative depth values)
+- [x] Write failing test for no physics body creation
+- [x] Implement createDecorativePlatformsFromConfig() method to make tests pass
+- [x] Ensure method reuses existing tile selection logic from floating platforms
 
 ### Expected Output
-All level configurations have rich, thematically appropriate backgrounds that enhance visual appeal without affecting gameplay.
+SceneFactory.createDecorativePlatformsFromConfig() method that creates visual-only background tiles with full test coverage.
 
 ### Risk Assessment
-- **Potential complexity**: Medium – need to balance visual appeal with performance
-- **Dependencies**: Tasks 03.01.x-03.04.1 completion, all previous background system work
-- **Fallback plan**: Use simpler background configurations if performance issues arise
+- **Potential complexity**: Low – reuses existing tile selection patterns
+- **Dependencies**: Task 03.04.1 completion, existing tile selection system
+- **Fallback plan**: Create minimal single-tile implementation if multi-tile proves complex
 
 ### Definition of Done
-- [ ] All level files updated with background configurations
-- [ ] Background themes appropriate for each level
-- [ ] No gameplay visibility issues
-- [ ] Performance validation completed
-- [ ] All configurations validate against schema
+- [x] All tests pass (Red-Green-Refactor cycle complete)
+- [x] Method handles valid and invalid configurations gracefully
+- [x] Depth ordering working correctly for background rendering
+- [x] No physics bodies created (visual only)
+- [x] Code coverage for all test cases
 
 ---
 
-## Task 03.05.1 – Create Comprehensive Background System Integration Test
+## Task 03.04.3 – Integrate Decorative Platforms with Scene Loading
 
 ### Objective
-Create comprehensive integration test that validates the entire background system from JSON config loading to rendering.
+Integrate decorative platform factory with SceneFactory.loadConfiguration() to ensure decorative platforms are created during level loading.
+
+### Task ID
+03.04.3
+
+### Pre-Implementation Analysis
+
+#### Documentation Dependencies
+- [ ] **invariants.md sections to review**: §3 Scene Lifecycle (scene creation order)
+- [ ] **testing_best_practices.md sections to apply**: "Integration Tests"
+- [ ] **small_comprehensive_documentation.md sections to reference**: Level loading patterns in SceneFactory
+
+#### State & Invariant Impact Assessment
+- [ ] **Existing states to preserve**: SceneFactory.loadConfiguration() behavior, existing platform creation flow
+- [ ] **New states/invariants to create**: Decorative platforms section in level configuration validation
+- [ ] **Time reversal compatibility**: Unchanged – decorative platforms don't participate in time mechanics
+
+### Implementation Plan
+
+#### Files/Classes to Change
+- **Create**: `tests/integration/scene-factory-decorative-integration.test.js`
+- **Modify**: `client/src/systems/SceneFactory.js` – integrate decorative platform creation with configuration loading
+
+#### Integration Points
+- **Systems affected**: SceneFactory configuration loading, level validation
+- **State machines**: None
+- **External libraries**: None
+
+#### Testing Strategy
+- **Test files to create**: `scene-factory-decorative-integration.test.js`
+- **Key test cases**:
+  1. Level config with decorative platforms section loads correctly
+  2. Level config without decorative platforms section handles gracefully
+  3. Decorative platform creation called automatically during level loading
+  4. Decorative platform validation errors handled properly
+  5. Integration with existing platform creation (ground, floating, moving)
+- **Mock requirements**: SceneFactory mock, level configuration mocks
+
+### Task Breakdown & Acceptance Criteria
+- [x] Add decorative platform validation to SceneFactory.loadConfiguration()
+- [x] Create integration test for decorative platform loading with level config
+- [x] Ensure decorative platforms are validated during configuration loading
+- [x] Test backward compatibility with configs without decorative platforms section
+- [x] Integration test with complete level configuration including decorative platforms
+
+### Expected Output
+SceneFactory automatically validates and creates decorative platforms during level loading alongside other platform types.
+
+### Risk Assessment
+- **Potential complexity**: Low – follows existing platform creation patterns
+- **Dependencies**: Tasks 03.04.1 and 03.04.2 completion
+- **Fallback plan**: Add decorative platform validation as separate step if integration proves complex
+
+### Definition of Done
+- [x] Decorative platforms section validation added to loadConfiguration()
+- [x] Integration tests pass
+- [x] Backward compatibility maintained
+- [x] No breaking changes to existing SceneFactory API
+- [x] Error handling for invalid decorative platform configurations
+
+---
+
+## Task 03.04.4 – Update Level Configurations with Decorative Platforms
+
+### Objective
+Add decorative platform configurations to existing level JSON files to demonstrate the new background tile system.
+
+### Task ID
+03.04.4
+
+### Pre-Implementation Analysis
+
+#### Documentation Dependencies
+- [ ] **level-format.md sections to reference**: Decorative platform configuration schema from Task 03.04.1
+- [ ] **available_tiles.md sections to reference**: Complete tile catalog for decorative usage
+
+#### State & Invariant Impact Assessment
+- [ ] **Existing states to preserve**: Level playability, existing platform/coin/enemy configurations
+- [ ] **New states/invariants to create**: Decorative platform configurations for test-level.json and other levels
+- [ ] **Time reversal compatibility**: Unchanged – decorative platforms don't participate in time mechanics
+
+### Implementation Plan
+
+#### Files/Classes to Change
+- **Create**: `tests/integration/level-decorative-platforms.test.js`
+- **Modify**: `client/src/config/test-level.json` – add decorative platform configuration
+- **Modify**: `client/src/config/adventure-level.json` – add themed decorative elements (if exists)
+
+#### Integration Points
+- **Systems affected**: Level loading system, decorative platform rendering
+- **State machines**: None
+- **External libraries**: None
+
+#### Testing Strategy
+- **Test files to create**: `level-decorative-platforms.test.js`
+- **Key test cases**:
+  1. test-level.json loads with correct decorative platform configuration
+  2. Decorative tile prefixes match available asset keys
+  3. Decorative platforms render behind gameplay elements (depth ordering)
+  4. No collision with player or enemies
+  5. Visual hierarchy maintained (gameplay elements clearly visible)
+- **Mock requirements**: Level loading mocks, depth ordering validation
+
+### Task Breakdown & Acceptance Criteria
+- [ ] Add decorative platforms section to test-level.json with various tile types
+- [ ] Use different tilePrefix values to showcase tile variety (grass, stone, dirt themes)
+- [ ] Include both single-tile and multi-tile decorative examples
+- [ ] Ensure negative depth values for background rendering
+- [ ] Test level loading with new decorative platform configurations
+- [ ] Verify no collision between decorative platforms and gameplay elements
+
+### Expected Output
+Level JSON files contain decorative platform configurations that demonstrate rich background design using existing tiles without affecting gameplay.
+
+### Risk Assessment
+- **Potential complexity**: Low – primarily configuration and validation
+- **Dependencies**: Tasks 03.04.1-03.04.3 completion, available tile assets
+- **Fallback plan**: Use simple single-tile decorative platforms if complex configs cause issues
+
+### Definition of Done
+- [ ] test-level.json contains decorative platform configuration
+- [ ] Decorative platforms validated against schema
+- [ ] Level loading tests pass with new configurations
+- [ ] Visual hierarchy preserved (gameplay elements clearly visible above decorative elements)
+- [ ] No collision issues with gameplay elements
+
+---
+
+## Task 03.05.1 – Create Comprehensive Decorative Platform Integration Test
+
+### Objective
+Create comprehensive integration test that validates the entire decorative platform system from JSON config loading to rendering.
 
 ### Task ID
 03.05.1
@@ -670,104 +837,52 @@ Create comprehensive integration test that validates the entire background syste
 ### Pre-Implementation Analysis
 
 #### Documentation Dependencies
-- [ ] **testing_best_practices.md sections to apply**: "Integration Tests", "Visual Regression Testing", "Performance Testing"
-- [ ] **invariants.md sections to review**: Complete background system contracts
+- [ ] **testing_best_practices.md sections to apply**: "Integration Tests", "Visual Hierarchy Testing"
+- [ ] **invariants.md sections to review**: Complete decorative platform system contracts
 
 #### State & Invariant Impact Assessment
-- [ ] **Existing states to preserve**: All background system functionality
-- [ ] **New states/invariants to create**: Complete background system validation
-- [ ] **Time reversal compatibility**: Validate background animation pause/resume during rewind
+- [ ] **Existing states to preserve**: All decorative platform system functionality
+- [ ] **New states/invariants to create**: Complete decorative platform system validation
+- [ ] **Time reversal compatibility**: Validate decorative platforms remain static during gameplay
 
 ### Implementation Plan
 
 #### Files/Classes to Change
-- **Create**: `tests/integration/background-system-complete.test.js`
+- **Create**: `tests/integration/decorative-platform-system-complete.test.js`
 
 #### Integration Points
-- **Systems affected**: Complete background system (factory, rendering, animations, time rewind)
+- **Systems affected**: Complete decorative platform system (factory, rendering, depth ordering)
 - **State machines**: None
-- **External libraries**: GSAP (for animation testing)
+- **External libraries**: None
 
 #### Testing Strategy
-- **Test files to create**: `background-system-complete.test.js`
+- **Test files to create**: `decorative-platform-system-complete.test.js`
 - **Key test cases**:
-  1. Complete background lifecycle: JSON config → loading → rendering → parallax → animations
-  2. Multiple background layers with correct depth ordering
-  3. Background performance with complex configurations
-  4. Time rewind integration with background animations
-  5. Error handling across the entire background system
-- **Mock requirements**: Complete system mocks, performance measurement mocks
+  1. Complete decorative platform lifecycle: JSON config → loading → rendering
+  2. Multi-tile decorative platforms with correct tile selection
+  3. Depth ordering with gameplay elements (decorative platforms behind)
+  4. No collision detection with player or enemies
+  5. Visual hierarchy validation across complex level configurations
+- **Mock requirements**: Complete system mocks, collision detection validation
 
 ### Task Breakdown & Acceptance Criteria
-- [ ] Test complete background creation pipeline from JSON to render
-- [ ] Validate background depth ordering across complex scenarios
-- [ ] Performance benchmark for maximum supported background complexity
-- [ ] Time rewind integration test with animated backgrounds
-- [ ] Error handling validation for all background system components
-- [ ] Visual regression testing for background rendering
+- [ ] Test complete decorative platform creation pipeline from JSON to render
+- [ ] Validate tile selection for single and multi-tile decorative platforms
+- [ ] Verify depth ordering ensures decorative platforms render behind gameplay elements
+- [ ] Confirm no collision detection between decorative platforms and game entities
+- [ ] Validate visual hierarchy with complex level configurations
 
 ### Expected Output
-Comprehensive integration test that validates the entire background system works correctly end-to-end.
+Comprehensive integration test that validates the entire decorative platform system works correctly end-to-end.
 
 ### Risk Assessment
-- **Potential complexity**: High – comprehensive integration testing is complex
-- **Dependencies**: All previous background tasks completion
+- **Potential complexity**: Medium – comprehensive integration testing with visual validation
+- **Dependencies**: All previous decorative platform tasks completion
 - **Fallback plan**: Break into smaller integration tests if comprehensive test proves too complex
 
 ### Definition of Done
-- [ ] Complete background system integration test passes
-- [ ] Performance benchmarks documented
-- [ ] Error handling validated across all components
-- [ ] Time rewind integration working correctly
-- [ ] Visual regression testing established
-
----
-
-## Task 03.05.2 – Finalize Background System Documentation
-
-### Objective
-Complete and finalize all documentation for the JSON-driven background system.
-
-### Task ID
-03.05.2
-
-### Pre-Implementation Analysis
-
-#### Documentation Dependencies
-- [ ] All previous task documentation updates
-- [ ] **testing_best_practices.md sections to reference**: Documentation standards
-
-### Implementation Plan
-
-#### Files/Classes to Change
-- **Modify**: `agent_docs/level-creation/level-format.md` – finalize background documentation
-- **Modify**: `agent_docs/level-creation/background-design-guidelines.md` – complete guidelines
-- **Modify**: `agent_docs/small_comprehensive_documentation.md` – add background system reference
-
-#### Testing Strategy
-- **Test files to create**: None (documentation task)
-- **Key test cases**: Documentation review and validation
-- **Mock requirements**: None
-
-### Task Breakdown & Acceptance Criteria
-- [ ] Finalize background configuration schema in level-format.md
-- [ ] Complete background design guidelines with examples
-- [ ] Add background system section to small_comprehensive_documentation.md
-- [ ] Create quick reference guide for background configuration
-- [ ] Document performance guidelines and limitations
-- [ ] Update any other documentation references to background system
-
-### Expected Output
-Complete, comprehensive documentation for the JSON-driven background system that enables level creators to use it effectively.
-
-### Risk Assessment
-- **Potential complexity**: Low – documentation consolidation and review
-- **Dependencies**: All background system implementation completion
-- **Fallback plan**: N/A – documentation task
-
-### Definition of Done
-- [ ] All background system documentation complete and accurate
-- [ ] Quick reference guide created
-- [ ] Performance guidelines documented
-- [ ] Documentation integrated with existing docs
+- [ ] Complete decorative platform system integration test passes
+- [ ] Depth ordering validated across all scenarios
+- [ ] No collision detection confirmed
+- [ ] Visual hierarchy testing established
 - [ ] Task marked complete 

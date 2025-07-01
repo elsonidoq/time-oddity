@@ -214,6 +214,93 @@ Example:
 // Results in: terrain_grass_block (single tile)
 ```
 
+### 2.6 Decorative Platform (`type: "decorative"`)
+Non-interactive background tiles that provide visual design elements without affecting gameplay. Players and enemies pass through decorative platforms, making them ideal for background decoration and level atmosphere.
+
+Field            | Type    | Required | Description
+-----------------|---------|----------|------------
+`type`           | string  | yes      | Always `"decorative"`.
+`x`, `y`         | number  | yes      | World-space coordinates (**pixels**).
+`tilePrefix`     | string  | yes      | Base tile prefix for automatic tile selection.
+`width`          | number  | no (64)  | Optional span in pixels (default 64). Tiles are placed left→right.
+`depth`          | number  | yes      | Z-index for rendering order. Negative values render behind gameplay elements.
+
+**Tile Selection**: Decorative platforms use block-style naming (`_left`, `_center`, `_right`), identical to floating platforms.
+
+**Rendering Behavior**:
+- **No collision detection**: Players and enemies pass through decorative platforms
+- **Background depth rendering**: Uses negative depth values to render behind gameplay elements
+- **Visual only**: No physics body creation (performance efficient)
+- **Time reversal compatible**: Static elements that don't participate in time mechanics
+
+**Depth Ordering Guidelines**:
+- **Background Elements**: depth -1.0 to -0.1 (render behind gameplay)
+- **Gameplay Elements**: depth 0 and above (platforms, enemies, player)
+- **Recommended**: Use depth -0.5 for most decorative platforms
+
+**Available Tile Prefixes** (from `available_tiles.md`):
+- **Terrain Blocks**: `terrain_grass_block`, `terrain_dirt_block`, `terrain_stone_block`, `terrain_sand_block`, `terrain_snow_block`, `terrain_purple_block`
+- **Decorative Elements**: `bush`, `cactus`, `mushroom_brown`, `mushroom_red`, `rock`, `hill`, `hill_top`
+- **Architecture**: `brick_brown`, `brick_grey`, `bricks_brown`, `bricks_grey`, `bridge`, `bridge_logs`
+- **Nature**: `grass`, `grass_purple`, `snow`, `water`, `water_top`, `lava`, `lava_top`
+
+**Single-tile Example (default):**
+```jsonc
+{
+  "type": "decorative",
+  "x": 100,
+  "y": 200,
+  "tilePrefix": "terrain_grass_block",
+  "depth": -0.5
+}
+// Results in: terrain_grass_block (single tile)
+```
+
+**Multi-tile Example (3 tiles):**
+```jsonc
+{
+  "type": "decorative",
+  "x": 100,
+  "y": 200,
+  "width": 192,
+  "tilePrefix": "terrain_grass_block",
+  "depth": -0.5
+}
+// Results in: terrain_grass_block_left, terrain_grass_block_center, terrain_grass_block_right
+```
+
+**Two-tile Example:**
+```jsonc
+{
+  "type": "decorative",
+  "x": 100,
+  "y": 200,
+  "width": 128,
+  "tilePrefix": "terrain_grass_block",
+  "depth": -0.5
+}
+// Results in: terrain_grass_block_left, terrain_grass_block_right
+```
+
+**Decorative Element Example:**
+```jsonc
+{
+  "type": "decorative",
+  "x": 300,
+  "y": 150,
+  "tilePrefix": "bush",
+  "depth": -0.3
+}
+// Results in: bush (single decorative element)
+```
+
+**Validation Rules**:
+- `tilePrefix`: Must be a valid tile prefix from `available_tiles.md`
+- `depth`: Must be negative for background rendering (< 0)
+- `width`: Must be positive and divisible by 64 (tile size)
+- `x`, `y`: Must be valid world coordinates
+- **No collision**: Decorative platforms never create physics bodies
+
 ---
 
 ## 3. Collectible Objects
