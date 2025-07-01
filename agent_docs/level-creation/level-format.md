@@ -3,7 +3,7 @@
 This document defines the **canonical JSON schema** for describing a level in Time Oddity.  It aggregates the implicit contracts found in the production code (`SceneFactory`, `GameScene`, entity classes) and codifies them into a single reference that tests and future tools can rely on.
 
 > **IMPORTANT:**
-> • All sprite `frame`/`tileKey` strings **must** come from the master list in `agent_docs/level-creation/available_tiles.md`.  Adding new artwork? – update that file **and** extend the test-suite before using the new key here.  
+> • All sprite `frame`/`tilePrefix` strings **must** come from the master list in `agent_docs/level-creation/available_tiles.md`.  Adding new artwork? – update that file **and** extend the test-suite before using the new key here.  
 > • Any change to this document is a **breaking-contract change** – run the full test-suite before merging.
 
 ---
@@ -24,18 +24,46 @@ Every field is **optional** – `SceneFactory` falls back to hard-coded layouts 
 
 ## 2. Platform Objects
 
-### 2.1 Common Fields
+### 2.1 Tile Prefix System
+
+Platforms now use a **tile prefix system** that automatically selects appropriate tile variants based on platform size and position. This system provides visual distinction for multi-tile platforms and ensures consistent tile selection.
+
+**Tile Prefix Field:**
+Field            | Type    | Required | Description
+-----------------|---------|----------|------------
+`tilePrefix`     | string  | yes      | Base tile prefix for automatic tile selection (e.g., 'terrain_grass_block')
+
+**Automatic Tile Selection Behavior:**
+- **Single Tile (width ≤ 64px)**: Uses the base prefix directly (e.g., `terrain_grass_block`)
+- **Two Tiles**: Uses `_left` and `_right` suffixes
+- **Three+ Tiles**: Uses `_left`, `_center`/`_middle`, and `_right` suffixes
+
+**Naming Conventions:**
+- **Block-style prefixes** (containing `_block`): Use `_left`, `_center`, `_right`
+- **Horizontal-style prefixes**: Use `_left`, `_middle`, `_right`
+
+**Examples:**
+- **Single tile**: `terrain_grass_block` → `terrain_grass_block`
+- **Multi-tile**: `terrain_grass_block` → `terrain_grass_block_left`, `terrain_grass_block_center`, `terrain_grass_block_right`
+- **Single tile**: `terrain_grass_horizontal` → `terrain_grass_horizontal`
+- **Multi-tile**: `terrain_grass_horizontal` → `terrain_grass_horizontal_left`, `terrain_grass_horizontal_middle`, `terrain_grass_horizontal_right`
+
+**Backward Compatibility:** The old `tileKey` system has been removed for upgraded platform types (ground, floating, moving). All platforms must now use `tilePrefix`.
+
+### 2.2 Common Fields
 Field            | Type    | Required | Description
 -----------------|---------|----------|------------
 `type`           | string  | yes      | Discriminator – see sub-types below.
 `x`, `y`         | number  | yes      | World-space coordinates (**pixels**).
-`tileKey`        | string  | yes      | Frame name from [`available_tiles.md`](available_tiles.md).
+`tilePrefix`     | string  | yes      | Base tile prefix for automatic tile selection.
 `isFullBlock`    | boolean | no (false)| Hit-box mode – `true` ⇒ use full sprite bounds.
 
-### 2.2 Ground Platform (`type: "ground"`)
+### 2.3 Ground Platform (`type: "ground"`)
 Additional field | Type   | Description
 -----------------|--------|------------
 `width`          | number | Horizontal span in **pixels**.  Internally subdivided into 64 px tiles.
+
+**Tile Selection:** Ground platforms use horizontal-style naming (`_left`, `_middle`, `_right`).
 
 ```jsonc
 {
@@ -43,27 +71,75 @@ Additional field | Type   | Description
   "x": 0,
   "y": 2900,
   "width": 6000,
-  "tileKey": "terrain_grass_horizontal_middle",
+  "tilePrefix": "terrain_grass_horizontal",
   "isFullBlock": true
 }
 ```
 
-### 2.3 Floating Platform (`type: "floating"`)
+**Multi-tile Example (3+ tiles):**
+```jsonc
+{
+  "type": "ground",
+  "x": 0,
+  "y": 2900,
+  "width": 192,  // 3 tiles (64px each)
+  "tilePrefix": "terrain_grass_horizontal",
+  "isFullBlock": true
+}
+// Results in: terrain_grass_horizontal_left, terrain_grass_horizontal_middle, terrain_grass_horizontal_right
+```
+
+**Single-tile Example:**
+```jsonc
+{
+  "type": "ground",
+  "x": 0,
+  "y": 2900,
+  "width": 64,  // 1 tile
+  "tilePrefix": "terrain_grass_horizontal",
+  "isFullBlock": true
+}
+// Results in: terrain_grass_horizontal (single tile)
+```
+
+### 2.4 Floating Platform (`type: "floating"`)
 Field     | Type   | Description
 ----------|--------|------------
 `width`   | number | Optional span in pixels (default 64).  Tiles are placed left→right.
 
+**Tile Selection:** Floating platforms use block-style naming (`_left`, `_center`, `_right`).
+
 ```jsonc
-{ "type": "floating", "x": 700, "y": 2350, "width": 250, "tileKey": "terrain_grass_block_center", "isFullBlock": true }
+{ "type": "floating", "x": 700, "y": 2350, "width": 250, "tilePrefix": "terrain_grass_block", "isFullBlock": true }
 ```
 
-### 2.4 Moving Platform (`type: "moving"`)
+**Single-tile Example (default):**
+```jsonc
+{ "type": "floating", "x": 700, "y": 2350, "tilePrefix": "terrain_grass_block", "isFullBlock": true }
+// Results in: terrain_grass_block (single tile)
+```
+
+**Multi-tile Example (3 tiles):**
+```jsonc
+{ "type": "floating", "x": 700, "y": 2350, "width": 192, "tilePrefix": "terrain_grass_block", "isFullBlock": true }
+// Results in: terrain_grass_block_left, terrain_grass_block_center, terrain_grass_block_right
+```
+
+**Two-tile Example:**
+```jsonc
+{ "type": "floating", "x": 700, "y": 2350, "width": 128, "tilePrefix": "terrain_grass_block", "isFullBlock": true }
+// Results in: terrain_grass_block_left, terrain_grass_block_right
+```
+
+### 2.5 Moving Platform (`type: "moving"`)
 Inherits all **Common Fields** plus:
 
 Field        | Type   | Required | Description
 -------------|--------|----------|------------
 `width`      | number | no       | Pixels – identical semantics to floating platforms.
 `movement`   | object | yes      | Movement descriptor (see below).
+
+**Tile Selection:** Moving platforms use block-style naming (`_left`, `_center`, `_right`), identical to floating platforms.
 
 #### Movement Descriptor
 Key          | Type    | Required | Description
@@ -81,7 +157,7 @@ Example:
   "type": "moving",
   "x": 3200,
   "y": 1850,
-  "tileKey": "terrain_grass_block_center",
+  "tilePrefix": "terrain_grass_block",
   "movement": {
     "type": "linear",
     "startX": 3200,
@@ -93,6 +169,49 @@ Example:
     "autoStart": true
   }
 }
+```
+
+**Multi-tile Moving Platform Example:**
+```jsonc
+{
+  "type": "moving",
+  "x": 3200,
+  "y": 1850,
+  "width": 192,  // 3 tiles
+  "tilePrefix": "terrain_grass_block",
+  "movement": {
+    "type": "linear",
+    "startX": 3200,
+    "startY": 1850,
+    "endX": 3200,
+    "endY": 1100,
+    "speed": 50,
+    "mode": "bounce",
+    "autoStart": true
+  }
+}
+// Results in: terrain_grass_block_left, terrain_grass_block_center, terrain_grass_block_right
+```
+
+**Single-tile Moving Platform Example:**
+```jsonc
+{
+  "type": "moving",
+  "x": 3200,
+  "y": 1850,
+  "tilePrefix": "terrain_grass_block",
+  "movement": {
+    "type": "linear",
+    "startX": 3200,
+    "startY": 1850,
+    "endX": 3200,
+    "endY": 1100,
+    "speed": 50,
+    "mode": "bounce",
+    "autoStart": true
+  }
+}
+// Results in: terrain_grass_block (single tile)
 ```
 
 ---
@@ -270,9 +389,9 @@ Field            | Type    | Required | Description
 ```jsonc
 {
   "platforms": [
-    { "type": "ground",   "x": 0,    "y": 2900, "width": 6000, "tileKey": "terrain_grass_horizontal_middle", "isFullBlock": true },
-    { "type": "floating", "x": 700,  "y": 2350, "width": 250,  "tileKey": "terrain_grass_block_center",        "isFullBlock": true },
-    { "type": "moving",   "x": 3200, "y": 1850, "tileKey": "terrain_grass_block_center", "movement": {
+    { "type": "ground",   "x": 0,    "y": 2900, "width": 6000, "tilePrefix": "terrain_grass_horizontal", "isFullBlock": true },
+    { "type": "floating", "x": 700,  "y": 2350, "width": 250,  "tilePrefix": "terrain_grass_block",        "isFullBlock": true },
+    { "type": "moving",   "x": 3200, "y": 1850, "tilePrefix": "terrain_grass_block", "movement": {
         "type": "linear", "startX": 3200, "startY": 1850, "endX": 3200, "endY": 1100, "speed": 50, "mode": "bounce", "autoStart": true }
     }
   ],
@@ -295,4 +414,5 @@ Field            | Type    | Required | Description
    * Physics configuration order (see `invariants.md`).
 3. Keep this document and `available_tiles.md` in sync with assets and entity code.
 4. **Enemy types** must implement the Enemy/Freeze Contract (§8 in `invariants.md`).
+5. **Custom state recording** is required for enemies with complex behavior (like LoopHound patrol patterns). 
 5. **Custom state recording** is required for enemies with complex behavior (like LoopHound patrol patterns). 
