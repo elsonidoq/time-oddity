@@ -12,12 +12,16 @@
  * 
  * Supported Collectible Types:
  * - coin: Collectible coins with configurable value
+ * 
+ * Supported Background Types:
+ * - layer: Background layers with parallax scrolling support
  */
 
 import MovingPlatform from '../entities/MovingPlatform.js';
 import Coin from '../entities/Coin.js';
 import GoalTile from '../entities/GoalTile.js';
 import { LoopHound } from '../entities/enemies/LoopHound.js';
+import { TileSelector } from './TileSelector.js';
 
 export class SceneFactory {
   /**
@@ -46,7 +50,213 @@ export class SceneFactory {
       return false;
     }
 
+    // Validate backgrounds section if present
+    if (config.backgrounds !== undefined) {
+      // Backgrounds must be an array if specified
+      if (!Array.isArray(config.backgrounds)) {
+        return false;
+      }
+
+      // Basic structure validation - reject configs with missing critical fields
+      // But allow configs with invalid sprite keys to be filtered during creation
+      for (const backgroundConfig of config.backgrounds) {
+        // Only reject if fundamental structure is wrong (not an object)
+        if (!backgroundConfig || typeof backgroundConfig !== 'object') {
+          return false;
+        }
+
+        // Reject if critical required fields are missing (but allow invalid sprite keys)
+        const criticalFields = ['type', 'x', 'y', 'width', 'height', 'depth'];
+        for (const field of criticalFields) {
+          if (backgroundConfig[field] === undefined || backgroundConfig[field] === null) {
+            return false;
+          }
+        }
+
+        // Ensure critical fields have correct types
+        if (backgroundConfig.type !== 'layer') {
+          return false;
+        }
+
+        const numericFields = ['x', 'y', 'width', 'height', 'depth'];
+        for (const field of numericFields) {
+          if (typeof backgroundConfig[field] !== 'number') {
+            return false;
+          }
+        }
+      }
+    }
+
     this.config = config;
+    return true;
+  }
+
+  // ========================================
+  // Background Creation Methods
+  // ========================================
+
+  /**
+   * Creates background layers from configuration array
+   * @param {Array} backgroundConfigs - Array of background layer configurations
+   * @returns {Promise<Array>} - Promise that resolves to array of created background sprites
+   */
+  async createBackgroundsFromConfig(backgroundConfigs) {
+    if (!backgroundConfigs || !Array.isArray(backgroundConfigs)) {
+      return [];
+    }
+
+    if (backgroundConfigs.length === 0) {
+      return [];
+    }
+
+    const createdBackgrounds = [];
+
+    for (const backgroundConfig of backgroundConfigs) {
+      const background = await this.createBackgroundLayer(backgroundConfig);
+      if (background) {
+        createdBackgrounds.push(background);
+      }
+    }
+
+    return createdBackgrounds;
+  }
+
+  /**
+   * Creates a single background layer from configuration
+   * @param {Object} backgroundConfig - Background layer configuration
+   * @param {string} backgroundConfig.type - Always "layer" for background layers
+   * @param {number} backgroundConfig.x - X position for layer positioning
+   * @param {number} backgroundConfig.y - Y position for layer positioning
+   * @param {number} backgroundConfig.width - Width for tileSprite creation
+   * @param {number} backgroundConfig.height - Height for tileSprite creation
+   * @param {string} backgroundConfig.spriteKey - Background sprite frame name from backgrounds atlas
+   * @param {number} backgroundConfig.depth - Z-index for layer ordering (must be negative)
+   * @param {number} [backgroundConfig.scrollSpeed=0.0] - Parallax scrolling speed multiplier (0.0-1.0)
+   * @returns {Phaser.GameObjects.TileSprite|null} - Created background sprite or null if validation failed
+   */
+  async createBackgroundLayer(backgroundConfig) {
+    // Validate configuration
+    if (!this.validateBackgroundConfiguration(backgroundConfig)) {
+      return null;
+    }
+
+    if (!this.scene || !this.scene.add || !this.scene.add.tileSprite) {
+      return null;
+    }
+
+    // Create the background layer using tileSprite
+    const background = this.scene.add.tileSprite(
+      backgroundConfig.x,
+      backgroundConfig.y,
+      backgroundConfig.width,
+      backgroundConfig.height,
+      'backgrounds',
+      backgroundConfig.spriteKey
+    );
+
+    // Set depth for proper layering
+    background.setDepth(backgroundConfig.depth);
+
+    // Store scrollSpeed for parallax calculation
+    const scrollSpeed = backgroundConfig.scrollSpeed !== undefined ? backgroundConfig.scrollSpeed : 0.0;
+    background.setData('scrollSpeed', scrollSpeed);
+
+    // Animation support (minimal TDD implementation)
+    const anim = backgroundConfig.animation;
+    if (anim && typeof anim === 'object') {
+      // Validate animation config
+      const validTypes = ['fade', 'move'];
+      const validType = validTypes.includes(anim.animationType);
+      const validDuration = typeof anim.duration === 'number' && anim.duration > 0;
+      const validEase = typeof anim.ease === 'string';
+      if (validType && validDuration && validEase) {
+        // Dynamically import gsap for ESM test mocking compatibility
+        const gsap = (await import('gsap')).default;
+        const timeline = gsap.timeline({ repeat: anim.repeat ?? 0 });
+        if (anim.animationType === 'fade') {
+          timeline.to(background, { alpha: 0, duration: anim.duration, ease: anim.ease, yoyo: true, repeat: anim.repeat ?? 0 });
+        } else if (anim.animationType === 'move') {
+          timeline.to(background, { x: background.x + 50, duration: anim.duration, ease: anim.ease, yoyo: true, repeat: anim.repeat ?? 0 });
+        }
+        background.animationTimeline = timeline;
+      }
+    }
+
+    return background;
+  }
+
+  /**
+   * Validates a background layer configuration for creation
+   * @param {Object} backgroundConfig - Background configuration to validate
+   * @returns {boolean} - True if configuration is valid for creation, false otherwise
+   */
+  validateBackgroundConfiguration(backgroundConfig) {
+    // Basic structure check (should already be validated in loadConfiguration)
+    if (!backgroundConfig || typeof backgroundConfig !== 'object') {
+      return false;
+    }
+
+    // Critical fields check (should already be validated in loadConfiguration)
+    const requiredFields = ['type', 'x', 'y', 'width', 'height', 'spriteKey', 'depth'];
+    for (const field of requiredFields) {
+      if (backgroundConfig[field] === undefined || backgroundConfig[field] === null) {
+        return false;
+      }
+    }
+
+    // Type validation (should already be validated in loadConfiguration)
+    if (backgroundConfig.type !== 'layer') {
+      return false;
+    }
+
+    // Numeric fields validation (should already be validated in loadConfiguration for critical fields)
+    const numericFields = ['x', 'y', 'width', 'height', 'depth'];
+    for (const field of numericFields) {
+      if (typeof backgroundConfig[field] !== 'number') {
+        return false;
+      }
+    }
+
+    // Validate width and height are positive
+    if (backgroundConfig.width <= 0 || backgroundConfig.height <= 0) {
+      return false;
+    }
+
+    // Validate depth is negative (background layers should be behind gameplay elements)
+    if (backgroundConfig.depth >= 0) {
+      return false;
+    }
+
+    // Validate sprite key (this is the main validation during creation)
+    if (typeof backgroundConfig.spriteKey !== 'string') {
+      return false;
+    }
+
+    // Validate sprite key is from available background sprites
+    const validBackgroundSprites = [
+      'background_solid_sky', 'background_solid_cloud', 'background_solid_dirt', 
+      'background_solid_grass', 'background_solid_sand',
+      'background_color_desert', 'background_color_hills', 'background_color_mushrooms', 
+      'background_color_trees',
+      'background_fade_desert', 'background_fade_hills', 'background_fade_mushrooms', 
+      'background_fade_trees',
+      'background_clouds'
+    ];
+
+    if (!validBackgroundSprites.includes(backgroundConfig.spriteKey)) {
+      return false;
+    }
+
+    // Validate scrollSpeed if provided
+    if (backgroundConfig.scrollSpeed !== undefined) {
+      if (typeof backgroundConfig.scrollSpeed !== 'number') {
+        return false;
+      }
+      if (backgroundConfig.scrollSpeed < 0.0 || backgroundConfig.scrollSpeed > 1.0) {
+        return false;
+      }
+    }
+
     return true;
   }
 
@@ -60,7 +270,7 @@ export class SceneFactory {
    * @param {number} groundConfig.x - Starting X position
    * @param {number} groundConfig.y - Y position (ground top)
    * @param {number} groundConfig.width - Total width of ground platform
-   * @param {string} groundConfig.tileKey - Tile atlas key for ground tiles
+   * @param {string} groundConfig.tileKey - Tile atlas key for ground tiles (now a prefix)
    * @param {boolean} groundConfig.isFullBlock - Whether to use full block hitbox
    * @param {Phaser.Physics.Arcade.Group} platformsGroup - The physics group to add platforms to
    * @returns {Array|null} - Array of created platform sprites or null if creation failed
@@ -73,14 +283,21 @@ export class SceneFactory {
     const platforms = [];
     const tileWidth = 64; // Standard tile width
     const tileCount = Math.ceil(groundConfig.width / tileWidth);
+    const tilePrefix = groundConfig.tileKey;
 
     for (let i = 0; i < tileCount; i++) {
       const x = groundConfig.x + (i * tileWidth);
-      const platform = platformsGroup.create(x, groundConfig.y, 'tiles', groundConfig.tileKey);
-      
+      // Use TileSelector to get the correct frame
+      let frame;
+      try {
+        frame = TileSelector.getTileKey(tilePrefix, x, tileCount, i);
+      } catch (e) {
+        // fallback to legacy behavior if tileKey is already a full key
+        frame = tilePrefix;
+      }
+      const platform = platformsGroup.create(x, groundConfig.y, 'tiles', frame);
       platform.setOrigin(0, 0);
       this.configurePlatform(platform, groundConfig.isFullBlock);
-      
       platforms.push(platform);
     }
 
@@ -93,7 +310,7 @@ export class SceneFactory {
    * @param {number} platformConfig.x - X position (leftmost tile)
    * @param {number} platformConfig.y - Y position
    * @param {number} [platformConfig.width] - Optional width in pixels (creates multiple tiles if > 64)
-   * @param {string} platformConfig.tileKey - Tile atlas key
+   * @param {string} platformConfig.tileKey - Tile atlas key (now a prefix)
    * @param {boolean} platformConfig.isFullBlock - Whether to use full block hitbox
    * @param {Phaser.Physics.Arcade.Group} platformsGroup - The physics group to add platform(s) to
    * @returns {Array<Phaser.Physics.Arcade.Sprite>|Phaser.Physics.Arcade.Sprite|null} - Array of created platform sprites (if width specified), single sprite, or null if creation failed
@@ -111,14 +328,19 @@ export class SceneFactory {
       const platforms = [];
       const tileWidth = 64; // Standard tile width
       const tileCount = Math.ceil(platformConfig.width / tileWidth);
+      const tilePrefix = platformConfig.tileKey;
 
       for (let i = 0; i < tileCount; i++) {
         const x = platformConfig.x + (i * tileWidth);
-        const platform = platformsGroup.create(x, platformConfig.y, 'tiles', platformConfig.tileKey);
-        
+        let frame;
+        try {
+          frame = TileSelector.getTileKey(tilePrefix, x, tileCount, i);
+        } catch (e) {
+          frame = tilePrefix;
+        }
+        const platform = platformsGroup.create(x, platformConfig.y, 'tiles', frame);
         platform.setOrigin(0, 0);
         this.configurePlatform(platform, platformConfig.isFullBlock);
-        
         platforms.push(platform);
       }
 
@@ -126,13 +348,19 @@ export class SceneFactory {
     }
 
     // Default behavior: create single tile
+    let frame;
+    const tilePrefix = platformConfig.tileKey;
+    try {
+      frame = TileSelector.getTileKey(tilePrefix, platformConfig.x, 1, 0);
+    } catch (e) {
+      frame = tilePrefix;
+    }
     const platform = platformsGroup.create(
       platformConfig.x,
       platformConfig.y,
       'tiles',
-      platformConfig.tileKey
+      frame
     );
-
     this.configurePlatform(platform, platformConfig.isFullBlock);
     return platform;
   }

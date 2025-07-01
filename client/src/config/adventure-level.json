@@ -718,5 +718,27 @@
       "direction": 1,
       "speed": 60
     }
+  ],
+  "backgrounds": [
+    {
+      "type": "layer",
+      "x": 2500,
+      "y": 2400,
+      "width": 5000,
+      "height": 4800,
+      "spriteKey": "background_solid_sky",
+      "depth": -2,
+      "scrollSpeed": 0.0
+    },
+    {
+      "type": "layer",
+      "x": 2500,
+      "y": 2400,
+      "width": 5000,
+      "height": 4800,
+      "spriteKey": "background_color_trees",
+      "depth": -1,
+      "scrollSpeed": 0.4
+    }
   ]
 } 

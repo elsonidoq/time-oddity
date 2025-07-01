@@ -11,10 +11,10 @@ Before beginning any task, you MUST review these documents:
 
 ## Task Assignment
 - Read all documentation
-- read  task 2.02 described in @02_enemy_behavior.md 
+- Read the task 3.02.2 described in @03_level_visual_config.md 
 - Make sure to think the proper abstraction 
 - Write down a plan to implement it. Identify new states, invariants that need preservation
-- Follow a STRICT TDD approach and implement your plan to execute task 2.02 described in  @02_enemy_behavior.md 
+- Follow a STRICT TDD approach and implement your plan to execute tasks 3.02.2 described in  @03_level_visual_config.md 
 - After finishing a task, double check the task description to make sure you actually finished
 
 

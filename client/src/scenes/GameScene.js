@@ -81,8 +81,12 @@ export default class GameScene extends BaseScene {
     this.levelWidth = configLevelWidth;
     this.levelHeight = configLevelHeight;
 
-    // Create parallax background layers
-    this.createParallaxBackground();
+    // Initialize SceneFactory before background creation
+    this.sceneFactory = new SceneFactory(this);
+    this.sceneFactory.loadConfiguration(testLevelConfig);
+
+    // Create parallax background layers using factory or fallback to hardcoded
+    this.createBackgroundsWithFactory();
 
     this.collisionManager = new CollisionManager(this, this._mockScene);
     this.timeManager = new TimeManager(this, this._mockScene);
@@ -225,28 +229,17 @@ export default class GameScene extends BaseScene {
    * Creates platforms using SceneFactory instead of hardcoded creation
    */
   createPlatformsWithFactory() {
-    if (!this.platforms) return;
+    if (!this.platforms || !this.sceneFactory) return;
 
-    // Use injected sceneFactory if present, otherwise create new
-    const sceneFactory = this.sceneFactory || new SceneFactory(this);
+    // Create all platforms from configuration
+    const createdPlatforms = this.sceneFactory.createPlatformsFromConfig(this.platforms);
     
-    // Load the test level configuration
-    const configLoaded = sceneFactory.loadConfiguration(testLevelConfig);
-    
-    if (configLoaded) {
-      // Create all platforms from configuration
-      const createdPlatforms = sceneFactory.createPlatformsFromConfig(this.platforms);
-      
-      if (createdPlatforms.length === 0) {
-        console.warn('[GameScene] No platforms were created by SceneFactory, falling back to hardcoded creation');
-        this.createPlatformsHardcoded();
-      } else {
-        // Register MovingPlatform instances with TimeManager for time reversal
-        this.registerMovingPlatformsWithTimeManager(createdPlatforms);
-      }
-    } else {
-      console.warn('[GameScene] Failed to load level configuration, falling back to hardcoded creation');
+    if (createdPlatforms.length === 0) {
+      console.warn('[GameScene] No platforms were created by SceneFactory, falling back to hardcoded creation');
       this.createPlatformsHardcoded();
+    } else {
+      // Register MovingPlatform instances with TimeManager for time reversal
+      this.registerMovingPlatformsWithTimeManager(createdPlatforms);
     }
   }
 
@@ -254,17 +247,11 @@ export default class GameScene extends BaseScene {
    * Creates coins using SceneFactory instead of hardcoded creation
    */
   createCoinsWithFactory() {
-    if (!this.coins) return;
+    if (!this.coins || !this.sceneFactory) return;
 
-    // Use injected sceneFactory if present, otherwise create new
-    const sceneFactory = this.sceneFactory || new SceneFactory(this);
-    
-    // Load the test level configuration
-    const configLoaded = sceneFactory.loadConfiguration(testLevelConfig);
-    
-    if (configLoaded && testLevelConfig.coins && Array.isArray(testLevelConfig.coins)) {
+    if (testLevelConfig.coins && Array.isArray(testLevelConfig.coins)) {
       // Create all coins from configuration
-      const createdCoins = sceneFactory.createCoinsFromConfig(testLevelConfig.coins, this.coins);
+      const createdCoins = this.sceneFactory.createCoinsFromConfig(testLevelConfig.coins, this.coins);
       
       if (createdCoins.length === 0) {
         console.warn('[GameScene] No coins were created by SceneFactory, falling back to hardcoded creation');
@@ -324,26 +311,18 @@ export default class GameScene extends BaseScene {
    * Creates goal tiles using SceneFactory from level configuration
    */
   createGoalsWithFactory() {
-    if (!this.goalTiles) return;
+    if (!this.goalTiles || !this.sceneFactory) return;
 
-    // Use injected sceneFactory if present, otherwise create new
-    const sceneFactory = this.sceneFactory || new SceneFactory(this);
+    // Create goal tile from configuration if it exists, passing physics group
+    const createdGoalTile = this.sceneFactory.createGoalFromConfig(this.goalTiles);
     
-    // Load the test level configuration
-    const configLoaded = sceneFactory.loadConfiguration(testLevelConfig);
-    
-    if (configLoaded) {
-      // Create goal tile from configuration if it exists, passing physics group
-      const createdGoalTile = sceneFactory.createGoalFromConfig(this.goalTiles);
-      
-      if (createdGoalTile) {        
-        // Register with TimeManager for time reversal support
-        if (this.timeManager) {
-          this.timeManager.register(createdGoalTile);
-        }
-        
-        console.log(`[GameScene] Created goal tile at (${createdGoalTile.x}, ${createdGoalTile.y})`);
+    if (createdGoalTile) {        
+      // Register with TimeManager for time reversal support
+      if (this.timeManager) {
+        this.timeManager.register(createdGoalTile);
       }
+      
+      console.log(`[GameScene] Created goal tile at (${createdGoalTile.x}, ${createdGoalTile.y})`);
     }
   }
 
@@ -351,31 +330,26 @@ export default class GameScene extends BaseScene {
    * Creates enemies using SceneFactory from level configuration
    */
   createEnemiesWithFactory() {
-    if (!this.enemies) return;
+    if (!this.enemies || !this.sceneFactory) return;
 
-    // Use injected sceneFactory if present, otherwise create new
-    const sceneFactory = this.sceneFactory || new SceneFactory(this);
     // Use injected levelConfig if present, otherwise fallback
     const levelConfig = this.levelConfig || testLevelConfig;
-    const configLoaded = sceneFactory.loadConfiguration(levelConfig);
 
     let createdEnemies = [];
-    // Always call createEnemiesFromConfig(levelConfig) if configLoaded
-    if (configLoaded) {
-      createdEnemies = sceneFactory.createEnemiesFromConfig(levelConfig) || [];
-      // Register and add each enemy
-      createdEnemies.forEach(enemy => {
-        if (this.timeManager && typeof this.timeManager.register === 'function') {
-          this.timeManager.register(enemy);
-        }
-        if (this.enemies && typeof this.enemies.add === 'function') {
-          this.enemies.add(enemy);
-        }
-        if (typeof enemy.activate === 'function') {
-          enemy.activate();
-        }
-      });
-    }
+    // Always call createEnemiesFromConfig(levelConfig)
+    createdEnemies = this.sceneFactory.createEnemiesFromConfig(levelConfig) || [];
+    // Register and add each enemy
+    createdEnemies.forEach(enemy => {
+      if (this.timeManager && typeof this.timeManager.register === 'function') {
+        this.timeManager.register(enemy);
+      }
+      if (this.enemies && typeof this.enemies.add === 'function') {
+        this.enemies.add(enemy);
+      }
+      if (typeof enemy.activate === 'function') {
+        enemy.activate();
+      }
+    });
 
     // Set up player-enemy collision detection
     if (this.collisionManager && this.player && this.enemies && typeof this.collisionManager.setupPlayerEnemyCollision === 'function') {
@@ -423,9 +397,76 @@ export default class GameScene extends BaseScene {
   }
 
   /**
+   * Creates backgrounds using SceneFactory with fallback to hardcoded creation
+   */
+  createBackgroundsWithFactory() {
+    // Check if SceneFactory is available
+    if (!this.sceneFactory) {
+      console.warn('[GameScene] SceneFactory not available, falling back to hardcoded background creation');
+      this.createParallaxBackgroundHardcoded();
+      return;
+    }
+
+    // Ensure SceneFactory has loaded configuration
+    if (!this.sceneFactory.config || !this.sceneFactory.config.backgrounds) {
+      console.warn('[GameScene] SceneFactory configuration invalid or missing backgrounds, falling back to hardcoded background creation');
+      this.createParallaxBackgroundHardcoded();
+      return;
+    }
+
+    // Create backgrounds from configuration (async)
+    this.sceneFactory.createBackgroundsFromConfig(this.sceneFactory.config.backgrounds)
+      .then(backgrounds => {
+        if (!backgrounds || backgrounds.length === 0) {
+          console.warn('[GameScene] No backgrounds created from factory, falling back to hardcoded background creation');
+          this.createParallaxBackgroundHardcoded();
+          return;
+        }
+
+        // Store all background layers for multi-parallax support
+        this.backgroundLayers = backgrounds;
+
+        // Assign background references for parallax calculation based on scrollSpeed
+        // Maintain backward compatibility with existing skyBackground and hillsBackground references
+        this.skyBackground = null;
+        this.hillsBackground = null;
+
+        for (const background of backgrounds) {
+          const scrollSpeed = background.getData ? background.getData('scrollSpeed') : 0.0;
+          
+          // Ensure tilePositionX and tilePositionY properties exist for parallax calculation
+          if (background.tilePositionX === undefined) {
+            background.tilePositionX = 0;
+          }
+          if (background.tilePositionY === undefined) {
+            background.tilePositionY = 0;
+          }
+          
+          if (scrollSpeed === 0.0 && !this.skyBackground) {
+            // This is the static sky background
+            this.skyBackground = background;
+          } else if (scrollSpeed > 0.0 && !this.hillsBackground) {
+            // This is the parallax hills background
+            this.hillsBackground = background;
+            
+            // Store initial position for parallax calculation
+            this.hillsBackground.setData('initialX', this.hillsBackground.x);
+          }
+        }
+
+        console.log('[GameScene] Backgrounds created successfully via SceneFactory');
+      })
+      .catch(error => {
+        console.error('[GameScene] Error creating backgrounds from factory:', error);
+        this.createParallaxBackgroundHardcoded();
+      });
+  }
+
+  /**
+   * Fallback method for hardcoded background creation (maintains backward compatibility)
    * Creates a simple 2-layer parallax background
    */
-  createParallaxBackground() {
+  createParallaxBackgroundHardcoded() {
     // Calculate the new visible area based on camera zoom (1)
     const zoom = 1;
     const levelW = this.levelWidth || (1280);
@@ -565,12 +606,17 @@ export default class GameScene extends BaseScene {
       }
     }
     
-    // Update parallax background movement
-    if (this.player && this.hillsBackground) {
-      // Simple parallax: hills move at 0.5x player speed
-      const parallaxSpeed = 0.5;
+    // Update parallax background movement for all layers
+    if (this.player && this.backgroundLayers && this.backgroundLayers.length > 0) {
       const playerVelocityX = this.player.body ? this.player.body.velocity.x : 0;
-      this.hillsBackground.tilePositionX -= playerVelocityX * parallaxSpeed * (delta / 1000);
+      
+      // Calculate parallax for each background layer based on its scroll speed
+      this.backgroundLayers.forEach(background => {
+        const scrollSpeed = background.getData ? background.getData('scrollSpeed') : 0.0;
+        if (scrollSpeed > 0.0) {
+          background.tilePositionX -= playerVelocityX * scrollSpeed * (delta / 1000);
+        }
+      });
     }
     
     // Update all platforms (including moving platforms)

@@ -10,6 +10,7 @@ Before beginning any task, you MUST review these documents:
 
 # Task Assignment:
 - Perform an in-depth analysis to understand the root cause of the problem
+- Since the bug is manifesting in the game, your analysis must be based on how game code is organized, rather than how mocks are set up
 - Write down a detailed and grounded plan 
 - EXECUTE the plan following the TDD methodology strictl
 Follow the rule @debugging.mdc 

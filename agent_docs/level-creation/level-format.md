@@ -12,9 +12,10 @@ This document defines the **canonical JSON schema** for describing a level in Ti
 
 ```jsonc
 {
-  "platforms": [ /* Array<PlatformConfig> */ ],
-  "coins":     [ /* Array<CoinConfig>     */ ],
-  "enemies":   [ /* Array<EnemyConfig>    */ ]
+  "platforms":   [ /* Array<PlatformConfig>   */ ],
+  "coins":       [ /* Array<CoinConfig>       */ ],
+  "enemies":     [ /* Array<EnemyConfig>      */ ],
+  "backgrounds": [ /* Array<BackgroundConfig> */ ]
 }
 ```
 Every field is **optional** – `SceneFactory` falls back to hard-coded layouts when an array is missing.
@@ -168,7 +169,104 @@ Field            | Type    | Required | Description
 
 ---
 
-## 5. Example Level Snippet (from `test-level.json`)
+## 5. Background Objects
+
+Background layers provide visual depth and atmosphere to levels. Multiple layers can be configured with different depths, parallax scrolling speeds, and sprite assets from the `backgrounds` atlas.
+
+### 5.1 Background Layer (`type: "layer"`)
+
+Field            | Type    | Required | Description
+-----------------|---------|----------|------------
+`type`           | string  | yes      | Always `"layer"` for background layers.
+`x`, `y`         | number  | yes      | World-space coordinates (**pixels**) for layer positioning.
+`width`, `height`| number  | yes      | Dimensions in **pixels** for tileSprite creation.
+`spriteKey`      | string  | yes      | Background sprite frame name from `backgrounds` atlas.
+`depth`          | number  | yes      | Z-index for layer ordering. Negative values (e.g., -2, -1) render behind gameplay elements.
+`scrollSpeed`    | number  | no (0.0) | Parallax scrolling speed multiplier. 0.0 = static, 0.5 = half player speed, 1.0 = full player speed.
+
+**Available Background Sprite Keys** (from `backgrounds` atlas):
+- `background_solid_sky`, `background_solid_cloud`, `background_solid_dirt`, `background_solid_grass`, `background_solid_sand`
+- `background_color_desert`, `background_color_hills`, `background_color_mushrooms`, `background_color_trees`  
+- `background_fade_desert`, `background_fade_hills`, `background_fade_mushrooms`, `background_fade_trees`
+- `background_clouds`
+
+**Depth Ordering Guidelines:**
+- **Far Background (Sky)**: depth -2, scrollSpeed 0.0 (static)
+- **Mid Background (Hills/Clouds)**: depth -1, scrollSpeed 0.3-0.7 (slow parallax)
+- **Gameplay Elements**: depth 0 and above (platforms, enemies, player)
+
+```jsonc
+{
+  "type": "layer",
+  "x": 640,
+  "y": 360,
+  "width": 1280,
+  "height": 720,
+  "spriteKey": "background_solid_sky",
+  "depth": -2,
+  "scrollSpeed": 0.0
+}
+```
+
+### 5.2 Background Configuration Examples
+
+**Simple Single Layer Background:**
+```jsonc
+{
+  "backgrounds": [
+    {
+      "type": "layer",
+      "x": 640,
+      "y": 360,
+      "width": 1280,
+      "height": 720,
+      "spriteKey": "background_color_hills",
+      "depth": -1,
+      "scrollSpeed": 0.5
+    }
+  ]
+}
+```
+
+**Multi-Layer Parallax Background:**
+```jsonc
+{
+  "backgrounds": [
+    {
+      "type": "layer",
+      "x": 640,
+      "y": 360,
+      "width": 1280,
+      "height": 720,
+      "spriteKey": "background_solid_sky",
+      "depth": -2,
+      "scrollSpeed": 0.0
+    },
+    {
+      "type": "layer",
+      "x": 640,
+      "y": 360,
+      "width": 1280,
+      "height": 720,
+      "spriteKey": "background_color_hills",
+      "depth": -1,
+      "scrollSpeed": 0.5
+    }
+  ]
+}
+```
+
+**Validation Rules:**
+- `spriteKey`: Must be a valid frame name from the `backgrounds` atlas
+- `depth`: Must be negative for background layers (< 0)
+- `scrollSpeed`: Must be between 0.0 and 1.0 (inclusive)
+- `width`, `height`: Must be positive numbers
+- `x`, `y`: Must be valid world coordinates
+- **Layer Ordering**: Layers with lower depth values render behind layers with higher depth values
+
+---
+
+## 6. Example Level Snippet (from `test-level.json`)
 ```jsonc
 {
   "platforms": [
@@ -190,7 +288,7 @@ Field            | Type    | Required | Description
 
 ---
 
-## 6. Extensibility Rules
+## 7. Extensibility Rules
 1. **New object types** must implement their own creation function in `SceneFactory` and be listed here.
 2. Tests must cover:
    * JSON validation logic.
