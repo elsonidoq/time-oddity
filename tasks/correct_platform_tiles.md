@@ -1,7 +1,7 @@
 # Platform Tile Rendering Refactor: Implementation Plan
 
 ## 🎯 Objective
-Refactor the platform rendering logic to correctly apply tile assets based on platform size (single-block vs. multi-block) using the proper tile naming convention.
+Refactor the platform rendering logic to correctly apply tile assets based on platform size (single-block vs. multi-block) using the proper tile naming convention. **Backward compatibility is not required; all upgraded objects must use the new tilePrefix format.**
 
 ## 📋 Current State Analysis
 
@@ -43,10 +43,13 @@ Refactor the platform rendering logic to correctly apply tile assets based on pl
 - Validation of tile key generation for different tile prefixes
 
 **Acceptance Criteria**:
-- [ ] `TileSelector` class created with proper tile selection logic
-- [ ] Unit tests pass for all tile selection scenarios
-- [ ] Handles both block and horizontal tile naming conventions
-- [ ] Returns valid tile keys for all position/size combinations
+- [x] `TileSelector` class created with proper tile selection logic
+- [x] Unit tests pass for all tile selection scenarios
+- [x] Handles both block and horizontal tile naming conventions
+- [x] Returns valid tile keys for all position/size combinations
+
+**User Feedback**:
+- [x] After implementation, request user feedback to verify the utility covers all required scenarios.
 
 ---
 
@@ -55,25 +58,29 @@ Refactor the platform rendering logic to correctly apply tile assets based on pl
 
 **Files to Modify**:
 - **Modify**: `client/src/systems/SceneFactory.js` - Update platform creation methods
+- **Modify**: `client/src/config/test-level.json` - Update to use `tilePrefix` for all upgraded platforms (ground, floating, moving)
 
 **Implementation Details**:
 - Import and use `TileSelector` in platform creation methods
-- Update `createGroundPlatform()` to use proper horizontal tiles
-- Update `createFloatingPlatform()` to use proper block tiles
-- Update `createMovingPlatform()` to use proper block tiles
-- Maintain backward compatibility with existing configurations
+- Update `createGroundPlatform()` to use proper horizontal tiles and require `tilePrefix` in config
+- Update `createFloatingPlatform()` to use proper block tiles and require `tilePrefix` in config
+- Update `createMovingPlatform()` to use proper block tiles and require `tilePrefix` in config
+- Remove support for old `tileKey` format for upgraded objects
+- Maintain format for objects not part of this task
 
 **Testing Strategy**:
 - Integration tests for all platform creation methods
 - Verify correct tile keys are used for different platform sizes
-- Ensure existing functionality remains intact
+- Ensure only upgraded objects use the new format
 
 **Acceptance Criteria**:
-- [ ] Ground platforms use `_left`, `_middle`, `_right` tiles correctly
-- [ ] Floating platforms use `_left`, `_center`, `_right` tiles correctly
-- [ ] Moving platforms use `_left`, `_center`, `_right` tiles correctly
-- [ ] Single-tile platforms use center/middle tiles
-- [ ] All existing tests continue to pass
+- [x] Ground, floating, and moving platforms use `tilePrefix` and correct tile variants
+- [x] Single-tile platforms use center/middle tiles
+- [x] All existing tests for upgraded objects pass
+- [x] Non-upgraded objects retain their format
+
+**User Feedback**:
+- [x] After implementation, request user feedback to check the integration and test-level.json changes.
 
 ---
 
@@ -84,12 +91,14 @@ Refactor the platform rendering logic to correctly apply tile assets based on pl
 
 **Files to Modify**:
 - **Modify**: `client/src/entities/MovingPlatform.js` - Update sprite creation logic
+- **Modify**: `client/src/config/test-level.json` - Update to use `tilePrefix` for all moving platforms
 
 **Implementation Details**:
 - Import and use `TileSelector` in MovingPlatform constructor
 - Update sprite creation loop to use proper tile keys
-- Ensure all sprites in a multi-sprite platform use correct tiles
-- Maintain existing physics and movement functionality
+- Require `tilePrefix` in config for moving platforms
+- Remove support for old `tileKey` format for moving platforms
+- Maintain format for objects not part of this task
 
 **Testing Strategy**:
 - Unit tests for MovingPlatform tile rendering
@@ -97,51 +106,62 @@ Refactor the platform rendering logic to correctly apply tile assets based on pl
 - Verify time reversal compatibility is maintained
 
 **Acceptance Criteria**:
-- [ ] Multi-sprite moving platforms use correct tile keys
-- [ ] Single-sprite moving platforms use center tiles
-- [ ] All existing MovingPlatform functionality preserved
-- [ ] Time reversal compatibility maintained
+- [x] Multi-sprite moving platforms use correct tile keys via `tilePrefix`
+- [x] Single-sprite moving platforms use center tiles
+- [x] All existing MovingPlatform functionality preserved
+- [x] Time reversal compatibility maintained
+- [x] Non-upgraded objects retain their format
+
+**User Feedback**:
+- [x] After implementation, request user feedback to check the integration and test-level.json changes.
 
 ---
 
 ### Phase 3: Configuration and Documentation Updates
 
 #### Task 3.1: Update Test Level Configuration
-**Objective**: Update test level configuration to use tile prefixes instead of specific tile keys.
+**Objective**: Update test level configuration to use tile prefixes instead of specific tile keys for all upgraded objects.
 
 **Files to Modify**:
-- **Modify**: `client/src/config/test-level.json` - Update tile keys to use prefixes
+- **Modify**: `client/src/config/test-level.json` - Update tile keys to use prefixes for all upgraded platforms
 
 **Implementation Details**:
-- Replace specific tile keys with tile prefixes
+- Replace specific tile keys with tile prefixes for all upgraded platforms
 - Update ground platforms to use `terrain_grass_horizontal` prefix
 - Update floating/moving platforms to use `terrain_grass_block` prefix
 - Ensure all platforms have appropriate widths for multi-tile rendering
+- Maintain format for non-upgraded objects
 
 **Testing Strategy**:
 - Verify test level loads correctly with new configuration
-- Ensure all platforms render with correct tiles
+- Ensure all upgraded platforms render with correct tiles
 - Validate that existing gameplay functionality is preserved
 
 **Acceptance Criteria**:
 - [ ] Test level loads without errors
-- [ ] All platforms render with correct tile variants
+- [ ] All upgraded platforms render with correct tile variants
 - [ ] Gameplay functionality remains intact
 - [ ] Visual appearance matches expected multi-tile structure
+- [ ] Non-upgraded objects retain their format
+
+**User Feedback**:
+- [ ] After implementation, request user feedback to check the test-level.json changes.
 
 ---
 
 #### Task 3.2: Update Level Format Documentation
-**Objective**: Update documentation to reflect the new tile prefix system.
+**Objective**: Update documentation to reflect the new tile prefix system and removal of backward compatibility.
 
 **Files to Modify**:
 - **Modify**: `agent_docs/level-creation/level-format.md` - Update documentation
+- **Modify**: `agent_docs/invariants.md` (if needed) - Update invariants for new format
 
 **Implementation Details**:
-- Add section explaining tile prefix system
+- Add section explaining tile prefix system and new required format
 - Update examples to use tile prefixes instead of specific tile keys
 - Document the automatic tile selection behavior
 - Provide examples of single vs multi-tile platform configurations
+- Remove references to backward compatibility
 
 **Testing Strategy**:
 - Verify documentation examples are accurate
@@ -149,7 +169,7 @@ Refactor the platform rendering logic to correctly apply tile assets based on pl
 - Test that documented configurations work correctly
 
 **Acceptance Criteria**:
-- [ ] Documentation clearly explains tile prefix system
+- [ ] Documentation clearly explains tile prefix system and new requirements
 - [ ] Examples use correct tile prefixes
 - [ ] Documentation matches actual implementation
 - [ ] All documented configurations work correctly
@@ -181,6 +201,9 @@ Refactor the platform rendering logic to correctly apply tile assets based on pl
 - [ ] Single-tile platforms use center/middle tiles
 - [ ] No performance regression in platform rendering
 
+**User Feedback**:
+- [ ] After implementation, request user feedback to check the integration test results.
+
 ---
 
 #### Task 4.2: Visual Validation and Regression Testing
@@ -205,46 +228,50 @@ Refactor the platform rendering logic to correctly apply tile assets based on pl
 - [ ] Performance remains acceptable
 - [ ] Works correctly across different browsers
 
+**User Feedback**:
+- [ ] After implementation, request user feedback to check the visual results and performance.
+
 ---
 
 ## 🔄 Execution Order
 
 1. **Task 1.1** - Create Tile Selection Utility (Foundation)
-2. **Task 1.2** - Update SceneFactory Platform Creation Methods
-3. **Task 2.1** - Update MovingPlatform Tile Rendering
-4. **Task 3.1** - Update Test Level Configuration
-5. **Task 3.2** - Update Level Format Documentation
+2. **Task 1.2** - Update SceneFactory Platform Creation Methods (and test-level.json for upgraded objects)
+3. **Task 2.1** - Update MovingPlatform Tile Rendering (and test-level.json for moving platforms)
+4. **Task 3.1** - Update Test Level Configuration (for all upgraded objects)
+5. **Task 3.2** - Update Level Format Documentation (and invariants.md if needed)
 6. **Task 4.1** - Comprehensive Integration Testing
 7. **Task 4.2** - Visual Validation and Regression Testing
 
 ## 🎯 Success Criteria
 
-- [ ] All platforms use correct tile variants based on size and position
+- [ ] All platforms use correct tile variants based on size and position via tilePrefix
 - [ ] Multi-block platforms visually indicate their structure
 - [ ] Single-block platforms use appropriate center/middle tiles
-- [ ] All existing functionality is preserved
+- [ ] All existing functionality is preserved for upgraded objects
 - [ ] Performance is maintained or improved
 - [ ] Documentation is updated and accurate
 - [ ] All tests pass (unit, integration, visual)
+- [ ] User feedback is collected after each phase
 
 ## 🚨 Risk Mitigation
 
 ### Potential Risks
-1. **Breaking Changes**: Modifying platform creation could break existing functionality
+1. **Breaking Changes**: Modifying platform creation could break existing functionality for non-upgraded objects
 2. **Performance Impact**: Additional tile selection logic could impact performance
 3. **Visual Inconsistencies**: New tile system might create visual artifacts
-4. **Configuration Compatibility**: Existing level configurations might need updates
+4. **Configuration Compatibility**: Existing level configurations must be updated for upgraded objects
 
 ### Mitigation Strategies
 1. **Incremental Implementation**: Each task is independently testable
-2. **Backward Compatibility**: Maintain support for existing tile keys
+2. **No Backward Compatibility**: All upgraded objects must use the new format
 3. **Comprehensive Testing**: Extensive testing at each phase
 4. **Performance Monitoring**: Monitor rendering performance throughout implementation
 5. **Documentation Updates**: Keep documentation in sync with implementation
 
 ## 📝 Notes
 
-- This implementation maintains backward compatibility with existing configurations
+- This implementation **removes backward compatibility** for upgraded objects; all must use the new tilePrefix format
 - The tile selection logic is designed to be extensible for future tile types
 - All changes are incremental and independently testable
 - Performance impact should be minimal as tile selection is a simple string operation

@@ -227,7 +227,11 @@ export class PhaserSceneMock {
     // Physics system
     this.physics = {
       add: {
-        sprite: createMockFn((x, y, texture) => new GameObjectMock(x, y, texture)),
+        sprite: createMockFn((x, y, texture, frame) => {
+          const gameObject = new GameObjectMock(x, y, texture);
+          gameObject.frame = frame || 0;
+          return gameObject;
+        }),
         existing: createMockFn((gameObject) => {
           // Wire up proper GameObject mock behavior to existing game objects
           if (gameObject) {

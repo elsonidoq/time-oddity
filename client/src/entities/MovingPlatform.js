@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import Entity from './Entity.js';
 import { gsap } from 'gsap';
+import { TileSelector } from '../systems/TileSelector.js';
 
 /**
  * MovingPlatform - A platform entity that moves along configurable paths
@@ -54,13 +55,39 @@ import { gsap } from 'gsap';
  */
 export default class MovingPlatform extends Entity {
   constructor(scene, x, y, texture, movementConfig = {}, frame = null, mockScene = null, options = {}) {
-    // Initialize with Entity base constructor (this creates the master sprite)
-    super(scene, x, y, texture, frame, 100, mockScene);
+    // Store width configuration first
+    const width = options.width || 64; // Default to single tile width
+    const tileWidth = 64; // Standard tile width
+    const spriteCount = Math.ceil(width / tileWidth);
     
-    // Store width configuration
-    this.width = options.width || 64; // Default to single tile width
-    this.tileWidth = 64; // Standard tile width
-    this.spriteCount = Math.ceil(this.width / this.tileWidth);
+    // Validate tilePrefix requirement
+    if (!options.tilePrefix && spriteCount > 1) {
+      throw new Error('tilePrefix is required for multi-tile platforms');
+    }
+    
+    // Only reject tileKey format when a specific frame is provided (not null/undefined)
+    if (!options.tilePrefix && frame !== null && frame !== undefined) {
+      throw new Error('tilePrefix is required - old tileKey format not supported');
+    }
+    
+    // Determine the correct frame for the master sprite using TileSelector
+    let masterFrame = frame;
+    if (options.tilePrefix) {
+      masterFrame = TileSelector.getTileKey(
+        options.tilePrefix,
+        { x, y },
+        spriteCount,
+        0
+      );
+    }
+    
+    // Initialize with Entity base constructor (this creates the master sprite)
+    super(scene, x, y, texture, masterFrame, 100, mockScene);
+    
+    // Store configuration
+    this.width = width;
+    this.tileWidth = tileWidth;
+    this.spriteCount = spriteCount;
     
     // Create sprite array - master sprite is already created by Entity constructor
     this.sprites = [this]; // Start with the master sprite (this Entity instance)
@@ -70,8 +97,20 @@ export default class MovingPlatform extends Entity {
     if (this.spriteCount > 1) {
       for (let i = 1; i < this.spriteCount; i++) {
         const spriteX = x + (i * this.tileWidth);
+        
+        // Determine the correct frame for this sprite using TileSelector
+        let spriteFrame = frame;
+        if (options.tilePrefix) {
+          spriteFrame = TileSelector.getTileKey(
+            options.tilePrefix,
+            { x: spriteX, y },
+            this.spriteCount,
+            i
+          );
+        }
+        
         // Use physics sprite to ensure body is created
-        const sprite = scene.physics.add.sprite(spriteX, y, texture, frame);
+        const sprite = scene.physics.add.sprite(spriteX, y, texture, spriteFrame);
         
         // Configure physics body for additional sprites
         if (sprite.body) {

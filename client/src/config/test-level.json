@@ -37,7 +37,7 @@
       "x": 0,
       "y": 2900,
       "width": 6000,
-      "tileKey": "terrain_grass_horizontal",
+      "tilePrefix": "terrain_grass_horizontal",
       "isFullBlock": true
     },
 
@@ -46,7 +46,7 @@
       "x": 0,
       "y": 2300,
       "width": 2500,
-      "tileKey": "terrain_grass_horizontal",
+      "tilePrefix": "terrain_grass_horizontal",
       "isFullBlock": true
     },
     {
@@ -54,28 +54,49 @@
       "x": 3000,
       "y": 2300,
       "width": 3000,
-      "tileKey": "terrain_grass_horizontal",
+      "tilePrefix": "terrain_grass_horizontal",
       "isFullBlock": true
     },
 
-    { "type": "floating", "x": 200, "y": 2500, "width": 400, "tileKey": "terrain_grass_cloud", "isFullBlock": true },
-    { "type": "floating", "x": 700, "y": 2350, "width": 250, "tileKey": "terrain_grass_cloud", "isFullBlock": true },
-    { "type": "floating", "x": 1200, "y": 2200, "width": 250, "tileKey": "terrain_grass_cloud", "isFullBlock": true },
-    { "type": "floating", "x": 1700, "y": 2050, "width": 250, "tileKey": "terrain_grass_cloud", "isFullBlock": true },
-    { "type": "floating", "x": 2200, "y": 1900, "width": 250, "tileKey": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 400, "y": 800, "width": 400, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    {
+      "type": "moving",
+      "x": 400,
+      "y": 800,
+      "width": 300,
+      "tilePrefix": "terrain_grass_cloud",
+      "isFullBlock": true,
+      "movement": {
+        "type": "linear",
+        "startX": 400,
+        "startY": 800,
+        "endX": 2600,
+        "endY": 2350,
+        "speed": 60,
+        "mode": "bounce",
+        "autoStart": true
+      }
+    },
 
-    { "type": "floating", "x": 2800, "y": 2100, "width": 250, "tileKey": "terrain_grass_cloud", "isFullBlock": true },
-    { "type": "floating", "x": 3300, "y": 1950, "width": 250, "tileKey": "terrain_grass_cloud", "isFullBlock": true },
-    { "type": "floating", "x": 3800, "y": 1800, "width": 250, "tileKey": "terrain_grass_cloud", "isFullBlock": true },
-    { "type": "floating", "x": 4300, "y": 1650, "width": 250, "tileKey": "terrain_grass_cloud", "isFullBlock": true },
-    { "type": "floating", "x": 4800, "y": 1500, "width": 250, "tileKey": "terrain_grass_cloud", "isFullBlock": true },
+
+    { "type": "floating", "x": 200, "y": 2500, "width": 400, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 700, "y": 2350, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 1200, "y": 2200, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 1700, "y": 2050, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 2200, "y": 1900, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+
+    { "type": "floating", "x": 2800, "y": 2100, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 3300, "y": 1950, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 3800, "y": 1800, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 4300, "y": 1650, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 4800, "y": 1500, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
 
     {
       "type": "moving",
-      "x": 1200,
-      "y": 2150,
+      "x": 400,
+      "y": 500,
       "width": 300,
-      "tileKey": "terrain_grass_cloud",
+      "tilePrefix": "terrain_grass_cloud",
       "isFullBlock": true,
       "movement": {
         "type": "linear",
@@ -92,7 +113,7 @@
       "type": "moving",
       "x": 3200,
       "y": 1850,
-      "tileKey": "terrain_grass_cloud",
+      "tilePrefix": "terrain_grass_cloud",
       "isFullBlock": true,
       "movement": {
         "type": "linear",
@@ -109,7 +130,7 @@
       "type": "moving",
       "x": 4200,
       "y": 1400,
-      "tileKey": "terrain_grass_cloud",
+      "tilePrefix": "terrain_grass_cloud",
       "isFullBlock": true,
       "movement": {
         "type": "linear",
@@ -126,7 +147,7 @@
       "type": "moving",
       "x": 2600,
       "y": 1600,
-      "tileKey": "terrain_grass_cloud",
+      "tilePrefix": "terrain_grass_cloud",
       "isFullBlock": true,
       "movement": {
         "type": "linear",
@@ -140,12 +161,12 @@
       }
     },
 
-    { "type": "ground", "x": 0, "y": 900, "width": 2600, "tileKey": "terrain_grass_horizontal", "isFullBlock": true },
-    { "type": "ground", "x": 3400, "y": 900, "width": 2600, "tileKey": "terrain_grass_horizontal", "isFullBlock": true },
+    { "type": "ground", "x": 0, "y": 900, "width": 2600, "tilePrefix": "terrain_grass_horizontal", "isFullBlock": true },
+    { "type": "ground", "x": 3400, "y": 900, "width": 2600, "tilePrefix": "terrain_grass_horizontal", "isFullBlock": true },
 
-    { "type": "floating", "x": 1500, "y": 700, "width": 250, "tileKey": "terrain_grass_cloud", "isFullBlock": true },
-    { "type": "floating", "x": 3000, "y": 600, "width": 250, "tileKey": "terrain_grass_cloud", "isFullBlock": true },
-    { "type": "floating", "x": 4500, "y": 500, "width": 250, "tileKey": "terrain_grass_cloud", "isFullBlock": true }
+    { "type": "floating", "x": 1500, "y": 700, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 3000, "y": 600, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 4500, "y": 500, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true }
   ],
   "enemies": [
     {

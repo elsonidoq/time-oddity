@@ -187,7 +187,7 @@ describe('SceneFactory', () => {
         x: 0,
         y: 656,
         width: 1280,
-        tileKey: 'terrain_grass_horizontal_middle',
+        tilePrefix: 'terrain_grass_horizontal',
         isFullBlock: true
       };
 
@@ -206,7 +206,7 @@ describe('SceneFactory', () => {
         x: 0,
         y: 656,
         width: 1280,
-        tileKey: 'terrain_grass_horizontal_middle',
+        tilePrefix: 'terrain_grass_horizontal',
         isFullBlock: true
       };
 
@@ -235,7 +235,7 @@ describe('SceneFactory', () => {
         x: 0,
         y: 656,
         width: 1280,
-        tileKey: 'terrain_grass_horizontal_middle',
+        tilePrefix: 'terrain_grass_horizontal',
         isFullBlock: true
       };
 
@@ -250,7 +250,7 @@ describe('SceneFactory', () => {
       const platformConfig = {
         x: 200,
         y: 500,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true
       };
 
@@ -266,7 +266,7 @@ describe('SceneFactory', () => {
       const platformConfig = {
         x: 200,
         y: 500,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true
       };
 
@@ -293,7 +293,7 @@ describe('SceneFactory', () => {
       const platformConfig = {
         x: 200,
         y: 500,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true
       };
 
@@ -308,7 +308,7 @@ describe('SceneFactory', () => {
       const movingConfig = {
         x: 400,
         y: 300,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'linear',
@@ -334,7 +334,7 @@ describe('SceneFactory', () => {
       const movingConfig = {
         x: 500,
         y: 400,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'circular',
@@ -359,7 +359,7 @@ describe('SceneFactory', () => {
       const movingConfig = {
         x: 300,
         y: 200,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'path',
@@ -387,7 +387,7 @@ describe('SceneFactory', () => {
       const movingConfig = {
         x: 400,
         y: 300,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'linear',
@@ -410,7 +410,7 @@ describe('SceneFactory', () => {
       const movingConfig = {
         x: 400,
         y: 300,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'linear',
@@ -433,7 +433,7 @@ describe('SceneFactory', () => {
       const movingConfig = {
         x: 400,
         y: 300,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'invalid',
@@ -450,7 +450,7 @@ describe('SceneFactory', () => {
       const movingConfig = {
         x: 400,
         y: 300,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true
         // No movement configuration
       };
@@ -596,14 +596,14 @@ describe('SceneFactory', () => {
             x: 0,
             y: 656,
             width: 1280,
-            tileKey: 'terrain_grass_horizontal_middle',
+            tilePrefix: 'terrain_grass_horizontal',
             isFullBlock: true
           },
           {
             type: 'floating',
             x: 200,
             y: 500,
-            tileKey: 'terrain_grass_block_center',
+            tilePrefix: 'terrain_grass_block',
             isFullBlock: true
           }
         ]
@@ -623,14 +623,14 @@ describe('SceneFactory', () => {
             type: 'floating',
             x: 200,
             y: 500,
-            tileKey: 'terrain_grass_block_center',
+            tilePrefix: 'terrain_grass_block',
             isFullBlock: true
           },
           {
             type: 'moving',
             x: 400,
             y: 300,
-            tileKey: 'terrain_grass_block_center',
+            tilePrefix: 'terrain_grass_block',
             isFullBlock: true,
             movement: {
               type: 'linear',
@@ -667,7 +667,7 @@ describe('SceneFactory', () => {
             x: 0,
             y: 656,
             width: 1280,
-            tileKey: 'terrain_grass_horizontal_middle',
+            tilePrefix: 'terrain_grass_horizontal',
             isFullBlock: true
           }
         ]
@@ -703,7 +703,7 @@ describe('SceneFactory', () => {
             type: 'moving',
             x: 400,
             y: 300,
-            tileKey: 'terrain_grass_block_center',
+            tilePrefix: 'terrain_grass_block',
             isFullBlock: true,
             movement: {
               type: 'invalid',

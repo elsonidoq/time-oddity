@@ -270,7 +270,7 @@ export class SceneFactory {
    * @param {number} groundConfig.x - Starting X position
    * @param {number} groundConfig.y - Y position (ground top)
    * @param {number} groundConfig.width - Total width of ground platform
-   * @param {string} groundConfig.tileKey - Tile atlas key for ground tiles (now a prefix)
+   * @param {string} groundConfig.tileKey - Tile atlas key for ground tiles
    * @param {boolean} groundConfig.isFullBlock - Whether to use full block hitbox
    * @param {Phaser.Physics.Arcade.Group} platformsGroup - The physics group to add platforms to
    * @returns {Array|null} - Array of created platform sprites or null if creation failed
@@ -280,24 +280,23 @@ export class SceneFactory {
       return null;
     }
 
+    // Require tilePrefix for ground platforms (no backward compatibility)
+    if (!groundConfig.tilePrefix) {
+      return null;
+    }
+
     const platforms = [];
     const tileWidth = 64; // Standard tile width
     const tileCount = Math.ceil(groundConfig.width / tileWidth);
-    const tilePrefix = groundConfig.tileKey;
 
     for (let i = 0; i < tileCount; i++) {
       const x = groundConfig.x + (i * tileWidth);
-      // Use TileSelector to get the correct frame
-      let frame;
-      try {
-        frame = TileSelector.getTileKey(tilePrefix, x, tileCount, i);
-      } catch (e) {
-        // fallback to legacy behavior if tileKey is already a full key
-        frame = tilePrefix;
-      }
-      const platform = platformsGroup.create(x, groundConfig.y, 'tiles', frame);
+      const tileKey = TileSelector.getTileKey(groundConfig.tilePrefix, x, tileCount, i);
+      const platform = platformsGroup.create(x, groundConfig.y, 'tiles', tileKey);
+      
       platform.setOrigin(0, 0);
       this.configurePlatform(platform, groundConfig.isFullBlock);
+      
       platforms.push(platform);
     }
 
@@ -310,7 +309,7 @@ export class SceneFactory {
    * @param {number} platformConfig.x - X position (leftmost tile)
    * @param {number} platformConfig.y - Y position
    * @param {number} [platformConfig.width] - Optional width in pixels (creates multiple tiles if > 64)
-   * @param {string} platformConfig.tileKey - Tile atlas key (now a prefix)
+   * @param {string} platformConfig.tileKey - Tile atlas key
    * @param {boolean} platformConfig.isFullBlock - Whether to use full block hitbox
    * @param {Phaser.Physics.Arcade.Group} platformsGroup - The physics group to add platform(s) to
    * @returns {Array<Phaser.Physics.Arcade.Sprite>|Phaser.Physics.Arcade.Sprite|null} - Array of created platform sprites (if width specified), single sprite, or null if creation failed
@@ -323,24 +322,25 @@ export class SceneFactory {
       return null;
     }
 
+    // Require tilePrefix for floating platforms (no backward compatibility)
+    if (!platformConfig.tilePrefix) {
+      return null;
+    }
+
     // If width is specified, create multiple tiles like ground platform
     if (platformConfig.width) {
       const platforms = [];
       const tileWidth = 64; // Standard tile width
       const tileCount = Math.ceil(platformConfig.width / tileWidth);
-      const tilePrefix = platformConfig.tileKey;
 
       for (let i = 0; i < tileCount; i++) {
         const x = platformConfig.x + (i * tileWidth);
-        let frame;
-        try {
-          frame = TileSelector.getTileKey(tilePrefix, x, tileCount, i);
-        } catch (e) {
-          frame = tilePrefix;
-        }
-        const platform = platformsGroup.create(x, platformConfig.y, 'tiles', frame);
+        const tileKey = TileSelector.getTileKey(platformConfig.tilePrefix, x, tileCount, i);
+        const platform = platformsGroup.create(x, platformConfig.y, 'tiles', tileKey);
+        
         platform.setOrigin(0, 0);
         this.configurePlatform(platform, platformConfig.isFullBlock);
+        
         platforms.push(platform);
       }
 
@@ -348,19 +348,14 @@ export class SceneFactory {
     }
 
     // Default behavior: create single tile
-    let frame;
-    const tilePrefix = platformConfig.tileKey;
-    try {
-      frame = TileSelector.getTileKey(tilePrefix, platformConfig.x, 1, 0);
-    } catch (e) {
-      frame = tilePrefix;
-    }
+    const tileKey = TileSelector.getTileKey(platformConfig.tilePrefix, platformConfig.x, 1, 0);
     const platform = platformsGroup.create(
       platformConfig.x,
       platformConfig.y,
       'tiles',
-      frame
+      tileKey
     );
+
     this.configurePlatform(platform, platformConfig.isFullBlock);
     return platform;
   }
@@ -387,6 +382,12 @@ export class SceneFactory {
       return null;
     }
 
+    // Require tilePrefix for moving platforms (no backward compatibility)
+    if (!movingConfig.tilePrefix) {
+      console.warn('[SceneFactory] Missing tilePrefix for moving platform');
+      return null;
+    }
+
     // Validate movement configuration
     if (!movingConfig.movement || !this.validateMovementConfiguration(movingConfig.movement)) {
       console.warn('[SceneFactory] Invalid movement configuration:', movingConfig.movement);
@@ -400,9 +401,12 @@ export class SceneFactory {
       movingConfig.y,
       'tiles',
       movingConfig.movement,
-      movingConfig.tileKey,
-      null,
-      { width: movingConfig.width }
+      null, // frame parameter should be null for new tilePrefix system
+      null, // mockScene
+      { 
+        width: movingConfig.width,
+        tilePrefix: movingConfig.tilePrefix
+      }
     );
 
     console.log(`[SceneFactory] Created MovingPlatform at (${platform.x}, ${platform.y}) - isMoving: ${platform.isMoving}, autoStart: ${platform.autoStart}, width: ${platform.width}, spriteCount: ${platform.spriteCount}`);

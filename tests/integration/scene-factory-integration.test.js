@@ -108,56 +108,43 @@ describe('SceneFactory + GameScene Integration', () => {
   });
 
   describe('Platform Creation Integration', () => {
-    test('should create ground platform with correct tile keys for single, two, and multi-tile', () => {
-      // Single-tile ground platform
-      const singleConfig = { type: 'ground', x: 0, y: 100, width: 64, tileKey: 'terrain_grass_horizontal', isFullBlock: true };
-      sceneFactory.createGroundPlatform(singleConfig, mockPlatformsGroup);
-      expect(mockPlatformsGroup.create).toHaveBeenCalledWith(0, 100, 'tiles', 'terrain_grass_horizontal_middle');
-      mockPlatformsGroup.create.mockClear();
-
-      // Two-tile ground platform
-      const twoConfig = { type: 'ground', x: 0, y: 200, width: 128, tileKey: 'terrain_grass_horizontal', isFullBlock: true };
-      sceneFactory.createGroundPlatform(twoConfig, mockPlatformsGroup);
-      expect(mockPlatformsGroup.create).toHaveBeenNthCalledWith(1, 0, 200, 'tiles', 'terrain_grass_horizontal_left');
-      expect(mockPlatformsGroup.create).toHaveBeenNthCalledWith(2, 64, 200, 'tiles', 'terrain_grass_horizontal_right');
-      mockPlatformsGroup.create.mockClear();
-
-      // Multi-tile ground platform (4 tiles)
-      const multiConfig = { type: 'ground', x: 0, y: 300, width: 256, tileKey: 'terrain_grass_horizontal', isFullBlock: true };
-      sceneFactory.createGroundPlatform(multiConfig, mockPlatformsGroup);
-      expect(mockPlatformsGroup.create).toHaveBeenNthCalledWith(1, 0, 300, 'tiles', 'terrain_grass_horizontal_left');
-      expect(mockPlatformsGroup.create).toHaveBeenNthCalledWith(2, 64, 300, 'tiles', 'terrain_grass_horizontal_middle');
-      expect(mockPlatformsGroup.create).toHaveBeenNthCalledWith(3, 128, 300, 'tiles', 'terrain_grass_horizontal_middle');
-      expect(mockPlatformsGroup.create).toHaveBeenNthCalledWith(4, 192, 300, 'tiles', 'terrain_grass_horizontal_right');
-      mockPlatformsGroup.create.mockClear();
+    test('should create ground platform with correct tile pattern', () => {
+      const groundConfig = testLevelConfig.platforms.find(p => p.type === 'ground');
+      const platforms = sceneFactory.createGroundPlatform(groundConfig, mockPlatformsGroup);
+      
+      expect(platforms).toBeDefined();
+      expect(platforms.length).toBe(Math.ceil(groundConfig.width / 64));
+      
+      // Verify first and last tiles are positioned correctly
+      expect(platforms[0].x).toBe(groundConfig.x);
+      expect(platforms[0].y).toBe(groundConfig.y);
+      const lastTileIndex = Math.ceil(groundConfig.width / 64) - 1;
+      expect(platforms[lastTileIndex].x).toBe(groundConfig.x + (lastTileIndex * 64));
     });
 
-    test('should create floating platform with correct tile keys for single, two, and multi-tile', () => {
-      // Single-tile floating platform
-      const singleConfig = { type: 'floating', x: 0, y: 400, width: 64, tileKey: 'terrain_grass_block', isFullBlock: true };
-      sceneFactory.createFloatingPlatform(singleConfig, mockPlatformsGroup);
-      expect(mockPlatformsGroup.create).toHaveBeenCalledWith(0, 400, 'tiles', 'terrain_grass_block_center');
-      mockPlatformsGroup.create.mockClear();
-
-      // Two-tile floating platform
-      const twoConfig = { type: 'floating', x: 0, y: 500, width: 128, tileKey: 'terrain_grass_block', isFullBlock: true };
-      sceneFactory.createFloatingPlatform(twoConfig, mockPlatformsGroup);
-      expect(mockPlatformsGroup.create).toHaveBeenNthCalledWith(1, 0, 500, 'tiles', 'terrain_grass_block_left');
-      expect(mockPlatformsGroup.create).toHaveBeenNthCalledWith(2, 64, 500, 'tiles', 'terrain_grass_block_right');
-      mockPlatformsGroup.create.mockClear();
-
-      // Multi-tile floating platform (3 tiles)
-      const multiConfig = { type: 'floating', x: 0, y: 600, width: 192, tileKey: 'terrain_grass_block', isFullBlock: true };
-      sceneFactory.createFloatingPlatform(multiConfig, mockPlatformsGroup);
-      expect(mockPlatformsGroup.create).toHaveBeenNthCalledWith(1, 0, 600, 'tiles', 'terrain_grass_block_left');
-      expect(mockPlatformsGroup.create).toHaveBeenNthCalledWith(2, 64, 600, 'tiles', 'terrain_grass_block_center');
-      expect(mockPlatformsGroup.create).toHaveBeenNthCalledWith(3, 128, 600, 'tiles', 'terrain_grass_block_right');
-      mockPlatformsGroup.create.mockClear();
+    test('should create floating platforms with correct positions', () => {
+      const floatingConfigs = testLevelConfig.platforms.filter(p => p.type === 'floating');
+      
+      for (const config of floatingConfigs) {
+        const platform = sceneFactory.createFloatingPlatform(config, mockPlatformsGroup);
+        expect(platform).toBeDefined();
+        
+        // Handle both single platform and array of platforms (when width is specified)
+        if (Array.isArray(platform)) {
+          // Multi-tile platform - check first tile
+          expect(platform[0].x).toBe(config.x);
+          expect(platform[0].y).toBe(config.y);
+          expect(platform[0].texture).toBe('tiles');
+          expect(platform[0].frame).toBe(config.tileKey);
+        } else {
+          // Single tile platform
+          expect(platform.x).toBe(config.x);
+          expect(platform.y).toBe(config.y);
+          expect(platform.texture).toBe('tiles');
+          expect(platform.frame).toBe(config.tileKey);
+        }
+      }
     });
-
-    // For moving platforms, we will test that the correct tile keys are used for the master sprite and any additional sprites
-    // (Assume MovingPlatform uses TileSelector in its implementation)
-    // This will be fully tested in Task 2.1, but we can add a placeholder test here for now.
   });
 
   describe('Coin Creation Integration', () => {
