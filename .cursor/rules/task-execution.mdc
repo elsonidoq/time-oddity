@@ -20,6 +20,8 @@ For every assigned task, you must adhere to the following strict TDD process:
    - Verify that the test suite accurately reflects the task requirements
 
 ### 3. **Green Phase - Implement Minimal Code**
+   - Read ALL the documentation (`agent_docs/invariants.md` and `agent_docs/small_comprehensive_documentation.md`)
+   - Think of the correct minimal but extensible abstraction to implement the task
    - Write only the minimal code required to make the tests pass
    - Avoid adding any extra logic or refactoring at this stage
    - Focus on correctness over optimization

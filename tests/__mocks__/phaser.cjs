@@ -95,6 +95,8 @@ function ArcadeSpriteMock(scene, x, y, texture, frame) {
   this.y = y;
   this.texture = texture;
   this.frame = frame;
+  this.active = true;
+  this.visible = true;
   this.body = {
     velocity: { x: 0, y: 0 },
     setVelocity: jest.fn().mockReturnThis(),
@@ -117,8 +119,17 @@ function ArcadeSpriteMock(scene, x, y, texture, frame) {
   };
   this.setOrigin = jest.fn().mockReturnThis();
   this.setInteractive = jest.fn().mockReturnThis();
-  this.setActive = jest.fn().mockReturnThis();
-  this.setVisible = jest.fn().mockReturnThis();
+  
+  // Properly implement setActive and setVisible to update the actual properties
+  this.setActive = jest.fn().mockImplementation((active) => {
+    this.active = active;
+    return this;
+  });
+  this.setVisible = jest.fn().mockImplementation((visible) => {
+    this.visible = visible;
+    return this;
+  });
+  
   this.setFlipX = jest.fn().mockReturnThis();
   this.destroy = jest.fn();
 }

@@ -1,0 +1,753 @@
+{
+  "platforms": [
+    {
+      "type": "ground",
+      "x": 0,
+      "y": 4800,
+      "width": 5000,
+      "tileKey": "terrain_grass_horizontal_middle",
+      "isFullBlock": true
+    },
+    
+    {
+      "type": "floating",
+      "x": 200,
+      "y": 4600,
+      "width": 200,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 500,
+      "y": 4450,
+      "width": 150,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 750,
+      "y": 4300,
+      "width": 200,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    
+    {
+      "type": "ground",
+      "x": 950,
+      "y": 4100,
+      "width": 100,
+      "tileKey": "terrain_grass_horizontal_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "ground",
+      "x": 950,
+      "y": 3900,
+      "width": 100,
+      "tileKey": "terrain_grass_vertical_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "ground",
+      "x": 950,
+      "y": 3700,
+      "width": 100,
+      "tileKey": "terrain_grass_vertical_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "ground",
+      "x": 950,
+      "y": 3500,
+      "width": 100,
+      "tileKey": "terrain_grass_vertical_middle",
+      "isFullBlock": true
+    },
+    
+    {
+      "type": "floating",
+      "x": 1200,
+      "y": 3800,
+      "width": 150,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 1100,
+      "y": 3600,
+      "width": 150,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 1300,
+      "y": 3400,
+      "width": 150,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 1150,
+      "y": 3200,
+      "width": 150,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 1400,
+      "y": 3000,
+      "width": 150,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true
+    },
+    
+    {
+      "type": "moving",
+      "x": 1600,
+      "y": 3600,
+      "width": 120,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true,
+      "movement": {
+        "type": "linear",
+        "startX": 1600,
+        "startY": 3600,
+        "endX": 1600,
+        "endY": 3000,
+        "speed": 40,
+        "mode": "bounce",
+        "autoStart": true
+      }
+    },
+    {
+      "type": "moving",
+      "x": 1800,
+      "y": 3200,
+      "width": 120,
+      "tileKey": "terrain_grass_block_center",
+      "isFullBlock": true,
+      "movement": {
+        "type": "linear",
+        "startX": 1800,
+        "startY": 3200,
+        "endX": 1800,
+        "endY": 2800,
+        "speed": 35,
+        "mode": "bounce",
+        "autoStart": true
+      }
+    },
+    
+    {
+      "type": "floating",
+      "x": 2000,
+      "y": 2600,
+      "width": 200,
+      "tileKey": "terrain_stone_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 2300,
+      "y": 2500,
+      "width": 150,
+      "tileKey": "terrain_stone_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 2550,
+      "y": 2400,
+      "width": 150,
+      "tileKey": "terrain_stone_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 2800,
+      "y": 2300,
+      "width": 200,
+      "tileKey": "terrain_stone_block_center",
+      "isFullBlock": true
+    },
+    
+    {
+      "type": "moving",
+      "x": 2400,
+      "y": 2200,
+      "width": 120,
+      "tileKey": "terrain_stone_block_center",
+      "isFullBlock": true,
+      "movement": {
+        "type": "linear",
+        "startX": 2400,
+        "startY": 2200,
+        "endX": 2700,
+        "endY": 2200,
+        "speed": 50,
+        "mode": "bounce",
+        "autoStart": true
+      }
+    },
+    {
+      "type": "moving",
+      "x": 2900,
+      "y": 2000,
+      "width": 120,
+      "tileKey": "terrain_stone_block_center",
+      "isFullBlock": true,
+      "movement": {
+        "type": "linear",
+        "startX": 2900,
+        "startY": 2000,
+        "endX": 2900,
+        "endY": 1600,
+        "speed": 45,
+        "mode": "bounce",
+        "autoStart": true
+      }
+    },
+    
+    {
+      "type": "ground",
+      "x": 3000,
+      "y": 3000,
+      "width": 100,
+      "tileKey": "terrain_dirt_horizontal_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "ground",
+      "x": 3000,
+      "y": 2800,
+      "width": 100,
+      "tileKey": "terrain_dirt_vertical_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "ground",
+      "x": 3000,
+      "y": 2600,
+      "width": 100,
+      "tileKey": "terrain_dirt_vertical_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "ground",
+      "x": 3000,
+      "y": 2400,
+      "width": 100,
+      "tileKey": "terrain_dirt_vertical_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "ground",
+      "x": 3000,
+      "y": 2200,
+      "width": 100,
+      "tileKey": "terrain_dirt_vertical_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "ground",
+      "x": 3000,
+      "y": 2000,
+      "width": 100,
+      "tileKey": "terrain_dirt_vertical_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "ground",
+      "x": 3000,
+      "y": 1800,
+      "width": 100,
+      "tileKey": "terrain_dirt_vertical_middle",
+      "isFullBlock": true
+    },
+    
+    {
+      "type": "floating",
+      "x": 3200,
+      "y": 2800,
+      "width": 150,
+      "tileKey": "terrain_dirt_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 3450,
+      "y": 2600,
+      "width": 150,
+      "tileKey": "terrain_dirt_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 3200,
+      "y": 2400,
+      "width": 150,
+      "tileKey": "terrain_dirt_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 3500,
+      "y": 2200,
+      "width": 150,
+      "tileKey": "terrain_dirt_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 3250,
+      "y": 2000,
+      "width": 150,
+      "tileKey": "terrain_dirt_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 3550,
+      "y": 1800,
+      "width": 150,
+      "tileKey": "terrain_dirt_block_center",
+      "isFullBlock": true
+    },
+    
+    {
+      "type": "ground",
+      "x": 3700,
+      "y": 2000,
+      "width": 100,
+      "tileKey": "terrain_dirt_horizontal_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "ground",
+      "x": 3700,
+      "y": 1800,
+      "width": 100,
+      "tileKey": "terrain_dirt_vertical_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "ground",
+      "x": 3700,
+      "y": 1600,
+      "width": 100,
+      "tileKey": "terrain_dirt_vertical_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "ground",
+      "x": 3700,
+      "y": 1400,
+      "width": 100,
+      "tileKey": "terrain_dirt_vertical_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "ground",
+      "x": 3700,
+      "y": 1200,
+      "width": 100,
+      "tileKey": "terrain_dirt_vertical_middle",
+      "isFullBlock": true
+    },
+    {
+      "type": "ground",
+      "x": 3700,
+      "y": 1000,
+      "width": 100,
+      "tileKey": "terrain_dirt_vertical_middle",
+      "isFullBlock": true
+    },
+    
+    {
+      "type": "floating",
+      "x": 3900,
+      "y": 1600,
+      "width": 150,
+      "tileKey": "terrain_stone_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 4150,
+      "y": 1400,
+      "width": 150,
+      "tileKey": "terrain_stone_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 3950,
+      "y": 1200,
+      "width": 150,
+      "tileKey": "terrain_stone_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 4200,
+      "y": 1000,
+      "width": 150,
+      "tileKey": "terrain_stone_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 4000,
+      "y": 800,
+      "width": 150,
+      "tileKey": "terrain_stone_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 4250,
+      "y": 600,
+      "width": 150,
+      "tileKey": "terrain_stone_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 4050,
+      "y": 400,
+      "width": 150,
+      "tileKey": "terrain_stone_block_center",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 4300,
+      "y": 200,
+      "width": 200,
+      "tileKey": "terrain_stone_block_center",
+      "isFullBlock": true
+    }
+  ],
+  "coins": [
+    {
+      "type": "coin",
+      "x": 300,
+      "y": 4550,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 575,
+      "y": 4400,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 825,
+      "y": 4250,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 1275,
+      "y": 3750,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 1175,
+      "y": 3550,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 1375,
+      "y": 3350,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 1225,
+      "y": 3150,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 1475,
+      "y": 2950,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 1660,
+      "y": 3300,
+      "properties": {
+        "value": 150
+      }
+    },
+    {
+      "type": "coin",
+      "x": 1860,
+      "y": 3000,
+      "properties": {
+        "value": 150
+      }
+    },
+    {
+      "type": "coin",
+      "x": 2075,
+      "y": 2550,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 2375,
+      "y": 2450,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 2625,
+      "y": 2350,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 2875,
+      "y": 2250,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 2550,
+      "y": 2050,
+      "properties": {
+        "value": 150
+      }
+    },
+    {
+      "type": "coin",
+      "x": 2960,
+      "y": 1800,
+      "properties": {
+        "value": 150
+      }
+    },
+    {
+      "type": "coin",
+      "x": 3275,
+      "y": 2750,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 3525,
+      "y": 2550,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 3275,
+      "y": 2350,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 3575,
+      "y": 2150,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 3325,
+      "y": 1950,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 3625,
+      "y": 1750,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 3975,
+      "y": 1550,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 4225,
+      "y": 1350,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 4025,
+      "y": 1150,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 4275,
+      "y": 950,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 4075,
+      "y": 750,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 4325,
+      "y": 550,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 4125,
+      "y": 350,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 4400,
+      "y": 150,
+      "properties": {
+        "value": 200
+      }
+    }
+  ],
+  "enemies": [
+    {
+      "type": "LoopHound",
+      "x": 300,
+      "y": 4800,
+      "patrolDistance": 180,
+      "direction": 1,
+      "speed": 75
+    },
+    {
+      "type": "LoopHound",
+      "x": 1200,
+      "y": 4100,
+      "patrolDistance": 120,
+      "direction": -1,
+      "speed": 65
+    },
+    {
+      "type": "LoopHound",
+      "x": 2100,
+      "y": 2600,
+      "patrolDistance": 200,
+      "direction": 1,
+      "speed": 85
+    },
+    {
+      "type": "LoopHound",
+      "x": 3200,
+      "y": 2750,
+      "patrolDistance": 150,
+      "direction": -1,
+      "speed": 70
+    },
+    {
+      "type": "LoopHound",
+      "x": 4100,
+      "y": 4100,
+      "patrolDistance": 100,
+      "direction": 1,
+      "speed": 60
+    }
+  ],
+  "backgrounds": [
+    {
+      "type": "layer",
+      "x": 2500,
+      "y": 2400,
+      "width": 5000,
+      "height": 4800,
+      "spriteKey": "background_solid_sky",
+      "depth": -2,
+      "scrollSpeed": 0.0
+    },
+    {
+      "type": "layer",
+      "x": 2500,
+      "y": 2400,
+      "width": 5000,
+      "height": 4800,
+      "spriteKey": "background_color_trees",
+      "depth": -1,
+      "scrollSpeed": 0.4
+    }
+  ],
+  "decorativePlatforms": [
+    { "type": "decorative", "x": 300, "y": 4700, "tilePrefix": "terrain_grass_block", "depth": -0.5 },
+    { "type": "decorative", "x": 800, "y": 4200, "width": 192, "tilePrefix": "terrain_stone_block", "depth": -0.6 },
+    { "type": "decorative", "x": 1200, "y": 3900, "tilePrefix": "cactus", "depth": -0.7 },
+    { "type": "decorative", "x": 1600, "y": 3500, "tilePrefix": "hill", "depth": -0.8 },
+    { "type": "decorative", "x": 2000, "y": 3200, "width": 128, "tilePrefix": "terrain_dirt_block", "depth": -0.9 },
+    { "type": "decorative", "x": 2500, "y": 2800, "tilePrefix": "mushroom_brown", "depth": -0.4 },
+    { "type": "decorative", "x": 3000, "y": 2500, "width": 256, "tilePrefix": "terrain_sand_block", "depth": -0.3 }
+  ]
+} 

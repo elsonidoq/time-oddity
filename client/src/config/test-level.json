@@ -1,102 +1,110 @@
 {
+  "playerSpawn": { "x": 200, "y": 870 },
+  "goal": {
+    "x": 4000,
+    "y": 850,
+    "tileKey": "sign_exit",
+    "isFullBlock": true
+  },
+  "coins": [
+    {
+      "type": "coin",
+      "x": 400,
+      "y": 850,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin", 
+      "x": 500,
+      "y": 850,
+      "properties": {
+        "value": 100
+      }
+    },
+    {
+      "type": "coin",
+      "x": 600,
+      "y": 850,
+      "properties": {
+        "value": 100
+      }
+    }
+  ],
   "platforms": [
     {
       "type": "ground",
       "x": 0,
-      "y": 1400,
-      "width": 2600,
-      "tileKey": "terrain_grass_horizontal_middle",
+      "y": 2900,
+      "width": 6000,
+      "tilePrefix": "terrain_grass_horizontal",
+      "isFullBlock": true
+    },
+
+    {
+      "type": "ground",
+      "x": 0,
+      "y": 2300,
+      "width": 2500,
+      "tilePrefix": "terrain_grass_horizontal",
       "isFullBlock": true
     },
     {
-      "type": "floating",
-      "x": 200,
-      "y": 1200,
-      "tileKey": "terrain_grass_block_center",
+      "type": "ground",
+      "x": 3000,
+      "y": 2300,
+      "width": 3000,
+      "tilePrefix": "terrain_grass_horizontal",
       "isFullBlock": true
     },
-    {
-      "type": "floating",
-      "x": 400,
-      "y": 1100,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
-    },
-    {
-      "type": "floating",
-      "x": 600,
-      "y": 1000,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
-    },
-    {
-      "type": "floating",
-      "x": 800,
-      "y": 900,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
-    },
-    {
-      "type": "floating",
-      "x": 1000,
-      "y": 800,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
-    },
-    {
-      "type": "floating",
-      "x": 1200,
-      "y": 700,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
-    },
-    {
-      "type": "floating",
-      "x": 1400,
-      "y": 600,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
-    },
-    {
-      "type": "floating",
-      "x": 1600,
-      "y": 500,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
-    },
-    {
-      "type": "floating",
-      "x": 1800,
-      "y": 400,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
-    },
-    {
-      "type": "floating",
-      "x": 2000,
-      "y": 300,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
-    },
-    {
-      "type": "floating",
-      "x": 2200,
-      "y": 200,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
-    },
+
+    { "type": "floating", "x": 400, "y": 730, "width": 400, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
     {
       "type": "moving",
-      "x": 300,
-      "y": 950,
-      "tileKey": "terrain_grass_block_center",
+      "x": 400,
+      "y": 800,
+      "width": 300,
+      "tilePrefix": "terrain_grass_cloud",
       "isFullBlock": true,
       "movement": {
         "type": "linear",
-        "startX": 300,
-        "startY": 950,
-        "endX": 700,
-        "endY": 950,
+        "startX": 400,
+        "startY": 800,
+        "endX": 2600,
+        "endY": 2350,
+        "speed": 60,
+        "mode": "bounce",
+        "autoStart": true
+      }
+    },
+
+
+    { "type": "floating", "x": 200, "y": 2500, "width": 400, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 700, "y": 2350, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 1200, "y": 2200, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 1700, "y": 2050, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 2200, "y": 1900, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+
+    { "type": "floating", "x": 2800, "y": 2100, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 3300, "y": 1950, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 3800, "y": 1800, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 4300, "y": 1650, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 4800, "y": 1500, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+
+    {
+      "type": "moving",
+      "x": 400,
+      "y": 500,
+      "width": 300,
+      "tilePrefix": "terrain_grass_cloud",
+      "isFullBlock": true,
+      "movement": {
+        "type": "linear",
+        "startX": 1200,
+        "startY": 2150,
+        "endX": 2600,
+        "endY": 2350,
         "speed": 60,
         "mode": "bounce",
         "autoStart": true
@@ -104,89 +112,127 @@
     },
     {
       "type": "moving",
-      "x": 1500,
-      "y": 750,
-      "tileKey": "terrain_grass_block_center",
+      "x": 3200,
+      "y": 1850,
+      "tilePrefix": "terrain_grass_cloud",
       "isFullBlock": true,
       "movement": {
         "type": "linear",
-        "startX": 1500,
-        "startY": 750,
-        "endX": 1500,
-        "endY": 550,
-        "speed": 40,
+        "startX": 3200,
+        "startY": 1850,
+        "endX": 3200,
+        "endY": 1100,
+        "speed": 50,
         "mode": "bounce",
         "autoStart": true
       }
     },
     {
       "type": "moving",
-      "x": 1900,
-      "y": 650,
-      "tileKey": "terrain_grass_block_center",
+      "x": 4200,
+      "y": 1400,
+      "tilePrefix": "terrain_grass_cloud",
       "isFullBlock": true,
       "movement": {
         "type": "linear",
-        "startX": 1900,
-        "startY": 650,
-        "endX": 2300,
-        "endY": 650,
-        "speed": 80,
+        "startX": 4200,
+        "startY": 1400,
+        "endX": 5600,
+        "endY": 1400,
+        "speed": 65,
         "mode": "bounce",
         "autoStart": true
       }
-    },
-    {
-      "type": "floating",
-      "x": 500,
-      "y": 1300,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
-    },
-    {
-      "type": "floating",
-      "x": 900,
-      "y": 1250,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
-    },
-    {
-      "type": "floating",
-      "x": 1300,
-      "y": 1200,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
-    },
-    {
-      "type": "floating",
-      "x": 1700,
-      "y": 1150,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
-    },
-    {
-      "type": "floating",
-      "x": 2100,
-      "y": 1100,
-      "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true
     },
     {
       "type": "moving",
-      "x": 1100,
-      "y": 1050,
-      "tileKey": "terrain_grass_block_center",
+      "x": 2600,
+      "y": 1600,
+      "tilePrefix": "terrain_grass_cloud",
       "isFullBlock": true,
       "movement": {
         "type": "linear",
-        "startX": 1100,
-        "startY": 1050,
-        "endX": 1500,
-        "endY": 1050,
-        "speed": 70,
+        "startX": 2600,
+        "startY": 1600,
+        "endX": 3000,
+        "endY": 1200,
+        "speed": 55,
         "mode": "bounce",
         "autoStart": true
       }
+    },
+
+    { "type": "ground", "x": 0, "y": 900, "width": 2600, "tilePrefix": "terrain_grass_horizontal", "isFullBlock": true },
+    { "type": "ground", "x": 3400, "y": 900, "width": 2600, "tilePrefix": "terrain_grass_horizontal", "isFullBlock": true },
+
+    { "type": "floating", "x": 1500, "y": 700, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 3000, "y": 600, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 4500, "y": 500, "width": 250, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true }
+  ],
+  "enemies": [
+    {
+      "type": "LoopHound",
+      "x": 300,
+      "y": 2900,
+      "patrolDistance": 150,
+      "direction": 1,
+      "speed": 80
+    },
+    {
+      "type": "LoopHound",
+      "x": 110,
+      "y": 300,
+      "patrolDistance": 150,
+      "direction": 1,
+      "speed": 80
+    },
+    {
+      "type": "LoopHound",
+      "x": 800,
+      "y": 2300,
+      "patrolDistance": 200,
+      "direction": -1,
+      "speed": 60
+    },
+    {
+      "type": "LoopHound",
+      "x": 3500,
+      "y": 900,
+      "patrolDistance": 120,
+      "direction": 1,
+      "speed": 70
     }
+  ],
+  "backgrounds": [
+    {
+      "type": "layer",
+      "x": 3200,
+      "y": 1800,
+      "width": 6400,
+      "height": 3600,
+      "spriteKey": "background_solid_sky",
+      "depth": -2,
+      "scrollSpeed": 0.0
+    },
+    {
+      "type": "layer",
+      "x": 3200,
+      "y": 1800,
+      "width": 6400,
+      "height": 3600,
+      "spriteKey": "background_color_hills",
+      "depth": -1,
+      "scrollSpeed": 0.5
+    }
+  ],
+  "decorativePlatforms": [
+    { "type": "decorative", "x": 310, "y": 850, "tilePrefix": "terrain_grass_block", "depth": -0.2 },
+    { "type": "decorative", "x": 310, "y": 820, "tilePrefix": "terrain_grass_block", "depth": -0.3 },
+    { "type": "decorative", "x": 300, "y": 200, "width": 192, "tilePrefix": "terrain_stone_block", "depth": -0.6 },
+    { "type": "decorative", "x": 600, "y": 250, "tilePrefix": "bush", "depth": -0.7 },
+    { "type": "decorative", "x": 800, "y": 250, "tilePrefix": "rock", "depth": -0.8 },
+    { "type": "decorative", "x": 1000, "y": 300, "width": 128, "tilePrefix": "terrain_dirt_block", "depth": -0.9 },
+    { "type": "decorative", "x": 1200, "y": 350, "tilePrefix": "mushroom_red", "depth": -0.4 },
+    { "type": "decorative", "x": 1400, "y": 400, "width": 256, "tilePrefix": "terrain_sand_block", "depth": -0.3 }
   ]
 } 

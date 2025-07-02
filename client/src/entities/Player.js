@@ -21,7 +21,7 @@ import gsap from 'gsap';
  * Dash Mechanic:
  * - Properties:
  *   • dashCooldown: 1000ms (1 second) between dashes
- *   • dashDuration: 120ms of dash movement
+ *   • dashDuration: 20ms of dash movement
  *   • dashSpeed: 1000 pixels/second during dash
  * 
  * - State Management:
@@ -183,5 +183,78 @@ export default class Player extends Entity {
     if (now >= this.dashTimer) {
       this.canDash = true;
     }
+  }
+
+  /**
+   * Enhanced floor detection for moving platform stability.
+   * This method provides more reliable floor detection when standing on moving platforms
+   * by checking both physics collision and platform-specific detection.
+   * @returns {boolean} - True if player is on the floor or on a moving platform
+   */
+  isOnFloorEnhanced() {
+    // First check normal physics collision
+    if (this.body && this.body.onFloor && this.body.onFloor()) {
+      return true;
+    }
+
+    // Check if standing on any moving platforms in the scene
+    if (this.scene && this.scene.platforms) {
+      const platforms = this.scene.platforms.getChildren ? this.scene.platforms.getChildren() : [];
+      
+      for (const platform of platforms) {
+        if (platform && typeof platform.isPlayerStandingOnAnySprite === 'function') {
+          if (platform.isPlayerStandingOnAnySprite(this.body)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    // Fallback to basic touching.down check
+    return this.body && this.body.touching && this.body.touching.down;
+  }
+
+  /**
+   * Handle taking damage.
+   * @param {number} amount - The amount of damage to take.
+   * @returns {boolean} - True if the player died, false otherwise.
+   */
+  takeDamage(amount) {
+    const previousHealth = this.health;
+    const isDead = super.takeDamage(amount);
+
+    // Task 02.06: Emit playerHealthChanged event for UI updates
+    if (this.scene && this.scene.events && this.scene.events.emit) {
+      this.scene.events.emit('playerHealthChanged', {
+        health: this.health,
+        damage: amount,
+        previousHealth: previousHealth
+      });
+    }
+
+    // Task 02.06: Emit playerDied event when player dies
+    if (isDead && this.scene && this.scene.events && this.scene.events.emit) {
+      this.scene.events.emit('playerDied', { player: this });
+    }
+
+    // Task 06.02.4: Play hurt sound effect
+    if (this.scene.audioManager) {
+      this.scene.audioManager.playSfx('playerHurt');
+    }
+
+    // Update player health in scene registry
+    if (this.scene && this.scene.registry && this.scene.registry.set) {
+      this.scene.registry.set('playerHealth', this.health);
+    }
+
+    // Optional: quick hit-flash feedback (harmless if scene.time undefined in mocks)
+    if (this.setTint && this.scene && this.scene.time && typeof this.scene.time.delayedCall === 'function') {
+      this.setTint(0xff0000);
+      this.scene.time.delayedCall(100, () => {
+        if (this.clearTint) this.clearTint();
+      });
+    }
+
+    return isDead;
   }
 } 

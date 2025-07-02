@@ -202,15 +202,23 @@ export default class TimeManager {
         console.warn('[TimeManager] Error recording state for object:', error);
       }
     }
-    
+    // --- Record coinsCollected registry value ---
+    let coinsCollected = 0;
+    if (this.scene && this.scene.registry && typeof this.scene.registry.get === 'function') {
+      coinsCollected = this.scene.registry.get('coinsCollected') || 0;
+    }
     if (states.length > 0) {
-      this.stateBuffer.push({ timestamp, states });
+      this.stateBuffer.push({ timestamp, states, coinsCollected });
     }
   }
 
   applyFrame(frame) {
     for(const record of frame.states) {
         this.applyState(record.target, record.state);
+    }
+    // --- Restore coinsCollected registry value ---
+    if (this.scene && this.scene.registry && typeof this.scene.registry.set === 'function' && typeof frame.coinsCollected !== 'undefined') {
+      this.scene.registry.set('coinsCollected', frame.coinsCollected);
     }
   }
 
@@ -221,6 +229,14 @@ export default class TimeManager {
             const interpolatedState = this.interpolateState(recordA.state, recordB.state, t);
             this.applyState(recordA.target, interpolatedState);
         }
+    }
+    
+    // --- Restore coinsCollected registry value during interpolation ---
+    // Use the frameA (future frame) value as the target for interpolation
+    if (this.scene && this.scene.registry && typeof this.scene.registry.set === 'function' && 
+        typeof frameA.coinsCollected !== 'undefined') {
+      // Use the actual value from frameA (future frame) during interpolation
+      this.scene.registry.set('coinsCollected', frameA.coinsCollected);
     }
   }
   

@@ -88,9 +88,10 @@ describe('GameScene', () => {
         })), 
         existing: jest.fn(),
         collider: jest.fn(),
+        overlap: jest.fn(),
       },
     };
-    scene.cameras = { main: { setBounds: jest.fn() } };
+    scene.cameras = { main: { setBounds: jest.fn(), setZoom: jest.fn() } };
     scene.sys = {
       game: {
         config: {
@@ -121,6 +122,7 @@ describe('GameScene', () => {
       onFloor: jest.fn(() => true)
     };
     scene.physics.world.bounds = { setTo: jest.fn() };
+    scene.add = { text: () => ({ setOrigin: () => ({ setInteractive: () => ({ on: () => {} }) }) }), existing: jest.fn(), tileSprite: jest.fn(() => ({ setDepth: jest.fn(), setData: jest.fn() })) };
   });
 
   // Helper to patch all scene references after create

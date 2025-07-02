@@ -7,12 +7,16 @@ Before beginning any task, you MUST review these documents:
 1. **@invariants.md ** - Contains all non-negotiable architectural assumptions, state structures, and contracts that must be preserved
 2. **@testing_best_practices.md ** - Defines TDD/BDD methodologies, testing strategies, and LLM-assisted development workflows  
 3. **@small_comprehensive_documentation.md ** - Provides technical implementation details, API references, and architectural patterns
+4. ** @level-format.md  **: Contains documentation of the structure that a JSON describing a level must have 
 
 ## Task Assignment
-- Execute all tasks from Task 7.2 in file @phase_4_increase_coverage.md 
-- EXECUTE ALL TASKS AUTONOMOUSLY WITHOUT REQUIRING USER INPUT
+- Read all documentation
+- Read the task 4.01 described in @04_simplified_map_view.md 
+- Make sure to think the proper abstraction 
+- Write down a plan to implement it. Identify new states, invariants that need preservation
+- Follow a STRICT TDD approach and implement your plan to execute the task 4.01 described in @04_simplified_map_view.md  
 - After finishing a task, double check the task description to make sure you actually finished
-- If you are sure, move to the next task
+
 
 ## Critical Requirements
 

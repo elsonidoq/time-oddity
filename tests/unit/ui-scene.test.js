@@ -52,7 +52,16 @@ describe('UIScene', () => {
         addKey: jest.fn(() => ({ isDown: false, isUp: true }))
       }
     };
-    scene.add = scene.add || {};
+    scene.add = scene.add || {
+      text: jest.fn(() => ({
+        setOrigin: jest.fn().mockReturnThis(),
+        setTint: jest.fn().mockReturnThis(),
+        setAlpha: jest.fn().mockReturnThis(),
+        setText: jest.fn().mockReturnThis(),
+        setInteractive: jest.fn().mockReturnThis(),
+        on: jest.fn().mockReturnThis()
+      }))
+    };
     scene.registry = scene.registry || { get: jest.fn() };
     scene.time = scene.time || { now: 0 };
     return scene;
@@ -194,8 +203,13 @@ describe('UIScene', () => {
     };
     scene.add = {
       graphics: jest.fn()
-        .mockReturnValueOnce(mockBackgroundGraphics) // First call for background
-        .mockReturnValueOnce(mockForegroundGraphics), // Second call for foreground
+        .mockReturnValueOnce(mockBackgroundGraphics)
+        .mockReturnValueOnce(mockForegroundGraphics)
+        .mockReturnValueOnce({ // Third call for MapOverlay
+          setDepth: jest.fn().mockReturnThis(),
+          setPosition: jest.fn().mockReturnThis(),
+          setVisible: jest.fn().mockReturnThis()
+        }),
       text: jest.fn().mockReturnValue({
         setOrigin: jest.fn().mockReturnThis()
       })
@@ -203,8 +217,8 @@ describe('UIScene', () => {
 
     scene.create();
 
-    // Verify background bar was created
-    expect(scene.add.graphics).toHaveBeenCalledTimes(2);
+    // Verify background bar was created (3 calls total: health background + foreground + map overlay)
+    expect(scene.add.graphics).toHaveBeenCalledTimes(3);
     expect(mockBackgroundGraphics.fillStyle).toHaveBeenCalledWith(0xff0000, 1); // Red background
     expect(mockBackgroundGraphics.fillRect).toHaveBeenCalledWith(20, 20, 200, 20);
     
@@ -237,7 +251,12 @@ describe('UIScene', () => {
     scene.add = {
       graphics: jest.fn()
         .mockReturnValueOnce(mockBackgroundGraphics)
-        .mockReturnValueOnce(mockForegroundGraphics),
+        .mockReturnValueOnce(mockForegroundGraphics)
+        .mockReturnValueOnce({ // Third call for MapOverlay
+          setDepth: jest.fn().mockReturnThis(),
+          setPosition: jest.fn().mockReturnThis(),
+          setVisible: jest.fn().mockReturnThis()
+        }),
       text: jest.fn()
         .mockReturnValueOnce(mockDashText)
         .mockReturnValueOnce(mockPulseText)
@@ -287,7 +306,12 @@ describe('UIScene', () => {
     scene.add = {
       graphics: jest.fn()
         .mockReturnValueOnce(mockBackgroundGraphics)
-        .mockReturnValueOnce(mockForegroundGraphics),
+        .mockReturnValueOnce(mockForegroundGraphics)
+        .mockReturnValueOnce({ // Third call for MapOverlay
+          setDepth: jest.fn().mockReturnThis(),
+          setPosition: jest.fn().mockReturnThis(),
+          setVisible: jest.fn().mockReturnThis()
+        }),
       text: jest.fn()
         .mockReturnValueOnce(mockDashText)
         .mockReturnValueOnce(mockPulseText)
@@ -343,7 +367,12 @@ describe('UIScene', () => {
     scene.add = {
       graphics: jest.fn()
         .mockReturnValueOnce(mockBackgroundGraphics)
-        .mockReturnValueOnce(mockForegroundGraphics),
+        .mockReturnValueOnce(mockForegroundGraphics)
+        .mockReturnValueOnce({ // Third call for MapOverlay
+          setDepth: jest.fn().mockReturnThis(),
+          setPosition: jest.fn().mockReturnThis(),
+          setVisible: jest.fn().mockReturnThis()
+        }),
       text: jest.fn()
         .mockReturnValueOnce(mockDashText)
         .mockReturnValueOnce(mockPulseText)
@@ -391,7 +420,12 @@ describe('UIScene', () => {
     scene.add = {
       graphics: jest.fn()
         .mockReturnValueOnce(mockBackgroundGraphics)
-        .mockReturnValueOnce(mockForegroundGraphics),
+        .mockReturnValueOnce(mockForegroundGraphics)
+        .mockReturnValueOnce({ // Third call for MapOverlay
+          setDepth: jest.fn().mockReturnThis(),
+          setPosition: jest.fn().mockReturnThis(),
+          setVisible: jest.fn().mockReturnThis()
+        }),
       text: jest.fn()
         .mockReturnValueOnce(mockDashText)
         .mockReturnValueOnce(mockPulseText)
@@ -430,7 +464,12 @@ describe('UIScene', () => {
     scene.add = {
       graphics: jest.fn()
         .mockReturnValueOnce(mockBackgroundGraphics)
-        .mockReturnValueOnce(mockForegroundGraphics),
+        .mockReturnValueOnce(mockForegroundGraphics)
+        .mockReturnValueOnce({ // Third call for MapOverlay
+          setDepth: jest.fn().mockReturnThis(),
+          setPosition: jest.fn().mockReturnThis(),
+          setVisible: jest.fn().mockReturnThis()
+        }),
       text: jest.fn()
         .mockReturnValueOnce(mockDashText)
         .mockReturnValueOnce(mockPulseText)
@@ -505,7 +544,12 @@ describe('UIScene', () => {
     scene.add = {
       graphics: jest.fn()
         .mockReturnValueOnce(mockBackgroundGraphics)
-        .mockReturnValueOnce(mockForegroundGraphics),
+        .mockReturnValueOnce(mockForegroundGraphics)
+        .mockReturnValueOnce({ // Third call for MapOverlay
+          setDepth: jest.fn().mockReturnThis(),
+          setPosition: jest.fn().mockReturnThis(),
+          setVisible: jest.fn().mockReturnThis()
+        }),
       text: jest.fn()
         .mockReturnValueOnce(mockDashText)
         .mockReturnValueOnce(mockPulseText)
@@ -555,7 +599,12 @@ describe('UIScene', () => {
     scene.add = {
       graphics: jest.fn()
         .mockReturnValueOnce(mockBackgroundGraphics)
-        .mockReturnValueOnce(mockForegroundGraphics),
+        .mockReturnValueOnce(mockForegroundGraphics)
+        .mockReturnValueOnce({ // Third call for MapOverlay
+          setDepth: jest.fn().mockReturnThis(),
+          setPosition: jest.fn().mockReturnThis(),
+          setVisible: jest.fn().mockReturnThis()
+        }),
       text: jest.fn()
         .mockReturnValueOnce(mockDashText)
         .mockReturnValueOnce(mockPulseText)
@@ -605,7 +654,12 @@ describe('UIScene', () => {
     scene.add = {
       graphics: jest.fn()
         .mockReturnValueOnce(mockBackgroundGraphics)
-        .mockReturnValueOnce(mockForegroundGraphics),
+        .mockReturnValueOnce(mockForegroundGraphics)
+        .mockReturnValueOnce({ // Third call for MapOverlay
+          setDepth: jest.fn().mockReturnThis(),
+          setPosition: jest.fn().mockReturnThis(),
+          setVisible: jest.fn().mockReturnThis()
+        }),
       text: jest.fn()
         .mockReturnValueOnce(mockDashText)
         .mockReturnValueOnce(mockPulseText)
@@ -655,7 +709,12 @@ describe('UIScene', () => {
     scene.add = {
       graphics: jest.fn()
         .mockReturnValueOnce(mockBackgroundGraphics)
-        .mockReturnValueOnce(mockForegroundGraphics),
+        .mockReturnValueOnce(mockForegroundGraphics)
+        .mockReturnValueOnce({ // Third call for MapOverlay
+          setDepth: jest.fn().mockReturnThis(),
+          setPosition: jest.fn().mockReturnThis(),
+          setVisible: jest.fn().mockReturnThis()
+        }),
       text: jest.fn()
         .mockReturnValueOnce(mockDashText)
         .mockReturnValueOnce(mockPulseText)
@@ -705,7 +764,12 @@ describe('UIScene', () => {
     scene.add = {
       graphics: jest.fn()
         .mockReturnValueOnce(mockBackgroundGraphics)
-        .mockReturnValueOnce(mockForegroundGraphics),
+        .mockReturnValueOnce(mockForegroundGraphics)
+        .mockReturnValueOnce({ // Third call for MapOverlay
+          setDepth: jest.fn().mockReturnThis(),
+          setPosition: jest.fn().mockReturnThis(),
+          setVisible: jest.fn().mockReturnThis()
+        }),
       text: jest.fn()
         .mockReturnValueOnce(mockDashText)
         .mockReturnValueOnce(mockPulseText)

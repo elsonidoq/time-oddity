@@ -45,9 +45,14 @@ describe('Task 2.0: GameScene Physics Initialization Fix', () => {
     scene.physics = {
       world: { gravity: { y: 0 }, tileBias: 0, bounds: { setTo: jest.fn() } },
       config: { debug: false },
-      add: { group: jest.fn(() => ({ create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) })), sprite: jest.fn(() => ({ body: { setAllowGravity: jest.fn() }, play: jest.fn().mockReturnThis(), parentCoin: null })), existing: jest.fn() },
+      add: {
+        group: jest.fn(() => ({ create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) })),
+        sprite: jest.fn(() => ({ body: { setAllowGravity: jest.fn() }, play: jest.fn().mockReturnThis(), parentCoin: null })),
+        existing: jest.fn(),
+        overlap: jest.fn(),
+      },
     };
-    scene.cameras = { main: { setBounds: jest.fn() } };
+    scene.cameras = { main: { setBounds: jest.fn(), setZoom: jest.fn() } };
     scene.sys = {
       game: {
         config: {
@@ -58,7 +63,7 @@ describe('Task 2.0: GameScene Physics Initialization Fix', () => {
       },
       events: { on: jest.fn(), off: jest.fn() }
     };
-    scene.add = { text: () => ({ setOrigin: () => ({ setInteractive: () => ({ on: () => {} }) }) }), existing: jest.fn() };
+    scene.add = { text: () => ({ setOrigin: () => ({ setInteractive: () => ({ on: () => {} }) }) }), existing: jest.fn(), tileSprite: jest.fn(() => ({ setDepth: jest.fn(), setData: jest.fn() })) };
     scene.events = { on: () => {} };
     const mockGroup = { create: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })) };
     scene.platforms = mockGroup;
@@ -124,19 +129,26 @@ describe('Task 2.0: GameScene Physics Initialization Fix', () => {
     test('should create platforms physics group', () => {
       scene.create(); patchAllSceneRefs();
       expect(scene.physics.add.group).toHaveBeenCalled();
-      expect(scene.physics.add.group).toHaveBeenCalledTimes(4);
+      expect(scene.physics.add.group).toHaveBeenCalledTimes(5); // Updated: now includes goalTiles group
     });
 
     test('should create players physics group', () => {
       scene.create(); patchAllSceneRefs();
       expect(scene.physics.add.group).toHaveBeenCalled();
-      expect(scene.physics.add.group).toHaveBeenCalledTimes(4);
+      expect(scene.physics.add.group).toHaveBeenCalledTimes(5); // Updated: now includes goalTiles group
     });
 
     test('should create enemies physics group', () => {
       scene.create(); patchAllSceneRefs();
       expect(scene.physics.add.group).toHaveBeenCalled();
-      expect(scene.physics.add.group).toHaveBeenCalledTimes(4);
+      expect(scene.physics.add.group).toHaveBeenCalledTimes(5); // Updated: now includes goalTiles group
+    });
+
+    test('should create goalTiles physics group', () => {
+      scene.create(); patchAllSceneRefs();
+      expect(scene.physics.add.group).toHaveBeenCalled();
+      expect(scene.physics.add.group).toHaveBeenCalledTimes(5); // New: goalTiles group added
+      expect(scene.goalTiles).toBeDefined();
     });
   });
 

@@ -148,13 +148,40 @@ export class Enemy extends Entity {
    * Handle enemy death.
    */
   die() {
+    if (this._deathHandled) return; // prevent multiple executions
+
+    this._deathHandled = true;
     this.health = 0;
-    this.deactivate();
-    // Disable physics body on death
+
+    // Play death animation if available
+    if (this.anims && this.anims.play) {
+      const animKey = `${this.texture.key}-death`;
+      if (this.scene && this.scene.anims && this.scene.anims.exists && this.scene.anims.exists(animKey)) {
+        this.anims.play(animKey, true);
+      }
+    }
+
+    // Emit enemyDefeated event (Task 02.03.2)
+    if (this.scene && this.scene.events && typeof this.scene.events.emit === 'function') {
+      this.scene.events.emit('enemyDefeated', this);
+    }
+
+    // IMPORTANT: Avoid hard-destroy so TimeManager can bring the enemy back during rewind.
+    // We only soft-deactivate (invisible & inactive) to preserve reference for state recording.
+    // Destruction is now handled by GC when scene shuts down.
+    // This change preserves invariant §7 (soft-destroy for rewind).
+
+    // Hide sprite to simulate destruction visually
+    this.setVisible(false);
+    this.visible = false;
+    // Keep inactive so collisions stop
+    this.setActive(false);
+    this.active = false;
     if (this.body) {
       this.body.enable = false;
+      this.body.setVelocity(0, 0);
     }
-    // Override in subclasses for specific death behavior
+    // Note: actual destroy removed to support rewind.
   }
 
   /**
@@ -330,6 +357,56 @@ export class Enemy extends Entity {
     // Emit unfreeze event if scene has events
     if (this.scene?.events?.emit) {
       this.scene.events.emit('enemyUnfrozen', this);
+    }
+  }
+
+  /**
+   * Provide custom state snapshot for TimeManager so that death/health are recorded.
+   * @returns {Object} Serializable state
+   */
+  getStateForRecording() {
+    return {
+      x: this.x,
+      y: this.y,
+      velocityX: this.body?.velocity?.x || 0,
+      velocityY: this.body?.velocity?.y || 0,
+      animation: this.anims?.currentAnim?.key || null,
+      active: this.active,
+      visible: this.visible,
+      health: this.health,
+      bodyEnable: (this.body && typeof this.body.enable === 'boolean') ? this.body.enable : true
+    };
+  }
+
+  /**
+   * Restore state from TimeManager snapshot.
+   * @param {Object} state - Snapshot created by getStateForRecording()
+   */
+  setStateFromRecording(state) {
+    if (!state) return;
+    this.x = state.x;
+    this.y = state.y;
+    if (this.body) {
+      this.body.velocity.x = state.velocityX;
+      this.body.velocity.y = state.velocityY;
+      this.body.enable = state.bodyEnable !== undefined ? state.bodyEnable : true;
+    }
+    this.health = state.health;
+
+    // Reactivate/deactivate based on health & recorded active flag
+    if (this.health > 0) {
+      this.setActive(true);
+      this.active = true;
+      this.setVisible(true);
+      this.visible = true;
+      this._deathHandled = false; // Allow future deaths
+    } else {
+      this.setActive(false);
+      this.setVisible(false);
+    }
+
+    if (state.animation && this.anims && this.anims.play) {
+      this.anims.play(state.animation);
     }
   }
 }

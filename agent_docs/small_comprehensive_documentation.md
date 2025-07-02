@@ -431,19 +431,19 @@ time-oddity/
       "x": 400,
       "y": 300,
       "tileKey": "terrain_grass_block_center",
-      "isFullBlock": true,
-      "movement": {
-        "type": "linear",
-        "speed": 60,
-        "startX": 400,
-        "startY": 300,
-        "endX": 600,
-        "endY": 300,
-        "mode": "bounce",
-        "autoStart": true
-      }
-    }
-    ```
+      - **Floating Platforms**: Now support a `width` parameter (in pixels). If specified, SceneFactory will create multiple adjacent tiles starting at `x`, each 64px wide, to span the requested width. If omitted, a single tile is created. Example:
+
+```json
+{
+  "type": "floating",
+  "x": 100,
+  "y": 500,
+  "width": 192, // 3 tiles
+  "tileKey": "terrain_grass_block_center",
+  "isFullBlock": true
+}
+```
+
 - **PlatformMovement System:**
   - Pure logic class (no Phaser dependencies) for deterministic, testable movement calculations.
   - Supports linear, circular, and path-based movement.

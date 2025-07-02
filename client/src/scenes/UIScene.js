@@ -1,5 +1,6 @@
 import BaseScene from './BaseScene.js';
 import InputManager from '../systems/InputManager.js';
+import MapOverlay from '../ui/MapOverlay.js';
 
 export default class UIScene extends BaseScene {
   constructor(mockScene = null) {
@@ -37,6 +38,32 @@ export default class UIScene extends BaseScene {
     this.healthBarForeground.fillStyle(0x00ff00, 1);
     this.healthBarForeground.fillRect(x, y, barWidth, barHeight);
 
+    // ------------------------------------------------------------------
+    // Subscribe to Player damage events from GameScene to update HUD ASAP
+    // ------------------------------------------------------------------
+    const gameScene = this.scene && this.scene.get ? this.scene.get('GameScene') : null;
+    if (gameScene && gameScene.events && typeof gameScene.events.on === 'function') {
+      gameScene.events.on('playerDamaged', (payload) => {
+        const newHealth = payload && payload.health !== undefined ? payload.health : null;
+        if (newHealth !== null) {
+          if (this.registry && typeof this.registry.set === 'function') {
+            this.registry.set('playerHealth', newHealth);
+          }
+          // Immediately refresh HUD rather than waiting for next update tick
+          this.updateHealthDisplay(newHealth);
+        }
+      });
+    }
+
+    // Helper to draw health bar based on value 0-100
+    this.updateHealthDisplay = (currentHealth) => {
+      const clampedHealth = Math.max(0, Math.min(100, currentHealth));
+      const currentWidth = Math.floor((clampedHealth / 100) * barWidth);
+      this.healthBarForeground.clear();
+      this.healthBarForeground.fillStyle(0x00ff00, 1);
+      this.healthBarForeground.fillRect(x, y, currentWidth, barHeight);
+    };
+
     // Ability cooldown placeholders
     const dashText = this.add.text(20, 50, 'Dash', { font: '16px Arial', fill: '#333333' });
     dashText.setOrigin(0, 0);
@@ -45,6 +72,24 @@ export default class UIScene extends BaseScene {
 
     this.cooldownIcons = { dashText, pulseText };
 
+    // Task 04.03: Coin counter display
+    const coinCounter = this.add.text(180, 50, 'Coins: 0', { font: '16px Arial', fill: '#333333' });
+    if (coinCounter && typeof coinCounter.setOrigin === 'function') {
+      coinCounter.setOrigin(0, 0);
+    }
+    this.coinCounter = coinCounter;
+
+    // Task 06.03.3: Create mute button
+    if (this.add && this.add.image) {
+      this.muteButton = this.add.image(1200, 50, 'mute_unmuted');
+      this.muteButton.setInteractive({ useHandCursor: true });
+      this.muteButton.setScale(0.5);
+      this.muteButton.setDepth(10);
+      this.muteButton.on('pointerdown', () => {
+        this.events.emit('toggleMuteRequest');
+      });
+    }
+
     // Create pause menu if needed
     if (this.isPaused) {
       this.createPauseMenu();
@@ -52,6 +97,34 @@ export default class UIScene extends BaseScene {
 
     // Initialize input manager for pause handling
     this.inputManager = new InputManager(this);
+
+    // Task 04.06: Create and initialize MapOverlay
+    this.mapOverlay = new MapOverlay(this);
+    this.mapOverlay.create();
+    this.mapVisible = false; // Start with map hidden
+    
+    // Initialize map with level data from GameScene
+    const gameSceneForMap = this.scene && this.scene.get ? this.scene.get('GameScene') : null;
+    if (gameSceneForMap) {
+      // Calculate map scale first
+      if (gameSceneForMap.levelWidth && gameSceneForMap.levelHeight) {
+        this.mapOverlay.calculateMapScale(gameSceneForMap.levelWidth, gameSceneForMap.levelHeight);
+      }
+      
+      // Render static level elements
+      if (gameSceneForMap.platforms && gameSceneForMap.platforms.children) {
+        this.mapOverlay.renderPlatforms(gameSceneForMap.platforms.children.entries);
+      }
+      if (gameSceneForMap.coins && gameSceneForMap.coins.children) {
+        this.mapOverlay.renderCoins(gameSceneForMap.coins.children.entries);
+      }
+    }
+
+    // Listen for levelCompleted event from GameScene
+    const gameSceneForLevelComplete = this.scene && this.scene.get ? this.scene.get('GameScene') : null;
+    if (gameSceneForLevelComplete && gameSceneForLevelComplete.events && typeof gameSceneForLevelComplete.events.on === 'function') {
+      gameSceneForLevelComplete.events.on('levelCompleted', this.onLevelCompleted, this);
+    }
   }
 
   createPauseMenu() {
@@ -91,6 +164,17 @@ export default class UIScene extends BaseScene {
     
     // Emit resume event
     this.events.emit('gameResumed');
+  }
+
+  /**
+   * Update mute button texture based on mute state
+   * @param {boolean} isMuted - Whether audio is currently muted
+   */
+  updateMuteButtonState(isMuted) {
+    if (this.muteButton && this.muteButton.setTexture) {
+      const textureKey = isMuted ? 'mute_muted' : 'mute_unmuted';
+      this.muteButton.setTexture(textureKey);
+    }
   }
 
   update(time, delta) {
@@ -147,6 +231,79 @@ export default class UIScene extends BaseScene {
         this.cooldownIcons.pulseText.setTint(0xffffff); // White
         this.cooldownIcons.pulseText.setAlpha(1.0);
       }
+    }
+
+    // Task 04.03: Update coin counter display
+    if (this.coinCounter && typeof this.coinCounter.setText === 'function') {
+      const coinsCollected = this.registry ? (this.registry.get('coinsCollected') || 0) : 0;
+      this.coinCounter.setText(`Coins: ${coinsCollected}`);
+    }
+
+    // Task 04.06: Handle map toggle via T key
+    if (this.inputManager && this.inputManager.isMapToggleJustPressed) {
+      this.mapVisible = !this.mapVisible;
+      if (this.mapOverlay) {
+        this.mapOverlay.setVisible(this.mapVisible);
+      }
+    }
+    
+    // Task 04.06: Update player position when map is visible
+    if (this.mapVisible && this.mapOverlay) {
+      const gameSceneForMapUpdate = this.scene && this.scene.get ? this.scene.get('GameScene') : null;
+      if (gameSceneForMapUpdate && gameSceneForMapUpdate.player) {
+        this.mapOverlay.updatePlayerPosition(gameSceneForMapUpdate.player.x, gameSceneForMapUpdate.player.y);
+      }
+    }
+
+    // --- Task 05.02.2: Handle SPACE key to return to menu ---
+    this.handleLevelCompleteInput();
+  }
+
+  onLevelCompleted() {
+    if (this.levelCompleteOverlay) return;
+    // Create a semi-transparent overlay container
+    const overlay = this.add.container(0, 0);
+    overlay.setDepth(1002);
+    overlay.setVisible(true);
+    // Optionally add a background graphics and text
+    const bg = this.add.graphics();
+    bg.fillStyle(0x000000, 0.7);
+    bg.fillRect(0, 0, 1280, 720);
+    bg.setDepth(1002);
+    overlay.add(bg);
+    const text = this.add.text(640, 360, 'Level Completed', { font: '48px Arial', fill: '#ffffff' });
+    text.setOrigin(0.5);
+    text.setDepth(1002);
+    overlay.add(text);
+    this.levelCompleteOverlay = overlay;
+    
+    // Set flag to indicate level complete overlay is active
+    this.levelCompleteActive = true;
+  }
+
+  // --- Task 05.02.2: Handle SPACE key to return to menu ---
+  handleLevelCompleteInput() {
+    if (this.levelCompleteActive && this.inputManager && this.inputManager.isJumpJustPressed) {
+      // Stop GameScene and start MenuScene
+      this.scene.stop('GameScene');
+      this.scene.start('MenuScene');
+      
+      // Clean up overlay and reset flag
+      if (this.levelCompleteOverlay) {
+        this.levelCompleteOverlay.destroy();
+        this.levelCompleteOverlay = null;
+      }
+      this.levelCompleteActive = false;
+    }
+  }
+
+  /**
+   * Cleanup method for map overlay resources
+   */
+  onShutdown() {
+    if (this.mapOverlay) {
+      this.mapOverlay.destroy();
+      this.mapOverlay = null;
     }
   }
 } 

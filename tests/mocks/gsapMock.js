@@ -63,24 +63,22 @@ const createMockTween = (target, vars) => {
   
   // Execute onComplete callback if provided (simulate completion)
   if (vars && vars.onComplete) {
-    // Simulate async behavior by calling onComplete after a small delay
-    setTimeout(() => {
-      // Apply final target values before calling onComplete
-      if (target && typeof target === 'object') {
-        if (tween._targetValues.x !== undefined) target.x = tween._targetValues.x;
-        if (tween._targetValues.y !== undefined) target.y = tween._targetValues.y;
-        if (tween._targetValues.rotation !== undefined) target.rotation = tween._targetValues.rotation;
-        if (tween._targetValues.alpha !== undefined) target.alpha = tween._targetValues.alpha;
-        if (tween._targetValues.scale !== undefined) target.scale = tween._targetValues.scale;
-        
-        // Call onUpdate one more time with final values
-        if (vars.onUpdate) {
-          vars.onUpdate();
-        }
-      }
+    // Call onComplete immediately for testing
+    // Apply final target values before calling onComplete
+    if (target && typeof target === 'object') {
+      if (tween._targetValues.x !== undefined) target.x = tween._targetValues.x;
+      if (tween._targetValues.y !== undefined) target.y = tween._targetValues.y;
+      if (tween._targetValues.rotation !== undefined) target.rotation = tween._targetValues.rotation;
+      if (tween._targetValues.alpha !== undefined) target.alpha = tween._targetValues.alpha;
+      if (tween._targetValues.scale !== undefined) target.scale = tween._targetValues.scale;
       
-      vars.onComplete(...(vars.onCompleteParams || []));
-    }, 0);
+      // Call onUpdate one more time with final values
+      if (vars.onUpdate) {
+        vars.onUpdate();
+      }
+    }
+    
+    vars.onComplete(...(vars.onCompleteParams || []));
   }
   
   return tween;

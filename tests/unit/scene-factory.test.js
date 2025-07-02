@@ -75,7 +75,7 @@ describe('SceneFactory', () => {
         movingConfig.y,
         'tiles',
         movingConfig.movement,
-        movingConfig.tileKey
+        movingConfig.tilePrefix
       );
 
       // Configure platform physics
@@ -112,7 +112,7 @@ describe('SceneFactory', () => {
             x: 0,
             y: 656,
             width: 1280,
-            tileKey: 'terrain_grass_horizontal_middle',
+            tilePrefix: 'terrain_grass_horizontal_middle',
             isFullBlock: true
           }
         ]
@@ -131,7 +131,7 @@ describe('SceneFactory', () => {
             type: 'moving',
             x: 400,
             y: 300,
-            tileKey: 'terrain_grass_block_center',
+            tilePrefix: 'terrain_grass_block_center',
             isFullBlock: true,
             movement: {
               type: 'linear',
@@ -162,22 +162,22 @@ describe('SceneFactory', () => {
       expect(sceneFactory.config).toBeNull();
     });
 
-    test('should return false for configuration without platforms array', () => {
-      const invalidConfig = { otherProperty: 'value' };
+    test('should accept configuration without platforms array (adds empty array)', () => {
+      const config = { otherProperty: 'value' };
       
-      const result = sceneFactory.loadConfiguration(invalidConfig);
+      const result = sceneFactory.loadConfiguration(config);
       
-      expect(result).toBe(false);
-      expect(sceneFactory.config).toBeNull();
+      expect(result).toBe(true);
+      expect(sceneFactory.config).toEqual({ otherProperty: 'value', platforms: [] });
     });
 
-    test('should return false for configuration with empty platforms array', () => {
-      const invalidConfig = { platforms: [] };
+    test('should accept configuration with empty platforms array', () => {
+      const config = { platforms: [] };
       
-      const result = sceneFactory.loadConfiguration(invalidConfig);
+      const result = sceneFactory.loadConfiguration(config);
       
-      expect(result).toBe(false);
-      expect(sceneFactory.config).toBeNull();
+      expect(result).toBe(true);
+      expect(sceneFactory.config).toEqual({ platforms: [] });
     });
   });
 
@@ -187,7 +187,7 @@ describe('SceneFactory', () => {
         x: 0,
         y: 656,
         width: 1280,
-        tileKey: 'terrain_grass_horizontal_middle',
+        tilePrefix: 'terrain_grass_horizontal',
         isFullBlock: true
       };
 
@@ -206,7 +206,7 @@ describe('SceneFactory', () => {
         x: 0,
         y: 656,
         width: 1280,
-        tileKey: 'terrain_grass_horizontal_middle',
+        tilePrefix: 'terrain_grass_horizontal',
         isFullBlock: true
       };
 
@@ -235,7 +235,7 @@ describe('SceneFactory', () => {
         x: 0,
         y: 656,
         width: 1280,
-        tileKey: 'terrain_grass_horizontal_middle',
+        tilePrefix: 'terrain_grass_horizontal',
         isFullBlock: true
       };
 
@@ -250,7 +250,7 @@ describe('SceneFactory', () => {
       const platformConfig = {
         x: 200,
         y: 500,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true
       };
 
@@ -258,7 +258,7 @@ describe('SceneFactory', () => {
       
       expect(platform).toBeDefined();
       expect(mockPlatformsGroup.create).toHaveBeenCalledWith(
-        200, 500, 'tiles', 'terrain_grass_block_center'
+        200, 500, 'tiles', 'terrain_grass_block'
       );
     });
 
@@ -266,7 +266,7 @@ describe('SceneFactory', () => {
       const platformConfig = {
         x: 200,
         y: 500,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true
       };
 
@@ -293,7 +293,7 @@ describe('SceneFactory', () => {
       const platformConfig = {
         x: 200,
         y: 500,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true
       };
 
@@ -308,7 +308,7 @@ describe('SceneFactory', () => {
       const movingConfig = {
         x: 400,
         y: 300,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'linear',
@@ -334,7 +334,7 @@ describe('SceneFactory', () => {
       const movingConfig = {
         x: 500,
         y: 400,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'circular',
@@ -359,7 +359,7 @@ describe('SceneFactory', () => {
       const movingConfig = {
         x: 300,
         y: 200,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'path',
@@ -387,7 +387,7 @@ describe('SceneFactory', () => {
       const movingConfig = {
         x: 400,
         y: 300,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'linear',
@@ -410,7 +410,7 @@ describe('SceneFactory', () => {
       const movingConfig = {
         x: 400,
         y: 300,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'linear',
@@ -433,7 +433,7 @@ describe('SceneFactory', () => {
       const movingConfig = {
         x: 400,
         y: 300,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'invalid',
@@ -450,7 +450,7 @@ describe('SceneFactory', () => {
       const movingConfig = {
         x: 400,
         y: 300,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true
         // No movement configuration
       };
@@ -596,14 +596,14 @@ describe('SceneFactory', () => {
             x: 0,
             y: 656,
             width: 1280,
-            tileKey: 'terrain_grass_horizontal_middle',
+            tilePrefix: 'terrain_grass_horizontal',
             isFullBlock: true
           },
           {
             type: 'floating',
             x: 200,
             y: 500,
-            tileKey: 'terrain_grass_block_center',
+            tilePrefix: 'terrain_grass_block',
             isFullBlock: true
           }
         ]
@@ -623,14 +623,14 @@ describe('SceneFactory', () => {
             type: 'floating',
             x: 200,
             y: 500,
-            tileKey: 'terrain_grass_block_center',
+            tilePrefix: 'terrain_grass_block',
             isFullBlock: true
           },
           {
             type: 'moving',
             x: 400,
             y: 300,
-            tileKey: 'terrain_grass_block_center',
+            tilePrefix: 'terrain_grass_block',
             isFullBlock: true,
             movement: {
               type: 'linear',
@@ -667,7 +667,7 @@ describe('SceneFactory', () => {
             x: 0,
             y: 656,
             width: 1280,
-            tileKey: 'terrain_grass_horizontal_middle',
+            tilePrefix: 'terrain_grass_horizontal',
             isFullBlock: true
           }
         ]
@@ -703,7 +703,7 @@ describe('SceneFactory', () => {
             type: 'moving',
             x: 400,
             y: 300,
-            tileKey: 'terrain_grass_block_center',
+            tilePrefix: 'terrain_grass_block',
             isFullBlock: true,
             movement: {
               type: 'invalid',
@@ -795,7 +795,7 @@ describe('SceneFactory', () => {
             x: 0,
             y: 656,
             width: 1280,
-            tileKey: 'terrain_grass_horizontal_middle',
+            tilePrefix: 'terrain_grass_horizontal_middle',
             isFullBlock: true
           }
         ]

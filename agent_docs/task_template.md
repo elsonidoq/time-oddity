@@ -11,8 +11,8 @@ _A concise, descriptive title for the task._
 ## Objective
 _What is the goal? What feature, fix, or improvement is being delivered?_
 
-## Task Reference
-_Reference to the specific task (e.g., "Task 4.15 of phase_4.md")_
+## Task ID: 
+_ID to the specific task (e.g., "Task 4.15")_
 
 ## Pre-Implementation Analysis
 

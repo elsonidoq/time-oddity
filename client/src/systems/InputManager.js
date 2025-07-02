@@ -37,6 +37,12 @@ export default class InputManager {
 
     // P key for pause
     this.p = scene.input.keyboard.addKey('P');
+
+    // M key for mute toggle
+    this.m = scene.input.keyboard.addKey('M');
+
+    // T key for map toggle
+    this.t = scene.input.keyboard.addKey('T');
   }
 
   /**
@@ -82,6 +88,15 @@ export default class InputManager {
     return PhaserLib.Input.Keyboard.JustUp(this.up) || 
            PhaserLib.Input.Keyboard.JustUp(this.w) || 
            PhaserLib.Input.Keyboard.JustUp(this.space);
+  }
+
+  /**
+   * Check if the jump key was just pressed (SPACE, UP, or W)
+   */
+  get isJumpJustPressed() {
+    return PhaserLib.Input.Keyboard.JustDown(this.up) || 
+           PhaserLib.Input.Keyboard.JustDown(this.w) || 
+           PhaserLib.Input.Keyboard.JustDown(this.space);
   }
 
   /**
@@ -139,5 +154,26 @@ export default class InputManager {
    */
   get isPauseJustPressed() {
     return PhaserLib.Input.Keyboard.JustDown(this.p);
+  }
+
+  /**
+   * Check if the mute key is pressed (M)
+   */
+  get isMutePressed() {
+    return this.m.isDown;
+  }
+
+  /**
+   * Check if the map toggle key is pressed (T)
+   */
+  get isMapTogglePressed() {
+    return this.t.isDown;
+  }
+
+  /**
+   * Check if the map toggle key was just pressed (T)
+   */
+  get isMapToggleJustPressed() {
+    return PhaserLib.Input.Keyboard.JustDown(this.t);
   }
 } 

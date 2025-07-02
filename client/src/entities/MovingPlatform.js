@@ -1,5 +1,7 @@
+import Phaser from 'phaser';
 import Entity from './Entity.js';
 import { gsap } from 'gsap';
+import { TileSelector } from '../systems/TileSelector.js';
 
 /**
  * MovingPlatform - A platform entity that moves along configurable paths
@@ -52,9 +54,76 @@ import { gsap } from 'gsap';
  * @extends Entity
  */
 export default class MovingPlatform extends Entity {
-  constructor(scene, x, y, texture, movementConfig = {}, frame = null, mockScene = null) {
-    // Initialize with Entity base constructor
-    super(scene, x, y, texture, frame, 100, mockScene);
+  constructor(scene, x, y, texture, movementConfig = {}, frame = null, mockScene = null, options = {}) {
+    // Store width configuration first
+    const width = options.width || 64; // Default to single tile width
+    const tileWidth = 64; // Standard tile width
+    const spriteCount = Math.ceil(width / tileWidth);
+    
+    // Validate tilePrefix requirement
+    if (!options.tilePrefix && spriteCount > 1) {
+      throw new Error('tilePrefix is required for multi-tile platforms');
+    }
+    
+    // Only reject tileKey format when a specific frame is provided (not null/undefined)
+    if (!options.tilePrefix && frame !== null && frame !== undefined) {
+      throw new Error('tilePrefix is required - old tileKey format not supported');
+    }
+    
+    // Determine the correct frame for the master sprite using TileSelector
+    let masterFrame = frame;
+    if (options.tilePrefix) {
+      masterFrame = TileSelector.getTileKey(
+        options.tilePrefix,
+        { x, y },
+        spriteCount,
+        0
+      );
+    }
+    
+    // Initialize with Entity base constructor (this creates the master sprite)
+    super(scene, x, y, texture, masterFrame, 100, mockScene);
+    
+    // Store configuration
+    this.width = width;
+    this.tileWidth = tileWidth;
+    this.spriteCount = spriteCount;
+    
+    // Create sprite array - master sprite is already created by Entity constructor
+    this.sprites = [this]; // Start with the master sprite (this Entity instance)
+    this.masterSprite = this; // Master sprite for movement calculations
+    
+    // Create additional sprites if width > 64
+    if (this.spriteCount > 1) {
+      for (let i = 1; i < this.spriteCount; i++) {
+        const spriteX = x + (i * this.tileWidth);
+        
+        // Determine the correct frame for this sprite using TileSelector
+        let spriteFrame = frame;
+        if (options.tilePrefix) {
+          spriteFrame = TileSelector.getTileKey(
+            options.tilePrefix,
+            { x: spriteX, y },
+            this.spriteCount,
+            i
+          );
+        }
+        
+        // Use physics sprite to ensure body is created
+        const sprite = scene.physics.add.sprite(spriteX, y, texture, spriteFrame);
+        
+        // Configure physics body for additional sprites
+        if (sprite.body) {
+          sprite.body.setImmovable(true);
+          sprite.body.setAllowGravity(false);
+          sprite.body.setFriction(1, 0);
+          sprite.body.setBounce(0);
+          sprite.body.setCollideWorldBounds(false);
+        }
+        
+        this.sprites.push(sprite);
+      }
+    }
     
     // Movement configuration with defaults
     this.movementType = movementConfig.type || 'linear';
@@ -95,19 +164,12 @@ export default class MovingPlatform extends Entity {
     this.previousX = x;
     this.previousY = y;
 
-    console.log(`[MovingPlatform] Created at (${x}, ${y}) with autoStart=${this.autoStart}, isMoving=${this.isMoving}`);
-    console.log(`[MovingPlatform] Movement config:`, movementConfig);
-    console.log(`[MovingPlatform] Movement type: ${this.movementType}, speed: ${this.speed}`);
-    
     // Configure physics body for platform collision
     this.configurePhysicsBody();
     
     // Initialize movement if autoStart is enabled
     if (this.autoStart) {
-      console.log(`[MovingPlatform] autoStart is true, calling initializeMovement`);
       this.initializeMovement();
-    } else {
-      console.log(`[MovingPlatform] autoStart is false, not initializing movement`);
     }
   }
   
@@ -128,16 +190,14 @@ export default class MovingPlatform extends Entity {
    * Initialize movement based on configuration
    */
   initializeMovement() {
-    console.log(`[MovingPlatform] Initializing movement for ${this.movementType} movement`);
-    
     if (this.movementType === 'linear') {
       this.targetX = this.startX;
       this.targetY = this.startY;
       this.isMovingToTarget = true;
-      console.log(`[MovingPlatform] Linear movement initialized - target: (${this.targetX}, ${this.targetY})`);
+      // Start actual movement
+      this.startLinearMovement();
     } else if (this.movementType === 'circular') {
       this.angle = 0;
-      console.log(`[MovingPlatform] Circular movement initialized - center: (${this.centerX}, ${this.centerY}), radius: ${this.radius}`);
     } else if (this.movementType === 'path') {
       if (this.pathPoints.length > 0) {
         this.currentPathIndex = 0;
@@ -145,12 +205,12 @@ export default class MovingPlatform extends Entity {
         this.targetX = firstPoint.x;
         this.targetY = firstPoint.y;
         this.isMovingToTarget = true;
-        console.log(`[MovingPlatform] Path movement initialized - first target: (${this.targetX}, ${this.targetY})`);
+        // Start actual movement
+        this.startPathMovement();
       }
     }
     
     this.isMoving = true;
-    console.log(`[MovingPlatform] Movement initialized - isMoving: ${this.isMoving}`);
   }
   
   /**
@@ -213,42 +273,47 @@ export default class MovingPlatform extends Entity {
    * Uses LoopHound's pattern of preserving velocity components when possible
    */
   moveToTarget(targetX, targetY) {
-    if (!this.body) return;
-    
     this.targetX = targetX;
     this.targetY = targetY;
     this.isMovingToTarget = true;
     
-    // Calculate direction vector to target
+    // Calculate direction and velocity
     const dx = targetX - this.x;
     const dy = targetY - this.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
     
-    if (distance < 5) {
-      // Close enough to target, trigger target reached
-      this.onTargetReached();
-      return;
+    if (distance > 0) {
+      const velocityX = (dx / distance) * this.speed;
+      const velocityY = (dy / distance) * this.speed;
+      
+      if (this.body) {
+        // Check if this is purely horizontal or vertical movement
+        const isHorizontalMovement = Math.abs(dy) < 1; // Tolerance for floating point
+        const isVerticalMovement = Math.abs(dx) < 1;
+        
+        if (isHorizontalMovement) {
+          // For horizontal movement, only set X velocity and preserve Y velocity
+          // This follows LoopHound's pattern: setVelocity(speed * direction, this.body.velocity.y)
+          this.body.setVelocity(velocityX, this.body.velocity.y);
+        } else if (isVerticalMovement) {
+          // For vertical movement, only set Y velocity and preserve X velocity
+          this.body.setVelocity(this.body.velocity.x, velocityY);
+        } else {
+          // For diagonal movement, set both velocities
+          this.body.setVelocity(velocityX, velocityY);
+        }
+      }
     }
-    
-    // Normalize direction and apply speed
-    const velocityX = (dx / distance) * this.speed;
-    const velocityY = (dy / distance) * this.speed;
-    
-    // Check if this is purely horizontal or vertical movement
-    const isHorizontalMovement = Math.abs(dy) < 1; // Tolerance for floating point
-    const isVerticalMovement = Math.abs(dx) < 1;
-   
-    if (isHorizontalMovement) {
-      // For horizontal movement, only set X velocity and preserve Y velocity
-      // This follows LoopHound's pattern: setVelocity(speed * direction, this.body.velocity.y)
-      this.body.setVelocity(velocityX, this.body.velocity.y);
-    } else if (isVerticalMovement) {
-      // For vertical movement, only set Y velocity and preserve X velocity
-      this.body.setVelocity(this.body.velocity.x, velocityY);
-    } else {
-      // For diagonal movement, set both velocities
-      this.body.setVelocity(velocityX, velocityY);
-    }
+  }
+  
+  /**
+   * Alias for moveToTarget to maintain backward compatibility
+   * @param {number} x - Target X coordinate
+   * @param {number} y - Target Y coordinate
+   * @param {number} duration - Duration parameter (ignored, kept for compatibility)
+   */
+  moveToPoint(x, y, duration = 1) {
+    this.moveToTarget(x, y);
   }
   
   /**
@@ -510,16 +575,12 @@ export default class MovingPlatform extends Entity {
    */
   update(time, delta) {
     if (this.isMoving) {
-      console.log(`[MovingPlatform] Updating movement at (${this.x}, ${this.y})`);
-      
       // Store current position before movement
       const oldX = this.x;
       const oldY = this.y;
       
       // Execute movement using the existing updateMovement method for compatibility
       this.updateMovement(delta);
-      
-      console.log(`[MovingPlatform] After movement: (${this.x}, ${this.y})`);
     }
     
     // Calculate frame delta (current frame's movement only)
@@ -538,34 +599,86 @@ export default class MovingPlatform extends Entity {
     this.deltaX = frameDeltaX;
     this.deltaY = frameDeltaY;
     
-    console.log(`[MovingPlatform] Frame delta: (${frameDeltaX}, ${frameDeltaY})`);
+    // Update positions of all other sprites to follow master
+    this.updateSpritePositions();
   }
   
   /**
-   * Check if a player is standing on top of this platform
+   * Update positions of all sprites to follow the master sprite
+   */
+  updateSpritePositions() {
+    if (this.spriteCount <= 1) return;
+    
+    for (let i = 1; i < this.sprites.length; i++) {
+      const sprite = this.sprites[i];
+      const offsetX = i * this.tileWidth;
+      sprite.x = this.x + offsetX;
+      sprite.y = this.y;
+    }
+  }
+  
+  /**
+   * Check if a player is standing on any sprite of this platform
+   * @param {Phaser.Physics.Arcade.Body} playerBody - The player's physics body
+   * @returns {boolean} - True if player is standing on any sprite
+   */
+  isPlayerStandingOnAnySprite(playerBody) {
+    if (!playerBody) {
+      return false;
+    }
+    
+    const tolerance = 5; // pixels
+    const playerBottom = playerBody.bottom;
+
+    for (const sprite of this.sprites) {
+      if (!sprite || !sprite.body) continue;
+
+      // Primary physics contact check
+      const isTouching = playerBody.touching.down && sprite.body.touching.up;
+
+      if (isTouching) {
+        return true;
+      }
+
+      // Fallback: player is just slightly above the platform within tolerance
+      const platformTop = sprite.body.top;
+      const isJustAbove = Math.abs(playerBottom - platformTop) < tolerance;
+
+      if (isJustAbove) {
+        // Ensure horizontal overlap
+        const platformBounds = typeof sprite.getBounds === 'function'
+          ? sprite.getBounds()
+          : Phaser.GameObjects.Sprite.prototype.getBounds.call(sprite);
+        const playerLeft = playerBody.left;
+        const playerRight = playerBody.right;
+
+        const overlapsHorizontally = playerRight > platformBounds.left && playerLeft < platformBounds.right;
+
+        if (overlapsHorizontally) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  }
+  
+  /**
+   * Check if a player is standing on top of this platform (backward compatibility)
    * @param {Phaser.Physics.Arcade.Body} playerBody - The player's physics body
    * @returns {boolean} - True if player is standing on platform
    */
   isPlayerStandingOnTop(playerBody) {
-    if (!playerBody || !this.body) {
-      console.log('[MovingPlatform] isPlayerStandingOnTop: Missing playerBody or this.body');
-      return false;
-    }
-    
-    // Player must be touching down and platform must be touching up
-    const isStanding = playerBody.touching.down && this.body.touching.up;
-    console.log(`[MovingPlatform] isPlayerStandingOnTop: player.touching.down=${playerBody.touching.down}, platform.touching.up=${this.body.touching.up}, result=${isStanding}`);
-    return isStanding;
+    // For backward compatibility, use the new method
+    return this.isPlayerStandingOnAnySprite(playerBody);
   }
   
   /**
-   * Carry the player if they are standing on top of this platform
+   * Carry the player if they are standing on any sprite of this platform
    * @param {Phaser.Physics.Arcade.Body} playerBody - The player's physics body
    */
   carryPlayerIfStanding(playerBody) {
-    console.log(`[MovingPlatform] carryPlayerIfStanding called for player at (${playerBody.x}, ${playerBody.y})`);
-    
-    if (!this.isPlayerStandingOnTop(playerBody)) {
+    if (!this.isPlayerStandingOnAnySprite(playerBody)) {
       return;
     }
     
@@ -579,16 +692,11 @@ export default class MovingPlatform extends Entity {
       deltaY = this.y - this.previousY;
     }
     
-    console.log(`[MovingPlatform] Platform moved by delta: (${deltaX}, ${deltaY})`);
-    console.log(`[MovingPlatform] Moving player from (${playerBody.x}, ${playerBody.y}) to (${playerBody.x + deltaX}, ${playerBody.y + deltaY})`);
-    
-    // Move player by the same delta as the platform
+    // Move player by the same delta as the platform (using master sprite delta)
     playerBody.x += deltaX;
     playerBody.y += deltaY;
     
-    console.log(`[MovingPlatform] Player carried successfully to (${playerBody.x}, ${playerBody.y})`);
-    
-    // Reset delta after carrying to prevent accumulation
+    // Reset delta after carrying to prevent double-application
     this.deltaX = 0;
     this.deltaY = 0;
   }
@@ -604,7 +712,7 @@ export default class MovingPlatform extends Entity {
   
   /**
    * Get state for TimeManager recording
-   * Returns extended state including movement-specific properties
+   * Returns extended state including movement-specific properties and multi-sprite info
    */
   getStateForRecording() {
     return {
@@ -625,13 +733,19 @@ export default class MovingPlatform extends Entity {
       currentPathIndex: this.currentPathIndex,
       isMovingToTarget: this.isMovingToTarget,
       targetX: this.targetX,
-      targetY: this.targetY
+      targetY: this.targetY,
+      
+      // Multi-sprite state
+      spriteCount: this.spriteCount,
+      width: this.width,
+      masterX: this.x,
+      masterY: this.y
     };
   }
   
   /**
    * Restore state from TimeManager recording
-   * Restores all movement state for perfect rewind compatibility
+   * Restores all movement state and multi-sprite positions for perfect rewind compatibility
    */
   setStateFromRecording(state) {
     // Restore base Entity state
@@ -681,5 +795,45 @@ export default class MovingPlatform extends Entity {
     if (state.targetY !== undefined) {
       this.targetY = state.targetY;
     }
+    
+    // Restore multi-sprite state
+    if (state.spriteCount !== undefined) {
+      this.spriteCount = state.spriteCount;
+    }
+    if (state.width !== undefined) {
+      this.width = state.width;
+    }
+    if (state.masterX !== undefined) {
+      this.x = state.masterX;
+    }
+    if (state.masterY !== undefined) {
+      this.y = state.masterY;
+    }
+    
+    // Update positions of all other sprites to follow master
+    this.updateSpritePositions();
+  }
+
+  getBounds() {
+    if (!this.sprites || this.sprites.length === 0) {
+      // Ensure Phaser is available for this call
+      return new Phaser.Geom.Rectangle(this.x, this.y, 0, 0);
+    }
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    this.sprites.forEach(sprite => {
+      // Explicitly call the base sprite's getBounds to avoid recursion
+      const bounds = Phaser.GameObjects.Sprite.prototype.getBounds.call(sprite);
+      minX = Math.min(minX, bounds.left);
+      minY = Math.min(minY, bounds.top);
+      maxX = Math.max(maxX, bounds.right);
+      maxY = Math.max(maxY, bounds.bottom);
+    });
+
+    return new Phaser.Geom.Rectangle(minX, minY, maxX - minX, maxY - minY);
   }
 } 

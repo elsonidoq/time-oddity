@@ -196,6 +196,29 @@ class ArcadeSprite {
     this.body = createMockBody();
   }
 }
+
+// Add getBounds to the prototype for compatibility with MovingPlatform
+ArcadeSprite.prototype.getBounds = function() {
+  const width = this.width || 64;
+  const height = this.height || 64;
+  const originX = this.originX === undefined ? 0.5 : this.originX;
+  const originY = this.originY === undefined ? 0.5 : this.originY;
+  
+  const left = this.x - (width * originX);
+  const top = this.y - (height * originY);
+  
+  return {
+    left: left,
+    right: left + width,
+    top: top,
+    bottom: top + height,
+    width: width,
+    height: height,
+    x: left,
+    y: top
+  };
+};
+
 const Physics = {
   Arcade: {
     Sprite: ArcadeSprite,
@@ -326,4 +349,21 @@ export {
   createMockGameObject,
   createMockBody,
 };
-export default PhaserDefault; 
+export default PhaserDefault;
+
+// Also expose on global Phaser object for tests
+if (!globalThis.Phaser.GameObjects) {
+  globalThis.Phaser.GameObjects = {};
+}
+globalThis.Phaser.GameObjects.Sprite = ArcadeSprite;
+if (!globalThis.Phaser.Geom) {
+  globalThis.Phaser.Geom = {};
+}
+globalThis.Phaser.Geom.Rectangle = class {
+  constructor(x, y, width, height) {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.width = width || 0;
+    this.height = height || 0;
+  }
+}; 

@@ -50,9 +50,11 @@ class BodyMock {
     this.setVelocityY = createMockFn(() => this);
     this.setBounce = createMockFn(() => this);
     this.setCollideWorldBounds = createMockFn(() => this);
+    this.setImmovable = createMockFn(() => this);
     this.setAllowGravity = createMockFn(() => this);
     this.setGravity = createMockFn(() => this);
     this.setDrag = createMockFn(() => this);
+    this.setFriction = createMockFn(() => this);
     this.setVelocity = createMockFn(() => this);
     this.setSize = createMockFn(() => this);
     this.setOffset = createMockFn(() => this);
@@ -89,17 +91,37 @@ class GameObjectMock {
     this.body = new BodyMock();
     this.anims = new AnimationsMock();
     
-    // Chainable methods
+    // Chainable methods with proper state updates
     this.setOrigin = createMockFn(() => this);
     this.setDepth = createMockFn(() => this);
-    this.setPosition = createMockFn(() => this);
+    this.setPosition = createMockFn((x, y) => {
+      if (x !== undefined) this.x = x;
+      if (y !== undefined) this.y = y;
+      return this;
+    });
     this.setTexture = createMockFn(() => this);
-    this.setFlipX = createMockFn(() => this);
-    this.setAlpha = createMockFn(() => this);
-    this.setScale = createMockFn(() => this);
-    this.setActive = createMockFn(() => this);
-    this.setVisible = createMockFn(() => this);
+    this.setFlipX = createMockFn((flipX) => {
+      this.flipX = flipX;
+      return this;
+    });
+    this.setAlpha = createMockFn((alpha) => {
+      this.alpha = alpha;
+      return this;
+    });
+    this.setScale = createMockFn((scale) => {
+      this.scale = scale;
+      return this;
+    });
+    this.setActive = createMockFn((active) => {
+      this.active = active;
+      return this;
+    });
+    this.setVisible = createMockFn((visible) => {
+      this.visible = visible;
+      return this;
+    });
     this.play = createMockFn(() => this);
+    this.setData = createMockFn(() => this);
     this.destroy = createMockFn();
   }
 }
@@ -111,7 +133,9 @@ class GraphicsMock {
   constructor() {
     this.fillStyle = createMockFn(() => this);
     this.fillRect = createMockFn(() => this);
+    this.fillCircle = createMockFn(() => this);
     this.setVisible = createMockFn(() => this);
+    this.setPosition = createMockFn(() => this);
     this.clear = createMockFn(() => this);
     this.lineStyle = createMockFn(() => this);
     this.strokeRect = createMockFn(() => this);
@@ -179,6 +203,41 @@ class ParticlesMock {
 }
 
 /**
+ * Mock for Keyboard objects
+ */
+class KeyboardMock {
+  constructor() {
+    this.keys = new Map();
+    this.addKey = createMockFn((keyCode) => {
+      if (!this.keys.has(keyCode)) {
+        this.keys.set(keyCode, new KeyMock(keyCode));
+      }
+      return this.keys.get(keyCode);
+    });
+  }
+}
+
+/**
+ * Mock for individual Key objects
+ */
+class KeyMock {
+  constructor(keyCode) {
+    this.keyCode = keyCode;
+    this.isDown = false;
+    this.isUp = true;
+    this.timeDown = 0;
+    this.timeUp = 0;
+    this.repeats = 0;
+    this.altKey = false;
+    this.ctrlKey = false;
+    this.shiftKey = false;
+    this.metaKey = false;
+    this.location = 0;
+    this.enabled = true;
+  }
+}
+
+/**
  * Phaser Scene Mock Class
  * Simulates Phaser scene functionality with full system support
  */
@@ -197,16 +256,38 @@ export class PhaserSceneMock {
     
     // Input system
     this.input = {
-      keyboard: {
-        addKey: createMockFn((keyCode) => createPhaserKeyMock(keyCode))
-      }
+      keyboard: new KeyboardMock()
     };
     
     // Physics system
     this.physics = {
       add: {
-        sprite: createMockFn((x, y, texture) => new GameObjectMock(x, y, texture)),
-        existing: createMockFn(),
+        sprite: createMockFn((x, y, texture, frame) => {
+          const gameObject = new GameObjectMock(x, y, texture);
+          gameObject.frame = frame || 0;
+          // Ensure the body has all required methods by replacing with a fresh BodyMock
+          gameObject.body = new BodyMock();
+          return gameObject;
+        }),
+        existing: createMockFn((gameObject) => {
+          // Wire up proper GameObject mock behavior to existing game objects
+          if (gameObject) {
+            // Ensure the setActive and setVisible methods work correctly
+            const originalSetActive = gameObject.setActive;
+            const originalSetVisible = gameObject.setVisible;
+            
+            gameObject.setActive = createMockFn((active) => {
+              gameObject.active = active;
+              return gameObject;
+            });
+            
+            gameObject.setVisible = createMockFn((visible) => {
+              gameObject.visible = visible;
+              return gameObject;
+            });
+          }
+          return gameObject;
+        }),
         group: createMockFn(() => new GroupMock()),
         collider: createMockFn(),
         overlap: createMockFn()
@@ -214,12 +295,14 @@ export class PhaserSceneMock {
       world: {
         gravity: { x: 0, y: 980 },
         bounds: { setTo: createMockFn() }
-      }
+      },
+      config: { arcade: { debug: false } }
     };
     
     // Graphics/UI system
     this.add = {
       sprite: createMockFn((x, y, texture) => new GameObjectMock(x, y, texture)),
+      tileSprite: createMockFn((x, y, width, height, texture, frame) => new GameObjectMock(x, y, texture)),
       graphics: createMockFn(() => new GraphicsMock()),
       text: createMockFn((x, y, text, style) => new TextMock(x, y, text, style)),
       bitmapText: createMockFn((x, y, font, text) => new TextMock(x, y, text)),
@@ -250,8 +333,12 @@ export class PhaserSceneMock {
         setZoom: createMockFn(),
         startFollow: createMockFn(),
         stopFollow: createMockFn(),
+        setDeadzone: createMockFn(),
         setTint: createMockFn(),
-        clearTint: createMockFn()
+        clearTint: createMockFn(),
+        followOffset: { x: 0, y: 0 },
+        scrollX: 0,
+        scrollY: 0
       }
     };
     
@@ -264,7 +351,12 @@ export class PhaserSceneMock {
       game: {
         config: {
           width: 1280,
-          height: 720
+          height: 720,
+          physics: {
+            arcade: {
+              debug: false
+            }
+          }
         }
       }
     };
