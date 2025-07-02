@@ -4,22 +4,6 @@ You are a **technical leader LLM**. Your mission is to design a **safe, testable
 
 # 🧱 Functional gaps
 
-## 🧠 Enemy Behavior & Rules
-- Enemy positions must be **configurable via the JSON level file**.
-- When the player touches a **LoopHound**, the player should **take damage**, but the **LoopHound must not** receive any.
-- **LoopHounds can only be killed** if they are **frozen by the ChronoPulse**.
-
-## 🎨 Level & Visual Design Configuration
-- The **background** must be **configurable via the JSON level file**.
-- The **JSON level file** must support specifying **background sprites** to allow for richer and more diverse level design.
-
-## 🗺️ Simplified Map View
-- When pressing the **`T` key**, a **simplified level map** must be displayed.
-  - It should clearly indicate:
-    - The **player's position**
-    - The **locations of coins**
-    - The **platform layout**, as described in the JSON
-
 ## 🛠️ Level Generation Algorithm (v1)
 - Develop a script to **generate full, playable levels** procedurally.
   - Levels must include:
@@ -27,17 +11,29 @@ You are a **technical leader LLM**. Your mission is to design a **safe, testable
     - **Strategically placed coins**
     - **Strategically placed enemies**
   - The script must support a `difficulty` parameter (1 = easy, 5 = hard) that affects level complexity and challenge.
-
+  - Version 1 will focus on Cave like bioma. 
+    - The goal is to setup and test the technological stack
+    - The first step will be to design and document the architecture for level creation. It must be flexible for new level implementations (e.g. spikes) 
+    - Will find a set of tiles that will be used for cave like bioma
+    - It will have a background using `_center` tiles (e.g. `terrain_dirt_block_center`)
+    - Will place platforms, enemies and coins 
+    - Will place decorations
+    - Will place the objective
+    - Will ensure game playability
 
 
 # 📚 Mandatory Reading Before Planning
 
 Before writing any tasks, you MUST study these documents:
 
-- `@invariants.md`: core architecture and contracts
-- `@testing_best_practices.md`: how to test (TDD/BDD, workflows)
-- `@small_comprehensive_documentation.md`: implementation details and APIs
-- `@task_template.md`: format for writing tasks
+1. **@invariants.md ** - Contains all non-negotiable architectural assumptions, state structures, and contracts that must be preserved
+2. **@testing_best_practices.md ** - Defines TDD/BDD methodologies, testing strategies, and LLM-assisted development workflows  
+3. ** @comprehensive_documentation.md  ** - Provides technical implementation details, API references, and architectural patterns
+4. ** @level-format.md  **: Contains documentation of the structure that a JSON describing a level must have 
+5. ** @algorithmic_level_creation.md **: Contains conceptual algorithms for automatic level generation
+6. ** @level_generation_tech_stack.md **: Contains level generation specific Node.js packages
+7. ** @task_template.md ** : format for writing tasks
+
 
 # 🛠️ What You Must Do
 
@@ -52,7 +48,7 @@ For each functional gap listed above:
    - Tasks must be independently verifiable
    - Use the format defined in `@task_template.md`
 
-4. Place the generated tasks in a file within the folder: `tasks/03_mvp_this_time`
+4. Place the generated tasks in a file within the folder: `tasks/04_algorithmic_levels`
 
 EACH FUNCTIONAL GAP MUST BE WRITTEN DOWN IN A DIFFERENT FILE
 
