@@ -78,7 +78,7 @@ describe('Test Level Configuration', () => {
       expect(typeof platform.type).toBe('string');
       expect(typeof platform.x).toBe('number');
       expect(typeof platform.y).toBe('number');
-      expect(typeof platform.tileKey).toBe('string');
+      expect(typeof platform.tilePrefix).toBe('string');
       expect(typeof platform.isFullBlock).toBe('boolean');
       if (platform.type === 'ground') {
         expect(typeof platform.width).toBe('number');

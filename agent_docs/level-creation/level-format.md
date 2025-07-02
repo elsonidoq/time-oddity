@@ -12,19 +12,69 @@ This document defines the **canonical JSON schema** for describing a level in Ti
 
 ```jsonc
 {
-  "platforms":   [ /* Array<PlatformConfig>   */ ],
-  "coins":       [ /* Array<CoinConfig>       */ ],
-  "enemies":     [ /* Array<EnemyConfig>      */ ],
-  "backgrounds": [ /* Array<BackgroundConfig> */ ]
+  "playerSpawn":         { /* PlayerSpawnConfig       */ },
+  "goal":                { /* GoalConfig             */ },
+  "platforms":           [ /* Array<PlatformConfig>   */ ],
+  "coins":               [ /* Array<CoinConfig>       */ ],
+  "enemies":             [ /* Array<EnemyConfig>      */ ],
+  "backgrounds":         [ /* Array<BackgroundConfig> */ ],
+  "decorativePlatforms": [ /* Array<DecorativeConfig> */ ]
 }
 ```
-Every field is **optional** – `SceneFactory` falls back to hard-coded layouts when an array is missing.
+Every field is **optional** – `SceneFactory` and `GameScene` fall back to sensible defaults when fields are missing.
 
 ---
 
-## 2. Platform Objects
+## 2. Player Spawn Configuration
 
-### 2.1 Tile Prefix System
+### 2.1 Player Spawn (`playerSpawn`)
+Configures the player's starting position in the level.
+
+Field            | Type    | Required | Description
+-----------------|---------|----------|------------
+`x`              | number  | yes      | Player spawn X position in pixels.
+`y`              | number  | yes      | Player spawn Y position in pixels.
+
+**Fallback Behavior**: If `playerSpawn` is not provided, the player spawns just above the lowest ground platform, or at default coordinates (100, 400) if no platforms exist.
+
+```jsonc
+{
+  "playerSpawn": { "x": 200, "y": 870 }
+}
+```
+
+---
+
+## 3. Goal Configuration
+
+### 3.1 Goal Tile (`goal`)
+Configures the level exit/goal tile that triggers level completion.
+
+Field            | Type    | Required | Description
+-----------------|---------|----------|------------
+`x`              | number  | yes      | Goal tile X position in pixels.
+`y`              | number  | yes      | Goal tile Y position in pixels.
+`tileKey`        | string  | yes      | Tile sprite frame name from the `tiles` atlas.
+`isFullBlock`    | boolean | no (true)| Hit-box mode – `true` ⇒ use full sprite bounds.
+
+**Available Goal Tile Keys**: Any valid tile frame from the `tiles` atlas, commonly `sign_exit`, `block_coin`, etc.
+
+```jsonc
+{
+  "goal": {
+    "x": 4000,
+    "y": 850,
+    "tileKey": "sign_exit",
+    "isFullBlock": true
+  }
+}
+```
+
+---
+
+## 4. Platform Objects
+
+### 4.1 Tile Prefix System
 
 Platforms now use a **tile prefix system** that automatically selects appropriate tile variants based on platform size and position. This system provides visual distinction for multi-tile platforms and ensures consistent tile selection.
 
@@ -50,7 +100,7 @@ Field            | Type    | Required | Description
 
 **Backward Compatibility:** The old `tileKey` system has been removed for upgraded platform types (ground, floating, moving). All platforms must now use `tilePrefix`.
 
-### 2.2 Common Fields
+### 4.2 Common Fields
 Field            | Type    | Required | Description
 -----------------|---------|----------|------------
 `type`           | string  | yes      | Discriminator – see sub-types below.
@@ -58,7 +108,7 @@ Field            | Type    | Required | Description
 `tilePrefix`     | string  | yes      | Base tile prefix for automatic tile selection.
 `isFullBlock`    | boolean | no (false)| Hit-box mode – `true` ⇒ use full sprite bounds.
 
-### 2.3 Ground Platform (`type: "ground"`)
+### 4.3 Ground Platform (`type: "ground"`)
 Additional field | Type   | Description
 -----------------|--------|------------
 `width`          | number | Horizontal span in **pixels**.  Internally subdivided into 64 px tiles.
@@ -102,7 +152,7 @@ Additional field | Type   | Description
 // Results in: terrain_grass_horizontal (single tile)
 ```
 
-### 2.4 Floating Platform (`type: "floating"`)
+### 4.4 Floating Platform (`type: "floating"`)
 Field     | Type   | Description
 ----------|--------|------------
 `width`   | number | Optional span in pixels (default 64).  Tiles are placed left→right.
@@ -131,7 +181,7 @@ Field     | Type   | Description
 // Results in: terrain_grass_block_left, terrain_grass_block_right
 ```
 
-### 2.5 Moving Platform (`type: "moving"`)
+### 4.5 Moving Platform (`type: "moving"`)
 Inherits all **Common Fields** plus:
 
 Field        | Type   | Required | Description
@@ -214,8 +264,13 @@ Example:
 // Results in: terrain_grass_block (single tile)
 ```
 
-### 2.6 Decorative Platform (`type: "decorative"`)
-Non-interactive background tiles that provide visual design elements without affecting gameplay. Players and enemies pass through decorative platforms, making them ideal for background decoration and level atmosphere.
+---
+
+## 5. Decorative Platforms
+
+Decorative platforms are **non-interactive background elements** that provide visual design without affecting gameplay. They are configured in a separate top-level `decorativePlatforms` array.
+
+### 5.1 Decorative Platform Configuration
 
 Field            | Type    | Required | Description
 -----------------|---------|----------|------------
@@ -223,7 +278,7 @@ Field            | Type    | Required | Description
 `x`, `y`         | number  | yes      | World-space coordinates (**pixels**).
 `tilePrefix`     | string  | yes      | Base tile prefix for automatic tile selection.
 `width`          | number  | no (64)  | Optional span in pixels (default 64). Tiles are placed left→right.
-`depth`          | number  | yes      | Z-index for rendering order. Negative values render behind gameplay elements.
+`depth`          | number  | yes      | Z-index for rendering order. **Must be negative** for background rendering.
 
 **Tile Selection**: Decorative platforms use block-style naming (`_left`, `_center`, `_right`), identical to floating platforms.
 
@@ -303,9 +358,9 @@ Field            | Type    | Required | Description
 
 ---
 
-## 3. Collectible Objects
+## 6. Collectible Objects
 
-### 3.1 Coin (`type: "coin"`)
+### 6.1 Coin (`type: "coin"`)
 Field            | Type    | Required | Description
 -----------------|---------|----------|------------
 `type`           | string  | yes      | Always `"coin"`.
@@ -326,9 +381,9 @@ Field            | Type    | Required | Description
 
 ---
 
-## 4. Enemy Objects
+## 7. Enemy Objects
 
-### 4.1 Common Enemy Fields
+### 7.1 Common Enemy Fields
 Field            | Type    | Required | Description
 -----------------|---------|----------|------------
 `type`           | string  | yes      | Enemy type discriminator – see sub-types below.
@@ -336,7 +391,7 @@ Field            | Type    | Required | Description
 `texture`        | string  | no       | Texture atlas key (default: `"enemies"`).
 `frame`          | string  | no       | Frame name or index (default: `"barnacle_attack_rest"`).
 
-### 4.2 LoopHound Enemy (`type: "LoopHound"`)
+### 7.2 LoopHound Enemy (`type: "LoopHound"`)
 A patrolling enemy that moves back and forth along a fixed horizontal path. Implements custom state recording for time reversal compatibility.
 
 Field            | Type    | Required | Description
@@ -375,11 +430,11 @@ Field            | Type    | Required | Description
 
 ---
 
-## 5. Background Objects
+## 8. Background Objects
 
 Background layers provide visual depth and atmosphere to levels. Multiple layers can be configured with different depths, parallax scrolling speeds, and sprite assets from the `backgrounds` atlas.
 
-### 5.1 Background Layer (`type: "layer"`)
+### 8.1 Background Layer (`type: "layer"`)
 
 Field            | Type    | Required | Description
 -----------------|---------|----------|------------
@@ -414,7 +469,7 @@ Field            | Type    | Required | Description
 }
 ```
 
-### 5.2 Background Configuration Examples
+### 8.2 Background Configuration Examples
 
 **Simple Single Layer Background:**
 ```jsonc
@@ -472,34 +527,71 @@ Field            | Type    | Required | Description
 
 ---
 
-## 6. Example Level Snippet (from `test-level.json`)
+## 9. Complete Level Example (from `test-level.json`)
+
 ```jsonc
 {
+  "playerSpawn": { "x": 200, "y": 870 },
+  "goal": {
+    "x": 4000,
+    "y": 850,
+    "tileKey": "sign_exit",
+    "isFullBlock": true
+  },
   "platforms": [
     { "type": "ground",   "x": 0,    "y": 2900, "width": 6000, "tilePrefix": "terrain_grass_horizontal", "isFullBlock": true },
-    { "type": "floating", "x": 700,  "y": 2350, "width": 250,  "tilePrefix": "terrain_grass_block",        "isFullBlock": true },
-    { "type": "moving",   "x": 3200, "y": 1850, "tilePrefix": "terrain_grass_block", "movement": {
+    { "type": "floating", "x": 700,  "y": 2350, "width": 250,  "tilePrefix": "terrain_grass_cloud",      "isFullBlock": true },
+    { "type": "moving",   "x": 3200, "y": 1850, "tilePrefix": "terrain_grass_cloud", "movement": {
         "type": "linear", "startX": 3200, "startY": 1850, "endX": 3200, "endY": 1100, "speed": 50, "mode": "bounce", "autoStart": true }
     }
   ],
   "coins": [
-    { "type": "coin", "x": 400, "y": 850, "properties": { "value": 100 } }
+    { "type": "coin", "x": 400, "y": 850, "properties": { "value": 100 } },
+    { "type": "coin", "x": 500, "y": 850, "properties": { "value": 100 } }
   ],
   "enemies": [
-    { "type": "LoopHound", "x": 300, "y": 450, "patrolDistance": 150, "direction": 1, "speed": 80 },
-    { "type": "LoopHound", "x": 800, "y": 350, "patrolDistance": 200, "direction": -1, "speed": 60 }
+    { "type": "LoopHound", "x": 300, "y": 2900, "patrolDistance": 150, "direction": 1, "speed": 80 },
+    { "type": "LoopHound", "x": 800, "y": 2300, "patrolDistance": 200, "direction": -1, "speed": 60 }
+  ],
+  "backgrounds": [
+    {
+      "type": "layer",
+      "x": 3200,
+      "y": 1800,
+      "width": 6400,
+      "height": 3600,
+      "spriteKey": "background_solid_sky",
+      "depth": -2,
+      "scrollSpeed": 0.0
+    },
+    {
+      "type": "layer",
+      "x": 3200,
+      "y": 1800,
+      "width": 6400,
+      "height": 3600,
+      "spriteKey": "background_color_hills",
+      "depth": -1,
+      "scrollSpeed": 0.5
+    }
+  ],
+  "decorativePlatforms": [
+    { "type": "decorative", "x": 310, "y": 850, "tilePrefix": "terrain_grass_block", "depth": -0.2 },
+    { "type": "decorative", "x": 300, "y": 200, "width": 192, "tilePrefix": "terrain_stone_block", "depth": -0.6 },
+    { "type": "decorative", "x": 600, "y": 250, "tilePrefix": "bush", "depth": -0.7 }
   ]
 }
 ```
 
 ---
 
-## 7. Extensibility Rules
+## 10. Extensibility Rules
 1. **New object types** must implement their own creation function in `SceneFactory` and be listed here.
 2. Tests must cover:
    * JSON validation logic.
    * Physics configuration order (see `invariants.md`).
 3. Keep this document and `available_tiles.md` in sync with assets and entity code.
 4. **Enemy types** must implement the Enemy/Freeze Contract (§8 in `invariants.md`).
-5. **Custom state recording** is required for enemies with complex behavior (like LoopHound patrol patterns). 
-5. **Custom state recording** is required for enemies with complex behavior (like LoopHound patrol patterns). 
+5. **Custom state recording** is required for enemies with complex behavior (like LoopHound patrol patterns).
+6. **Top-level fields** (`playerSpawn`, `goal`, `decorativePlatforms`) are parsed directly by `GameScene` and `SceneFactory`.
+7. **Validation**: All configurations undergo validation during `SceneFactory.loadConfiguration()` – invalid configurations are rejected with detailed error messages.

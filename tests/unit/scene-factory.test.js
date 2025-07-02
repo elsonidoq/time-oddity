@@ -258,7 +258,7 @@ describe('SceneFactory', () => {
       
       expect(platform).toBeDefined();
       expect(mockPlatformsGroup.create).toHaveBeenCalledWith(
-        200, 500, 'tiles', 'terrain_grass_block_center'
+        200, 500, 'tiles', 'terrain_grass_block'
       );
     });
 
