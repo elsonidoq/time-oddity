@@ -135,13 +135,18 @@ describe('SceneFactory + GameScene Integration', () => {
           expect(platform[0].x).toBe(config.x);
           expect(platform[0].y).toBe(config.y);
           expect(platform[0].texture).toBe('tiles');
-          expect(platform[0].frame).toBe(config.tileKey);
+          // For multi-tile platforms, check the first tile frame
+          if (Array.isArray(platform)) {
+            expect(platform[0].frame).toBe(config.tilePrefix + '_left');
+          } else {
+            expect(platform.frame).toBe(config.tilePrefix);
+          }
         } else {
           // Single tile platform
           expect(platform.x).toBe(config.x);
           expect(platform.y).toBe(config.y);
           expect(platform.texture).toBe('tiles');
-          expect(platform.frame).toBe(config.tileKey);
+          expect(platform.frame).toBe(config.tilePrefix);
         }
       }
     });
@@ -412,14 +417,19 @@ describe('SceneFactory + GameScene Integration', () => {
       
       // Get the expected floating platform positions from the config
       const floatingConfigs = testLevelConfig.platforms.filter(p => p.type === 'floating');
-      expect(floatingConfigs.length).toBe(13);
+      expect(floatingConfigs.length).toBe(14);
       
       // Check that each floating platform was created at the correct position
       for (const config of floatingConfigs) {
         const found = platforms.find(p => p.x === config.x && p.y === config.y);
         expect(found).toBeDefined();
         expect(found.texture).toBe('tiles');
-        expect(found.frame).toBe(config.tileKey);
+        
+        // For multi-tile platforms, expect suffixed frames; for single tiles, expect base prefix
+        const expectedFrame = config.width && config.width > 64 
+          ? `${config.tilePrefix}_left` // Multi-tile platforms get suffixes
+          : config.tilePrefix; // Single tile platforms use base prefix
+        expect(found.frame).toBe(expectedFrame);
       }
     });
 

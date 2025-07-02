@@ -14,7 +14,7 @@ describe('Level Background Configurations', () => {
   });
 
   describe('test-level.json background configuration', () => {
-    test('should load test-level.json with background configurations successfully', async () => {
+    test('should load test-level.json with background configurations successfully', () => {
       // Arrange
       const testLevelConfig = {
         platforms: [
@@ -23,7 +23,7 @@ describe('Level Background Configurations', () => {
             x: 0,
             y: 656,
             width: 1280,
-            tileKey: 'terrain_grass_horizontal_middle',
+            tilePrefix: 'terrain_grass_horizontal',
             isFullBlock: true
           }
         ],
@@ -87,7 +87,7 @@ describe('Level Background Configurations', () => {
 
       // Act
       const loadResult = sceneFactory.loadConfiguration(testLevelConfig);
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(testLevelConfig.backgrounds);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(testLevelConfig.backgrounds);
 
       // Assert
       expect(loadResult).toBe(true);
@@ -105,7 +105,7 @@ describe('Level Background Configurations', () => {
       expect(mockHillsBackground.setData).toHaveBeenCalledWith('scrollSpeed', 0.5);
     });
 
-    test('should validate background sprite keys against available assets', async () => {
+    test('should validate background sprite keys against available assets', () => {
       // Arrange
       const testLevelConfig = {
         platforms: [],
@@ -143,7 +143,7 @@ describe('Level Background Configurations', () => {
 
       // Act
       const loadResult = sceneFactory.loadConfiguration(testLevelConfig);
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(testLevelConfig.backgrounds);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(testLevelConfig.backgrounds);
 
       // Assert
       expect(loadResult).toBe(true); // Config loads successfully
@@ -152,7 +152,7 @@ describe('Level Background Configurations', () => {
       expect(mockScene.add.tileSprite).toHaveBeenCalledWith(640, 360, 1280, 720, 'backgrounds', 'background_solid_sky');
     });
 
-    test('should maintain visual hierarchy with background depth ordering', async () => {
+    test('should maintain visual hierarchy with background depth ordering', () => {
       // Arrange
       const testLevelConfig = {
         platforms: [
@@ -160,7 +160,7 @@ describe('Level Background Configurations', () => {
             type: 'floating',
             x: 200,
             y: 500,
-            tileKey: 'terrain_grass_block_center',
+            tilePrefix: 'terrain_grass_block',
             isFullBlock: true
           }
         ],
@@ -206,7 +206,7 @@ describe('Level Background Configurations', () => {
 
       // Act
       const loadResult = sceneFactory.loadConfiguration(testLevelConfig);
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(testLevelConfig.backgrounds);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(testLevelConfig.backgrounds);
 
       // Assert
       expect(loadResult).toBe(true);
@@ -220,7 +220,7 @@ describe('Level Background Configurations', () => {
       // This is implicit in the SceneFactory platform creation
     });
 
-    test('should handle level configuration without backgrounds gracefully', async () => {
+    test('should handle level configuration without backgrounds gracefully', () => {
       // Arrange
       const testLevelConfig = {
         platforms: [
@@ -229,7 +229,7 @@ describe('Level Background Configurations', () => {
             x: 0,
             y: 656,
             width: 1280,
-            tileKey: 'terrain_grass_horizontal_middle',
+            tilePrefix: 'terrain_grass_horizontal',
             isFullBlock: true
           }
         ],
@@ -246,7 +246,7 @@ describe('Level Background Configurations', () => {
 
       // Act
       const loadResult = sceneFactory.loadConfiguration(testLevelConfig);
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(testLevelConfig.backgrounds);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(testLevelConfig.backgrounds);
 
       // Assert
       expect(loadResult).toBe(true);
@@ -292,7 +292,7 @@ describe('Level Background Configurations', () => {
 
       // Act
       const loadResult = sceneFactory.loadConfiguration(testLevelConfig);
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(testLevelConfig.backgrounds);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(testLevelConfig.backgrounds);
 
       // Assert
       expect(loadResult).toBe(true);
@@ -349,7 +349,7 @@ describe('Level Background Configurations', () => {
 
       // Act
       const loadResult = sceneFactory.loadConfiguration(testLevelConfig);
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(testLevelConfig.backgrounds);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(testLevelConfig.backgrounds);
 
       // Assert
       expect(loadResult).toBe(true);

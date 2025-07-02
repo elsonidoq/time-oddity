@@ -457,52 +457,42 @@ export default class GameScene extends BaseScene {
       return;
     }
 
-    // Create backgrounds from configuration (async)
-    this.sceneFactory.createBackgroundsFromConfig(this.sceneFactory.config.backgrounds)
-      .then(backgrounds => {
-        if (!backgrounds || backgrounds.length === 0) {
-          console.warn('[GameScene] No backgrounds created from factory, falling back to hardcoded background creation');
-          this.createParallaxBackgroundHardcoded();
-          return;
-        }
+    // Create backgrounds from configuration (synchronous)
+    const backgrounds = this.sceneFactory.createBackgroundsFromConfig(this.sceneFactory.config.backgrounds);
+    if (!backgrounds || backgrounds.length === 0) {
+      console.warn('[GameScene] No backgrounds created from factory, falling back to hardcoded background creation');
+      this.createParallaxBackgroundHardcoded();
+      return;
+    }
 
-        // Store all background layers for multi-parallax support
-        this.backgroundLayers = backgrounds;
+    // Store all background layers for multi-parallax support
+    this.backgroundLayers = backgrounds;
 
-        // Assign background references for parallax calculation based on scrollSpeed
-        // Maintain backward compatibility with existing skyBackground and hillsBackground references
-        this.skyBackground = null;
-        this.hillsBackground = null;
+    // Assign background references for parallax calculation based on scrollSpeed
+    // Maintain backward compatibility with existing skyBackground and hillsBackground references
+    this.skyBackground = null;
+    this.hillsBackground = null;
 
-        for (const background of backgrounds) {
-          const scrollSpeed = background.getData ? background.getData('scrollSpeed') : 0.0;
-          
-          // Ensure tilePositionX and tilePositionY properties exist for parallax calculation
-          if (background.tilePositionX === undefined) {
-            background.tilePositionX = 0;
-          }
-          if (background.tilePositionY === undefined) {
-            background.tilePositionY = 0;
-          }
-          
-          if (scrollSpeed === 0.0 && !this.skyBackground) {
-            // This is the static sky background
-            this.skyBackground = background;
-          } else if (scrollSpeed > 0.0 && !this.hillsBackground) {
-            // This is the parallax hills background
-            this.hillsBackground = background;
-            
-            // Store initial position for parallax calculation
-            this.hillsBackground.setData('initialX', this.hillsBackground.x);
-          }
-        }
-
-        console.log('[GameScene] Backgrounds created successfully via SceneFactory');
-      })
-      .catch(error => {
-        console.error('[GameScene] Error creating backgrounds from factory:', error);
-        this.createParallaxBackgroundHardcoded();
-      });
+    for (const background of backgrounds) {
+      const scrollSpeed = background.getData ? background.getData('scrollSpeed') : 0.0;
+      // Ensure tilePositionX and tilePositionY properties exist for parallax calculation
+      if (background.tilePositionX === undefined) {
+        background.tilePositionX = 0;
+      }
+      if (background.tilePositionY === undefined) {
+        background.tilePositionY = 0;
+      }
+      if (scrollSpeed === 0.0 && !this.skyBackground) {
+        // This is the static sky background
+        this.skyBackground = background;
+      } else if (scrollSpeed > 0.0 && !this.hillsBackground) {
+        // This is the parallax hills background
+        this.hillsBackground = background;
+        // Store initial position for parallax calculation
+        this.hillsBackground.setData('initialX', this.hillsBackground.x);
+      }
+    }
+    console.log('[GameScene] Backgrounds created successfully via SceneFactory');
   }
 
   /**

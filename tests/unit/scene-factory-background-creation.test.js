@@ -18,7 +18,7 @@ describe('SceneFactory Background Creation', () => {
   });
 
   describe('createBackgroundsFromConfig', () => {
-    test('should create single background layer with valid configuration', async () => {
+    test('should create single background layer with valid configuration', () => {
       // Arrange
       const backgroundConfigs = [{
         type: 'layer',
@@ -41,7 +41,7 @@ describe('SceneFactory Background Creation', () => {
       mockScene.add.tileSprite.mockReturnValue(mockBackground);
 
       // Act
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
 
       // Assert
       expect(backgrounds.length).toBe(1);
@@ -49,7 +49,7 @@ describe('SceneFactory Background Creation', () => {
       expect(backgrounds[0].setDepth).toHaveBeenCalledWith(-2);
     });
 
-    test('should create multiple background layers with correct depth ordering', async () => {
+    test('should create multiple background layers with correct depth ordering', () => {
       // Arrange
       const backgroundConfigs = [
         {
@@ -92,7 +92,7 @@ describe('SceneFactory Background Creation', () => {
         .mockReturnValueOnce(mockHillsBackground);
 
       // Act
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
 
       // Assert
       expect(backgrounds.length).toBe(2);
@@ -106,7 +106,7 @@ describe('SceneFactory Background Creation', () => {
       expect(backgrounds[1].setDepth).toHaveBeenCalledWith(-1);
     });
 
-    test('should store scrollSpeed data for parallax calculation', async () => {
+    test('should store scrollSpeed data for parallax calculation', () => {
       // Arrange
       const backgroundConfigs = [{
         type: 'layer',
@@ -128,25 +128,25 @@ describe('SceneFactory Background Creation', () => {
       mockScene.add.tileSprite.mockReturnValue(mockBackground);
 
       // Act
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
 
       // Assert
       expect(backgrounds[0].setData).toHaveBeenCalledWith('scrollSpeed', 0.5);
     });
 
-    test('should handle empty background configuration gracefully', async () => {
+    test('should handle empty background configuration gracefully', () => {
       // Act
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig([]);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig([]);
 
       // Assert
       expect(backgrounds.length).toBe(0);
       expect(mockScene.add.tileSprite).not.toHaveBeenCalled();
     });
 
-    test('should handle null/undefined background configuration gracefully', async () => {
+    test('should handle null/undefined background configuration gracefully', () => {
       // Act
-      const backgrounds1 = await sceneFactory.createBackgroundsFromConfig(null);
-      const backgrounds2 = await sceneFactory.createBackgroundsFromConfig(undefined);
+      const backgrounds1 = sceneFactory.createBackgroundsFromConfig(null);
+      const backgrounds2 = sceneFactory.createBackgroundsFromConfig(undefined);
 
       // Assert
       expect(backgrounds1.length).toBe(0);
@@ -154,7 +154,7 @@ describe('SceneFactory Background Creation', () => {
       expect(mockScene.add.tileSprite).not.toHaveBeenCalled();
     });
 
-    test('should validate background configuration and skip invalid entries', async () => {
+    test('should validate background configuration and skip invalid entries', () => {
       // Arrange
       const backgroundConfigs = [
         {
@@ -203,14 +203,14 @@ describe('SceneFactory Background Creation', () => {
         .mockReturnValueOnce(mockBackground2);
 
       // Act
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
 
       // Assert
       expect(backgrounds.length).toBe(2); // Only valid configs processed
       expect(mockScene.add.tileSprite).toHaveBeenCalledTimes(2);
     });
 
-    test('should handle invalid sprite keys gracefully', async () => {
+    test('should handle invalid sprite keys gracefully', () => {
       // Arrange
       const backgroundConfigs = [{
         type: 'layer',
@@ -227,14 +227,14 @@ describe('SceneFactory Background Creation', () => {
       mockScene.add.tileSprite.mockReturnValue(null);
 
       // Act
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
 
       // Assert
       expect(backgrounds.length).toBe(0); // Invalid sprite key should be skipped
       expect(mockScene.add.tileSprite).not.toHaveBeenCalled();
     });
 
-    test('should default scrollSpeed to 0.0 when not specified', async () => {
+    test('should default scrollSpeed to 0.0 when not specified', () => {
       // Arrange
       const backgroundConfigs = [{
         type: 'layer',
@@ -256,13 +256,13 @@ describe('SceneFactory Background Creation', () => {
       mockScene.add.tileSprite.mockReturnValue(mockBackground);
 
       // Act
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
 
       // Assert
       expect(backgrounds[0].setData).toHaveBeenCalledWith('scrollSpeed', 0.0);
     });
 
-    test('should validate depth is negative for background layers', async () => {
+    test('should validate depth is negative for background layers', () => {
       // Arrange
       const backgroundConfigs = [
         {
@@ -314,7 +314,7 @@ describe('SceneFactory Background Creation', () => {
         .mockReturnValueOnce(mockBackground2);
 
       // Act
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
 
       // Assert
       expect(backgrounds.length).toBe(2); // Only valid negative depth configs processed (depth -1 and -3)
@@ -322,7 +322,7 @@ describe('SceneFactory Background Creation', () => {
       expect(backgrounds[0].setDepth).toHaveBeenCalledWith(-1);
     });
 
-    test('should validate scrollSpeed is between 0.0 and 1.0', async () => {
+    test('should validate scrollSpeed is between 0.0 and 1.0', () => {
       // Arrange
       const backgroundConfigs = [
         {
@@ -366,7 +366,7 @@ describe('SceneFactory Background Creation', () => {
       mockScene.add.tileSprite.mockReturnValue(mockBackground);
 
       // Act
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(backgroundConfigs);
 
       // Assert
       expect(backgrounds.length).toBe(1); // Only valid scrollSpeed config processed

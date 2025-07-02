@@ -9,5 +9,7 @@ If any test fails:
    - Attempt to fix it silently.
    - If the same error persists after 3 attempts, prompt the user for input or clarification.
 
+Always use centralized mocks. See `testing_best_practices.md`
+
 Continue fixing tests until all tests are passing or the same error persists after 3 attempts
 If there are more tests to fix, do the fixes, do not ask the user

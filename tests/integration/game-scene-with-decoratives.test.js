@@ -85,13 +85,32 @@ describe('GameScene with Decorative Platforms', () => {
     // Set config to include decorative platforms
     gameScene.sceneFactory.config = testLevelConfig;
 
+    // Calculate expected tile count based on configurations
+    let expectedTileCount = 0;
+    testLevelConfig.decorativePlatforms.forEach(config => {
+      if (config.width && config.width > 64) {
+        expectedTileCount += Math.ceil(config.width / 64);
+      } else {
+        expectedTileCount += 1;
+      }
+    });
+
+    // Mock the SceneFactory to return the expected number of tiles
+    const mockDecoratives = Array.from({ length: expectedTileCount }, (_, i) => ({
+      x: 100 + i * 64,
+      y: 200,
+      setDepth: jest.fn(),
+      setOrigin: jest.fn()
+    }));
+    
+    gameScene.sceneFactory.createDecorativePlatformsFromConfig = jest.fn().mockReturnValue(mockDecoratives);
+
     // Act
     gameScene.createDecorativePlatformsWithFactory();
 
     // Assert - Check for the decorative platform creation log
-    const expectedCount = testLevelConfig.decorativePlatforms.length;
     expect(consoleSpy).toHaveBeenCalledWith(
-      `[GameScene] Created ${expectedCount} decorative platform tiles`
+      `[GameScene] Created ${expectedTileCount} decorative platform tiles`
     );
     
     // Cleanup

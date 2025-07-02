@@ -3,9 +3,9 @@ import { TileSelector } from '../../client/src/systems/TileSelector.js';
 describe('TileSelector', () => {
   describe('getTileKey', () => {
     describe('Block-style tiles (_left, _center, _right)', () => {
-      test('should return center tile for single tile', () => {
+      test('should return base name for single tile', () => {
         const result = TileSelector.getTileKey('terrain_grass_block', 0, 1, 0);
-        expect(result).toBe('terrain_grass_block_center');
+        expect(result).toBe('terrain_grass_block');
       });
 
       test('should return left and right tiles for two tiles', () => {
@@ -42,9 +42,9 @@ describe('TileSelector', () => {
     });
 
     describe('Horizontal-style tiles (_left, _middle, _right)', () => {
-      test('should return middle tile for single tile', () => {
+      test('should return base name for single tile', () => {
         const result = TileSelector.getTileKey('terrain_grass_horizontal', 0, 1, 0);
-        expect(result).toBe('terrain_grass_horizontal_middle');
+        expect(result).toBe('terrain_grass_horizontal');
       });
 
       test('should return left and right tiles for two tiles', () => {
@@ -101,29 +101,29 @@ describe('TileSelector', () => {
 
       test('should handle empty tile prefix', () => {
         const result = TileSelector.getTileKey('', 0, 1, 0);
-        expect(result).toBe('_center');
+        expect(result).toBe('');
       });
 
       test('should handle null/undefined tile prefix', () => {
         const result = TileSelector.getTileKey(null, 0, 1, 0);
-        expect(result).toBe('_center');
+        expect(result).toBe('');
       });
     });
 
     describe('Different tile prefixes', () => {
       test('should work with terrain_dirt_block prefix', () => {
         const result = TileSelector.getTileKey('terrain_dirt_block', 0, 1, 0);
-        expect(result).toBe('terrain_dirt_block_center');
+        expect(result).toBe('terrain_dirt_block');
       });
 
       test('should work with terrain_purple_block prefix', () => {
         const result = TileSelector.getTileKey('terrain_purple_block', 0, 1, 0);
-        expect(result).toBe('terrain_purple_block_center');
+        expect(result).toBe('terrain_purple_block');
       });
 
       test('should work with terrain_sand_horizontal prefix', () => {
         const result = TileSelector.getTileKey('terrain_sand_horizontal', 0, 1, 0);
-        expect(result).toBe('terrain_sand_horizontal_middle');
+        expect(result).toBe('terrain_sand_horizontal');
       });
     });
 
@@ -132,7 +132,7 @@ describe('TileSelector', () => {
         const result1 = TileSelector.getTileKey('terrain_grass_block', 100, 1, 0);
         const result2 = TileSelector.getTileKey('terrain_grass_block', 200, 1, 0);
         expect(result1).toBe(result2);
-        expect(result1).toBe('terrain_grass_block_center');
+        expect(result1).toBe('terrain_grass_block');
       });
     });
   });

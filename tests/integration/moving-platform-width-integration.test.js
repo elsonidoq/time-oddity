@@ -55,7 +55,7 @@ describe('Integration: SceneFactory moving platform width', () => {
           x: 400,
           y: 300,
           width: 192, // 3 tiles
-          tileKey: 'terrain_grass_block_center',
+          tilePrefix: 'terrain_grass_block',
           isFullBlock: true,
           movement: {
             type: 'linear',
@@ -90,7 +90,7 @@ describe('Integration: SceneFactory moving platform width', () => {
           x: 400,
           y: 300,
           width: 192,
-          tileKey: 'terrain_grass_block_center',
+          tilePrefix: 'terrain_grass_block',
           isFullBlock: true,
           movement: {
             type: 'linear',
@@ -139,7 +139,7 @@ describe('Integration: SceneFactory moving platform width', () => {
           x: 400,
           y: 300,
           width: 192,
-          tileKey: 'terrain_grass_block_center',
+          tilePrefix: 'terrain_grass_block',
           isFullBlock: true,
           movement: {
             type: 'linear',

@@ -114,6 +114,7 @@ describe('Complete Enemy System Integration', () => {
       // Set levelConfig from data if present
       if (data && data.levelConfig) {
         this.levelConfig = data.levelConfig;
+        this._injectedLevelConfig = data.levelConfig; // Set the injected config
       }
       // Call the enemy creation method we want to test
       this.createEnemiesWithFactory();

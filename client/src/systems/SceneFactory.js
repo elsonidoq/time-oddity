@@ -109,9 +109,9 @@ export class SceneFactory {
   /**
    * Creates background layers from configuration array
    * @param {Array} backgroundConfigs - Array of background layer configurations
-   * @returns {Promise<Array>} - Promise that resolves to array of created background sprites
+   * @returns {Array} - Array of created background sprites
    */
-  async createBackgroundsFromConfig(backgroundConfigs) {
+  createBackgroundsFromConfig(backgroundConfigs) {
     if (!backgroundConfigs || !Array.isArray(backgroundConfigs)) {
       return [];
     }
@@ -123,7 +123,7 @@ export class SceneFactory {
     const createdBackgrounds = [];
 
     for (const backgroundConfig of backgroundConfigs) {
-      const background = await this.createBackgroundLayer(backgroundConfig);
+      const background = this.createBackgroundLayer(backgroundConfig);
       if (background) {
         createdBackgrounds.push(background);
       }
@@ -143,9 +143,10 @@ export class SceneFactory {
    * @param {string} backgroundConfig.spriteKey - Background sprite frame name from backgrounds atlas
    * @param {number} backgroundConfig.depth - Z-index for layer ordering (must be negative)
    * @param {number} [backgroundConfig.scrollSpeed=0.0] - Parallax scrolling speed multiplier (0.0-1.0)
+   * @param {Object} [backgroundConfig.animation] - Animation configuration
    * @returns {Phaser.GameObjects.TileSprite|null} - Created background sprite or null if validation failed
    */
-  async createBackgroundLayer(backgroundConfig) {
+  createBackgroundLayer(backgroundConfig) {
     // Validate configuration
     if (!this.validateBackgroundConfiguration(backgroundConfig)) {
       return null;
@@ -172,7 +173,7 @@ export class SceneFactory {
     const scrollSpeed = backgroundConfig.scrollSpeed !== undefined ? backgroundConfig.scrollSpeed : 0.0;
     background.setData('scrollSpeed', scrollSpeed);
 
-    // Animation support (minimal TDD implementation)
+    // Animation support
     const anim = backgroundConfig.animation;
     if (anim && typeof anim === 'object') {
       // Validate animation config
@@ -180,16 +181,41 @@ export class SceneFactory {
       const validType = validTypes.includes(anim.animationType);
       const validDuration = typeof anim.duration === 'number' && anim.duration > 0;
       const validEase = typeof anim.ease === 'string';
+      
       if (validType && validDuration && validEase) {
-        // Dynamically import gsap for ESM test mocking compatibility
-        const gsap = (await import('gsap')).default;
-        const timeline = gsap.timeline({ repeat: anim.repeat ?? 0 });
-        if (anim.animationType === 'fade') {
-          timeline.to(background, { alpha: 0, duration: anim.duration, ease: anim.ease, yoyo: true, repeat: anim.repeat ?? 0 });
-        } else if (anim.animationType === 'move') {
-          timeline.to(background, { x: background.x + 50, duration: anim.duration, ease: anim.ease, yoyo: true, repeat: anim.repeat ?? 0 });
+        try {
+          // Import GSAP dynamically to avoid issues in test environment
+          const gsap = require('gsap');
+          
+          // Create timeline for the animation
+          const timeline = gsap.timeline();
+          
+          // Configure animation based on type
+          if (anim.animationType === 'fade') {
+            timeline.to(background, {
+              alpha: 0.5,
+              duration: anim.duration,
+              ease: anim.ease,
+              repeat: anim.repeat || 0,
+              yoyo: anim.repeat > 0
+            });
+          } else if (anim.animationType === 'move') {
+            timeline.to(background, {
+              x: background.x + 50,
+              y: background.y + 20,
+              duration: anim.duration,
+              ease: anim.ease,
+              repeat: anim.repeat || 0,
+              yoyo: anim.repeat > 0
+            });
+          }
+          
+          // Attach timeline to background for external control
+          background.animationTimeline = timeline;
+          
+        } catch (error) {
+          console.warn('GSAP not available for background animation:', error.message);
         }
-        background.animationTimeline = timeline;
       }
     }
 
@@ -338,8 +364,8 @@ export class SceneFactory {
       return null;
     }
 
-    // If width is specified, create multiple tiles like ground platform
-    if (platformConfig.width) {
+    // If width is specified and greater than tile width, create multiple tiles like ground platform
+    if (platformConfig.width && platformConfig.width > 64) {
       const platforms = [];
       const tileWidth = 64; // Standard tile width
       const tileCount = Math.ceil(platformConfig.width / tileWidth);

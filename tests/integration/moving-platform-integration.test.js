@@ -126,7 +126,7 @@ describe('Moving Platform Integration Tests', () => {
         type: 'moving',
         x: 400,
         y: 300,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'linear',
@@ -155,7 +155,7 @@ describe('Moving Platform Integration Tests', () => {
         type: 'moving',
         x: 500,
         y: 400,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'circular',
@@ -180,7 +180,7 @@ describe('Moving Platform Integration Tests', () => {
         type: 'moving',
         x: 300,
         y: 200,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'path',
@@ -220,7 +220,9 @@ describe('Moving Platform Integration Tests', () => {
           speed: 80,
           autoStart: false
         },
-        'terrain_grass_block_center'
+        null,
+        null,
+        { tilePrefix: 'terrain_grass_block' }
       );
 
       // Mock TimeManager register method
@@ -247,7 +249,9 @@ describe('Moving Platform Integration Tests', () => {
           speed: 80,
           autoStart: true
         },
-        'terrain_grass_block_center'
+        null,
+        null,
+        { tilePrefix: 'terrain_grass_block' }
       );
 
       // Get initial state
@@ -288,7 +292,9 @@ describe('Moving Platform Integration Tests', () => {
           speed: 60,
           autoStart: true
         },
-        'terrain_grass_block_center'
+        null,
+        null,
+        { tilePrefix: 'terrain_grass_block' }
       );
 
       // Record state at different angles
@@ -326,7 +332,9 @@ describe('Moving Platform Integration Tests', () => {
           speed: 60,
           autoStart: true
         },
-        'terrain_grass_block_center'
+        null,
+        null,
+        { tilePrefix: 'terrain_grass_block' }
       );
 
       // Configure the platform physics (this is what SceneFactory.configurePlatform does)
@@ -374,7 +382,9 @@ describe('Moving Platform Integration Tests', () => {
           speed: 60,
           autoStart: false
         },
-        'terrain_grass_block_center'
+        null,
+        null,
+        { tilePrefix: 'terrain_grass_block' }
       );
 
       // Configure the platform physics
@@ -496,7 +506,9 @@ describe('Moving Platform Integration Tests', () => {
           speed: 80,
           autoStart: true
         },
-        'terrain_grass_block_center'
+        null,
+        null,
+        { tilePrefix: 'terrain_grass_block' }
       );
 
       // Verify platform has collision properties
@@ -520,7 +532,9 @@ describe('Moving Platform Integration Tests', () => {
           speed: 80,
           autoStart: true
         },
-        'terrain_grass_block_center'
+        null,
+        null,
+        { tilePrefix: 'terrain_grass_block' }
       );
 
       // Verify physics configuration was called
@@ -547,7 +561,9 @@ describe('Moving Platform Integration Tests', () => {
           mode: 'bounce',
           autoStart: false
         },
-        'terrain_grass_block_center'
+        null,
+        null,
+        { tilePrefix: 'terrain_grass_block' }
       );
 
       // Start movement
@@ -583,7 +599,9 @@ describe('Moving Platform Integration Tests', () => {
           angle: 0,
           autoStart: false
         },
-        'terrain_grass_block_center'
+        null,
+        null,
+        { tilePrefix: 'terrain_grass_block' }
       );
 
       // Test position calculation at angle 0
@@ -617,7 +635,9 @@ describe('Moving Platform Integration Tests', () => {
           loop: true,
           autoStart: false
         },
-        'terrain_grass_block_center'
+        null,
+        null,
+        { tilePrefix: 'terrain_grass_block' }
       );
 
       // Test initial path index
@@ -642,7 +662,7 @@ describe('Moving Platform Integration Tests', () => {
         type: 'moving',
         x: 400,
         y: 300,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'invalid',
@@ -659,7 +679,7 @@ describe('Moving Platform Integration Tests', () => {
         type: 'moving',
         x: 400,
         y: 300,
-        tileKey: 'terrain_grass_block_center',
+        tilePrefix: 'terrain_grass_block',
         isFullBlock: true,
         movement: {
           type: 'linear',
@@ -696,7 +716,9 @@ describe('Moving Platform Integration Tests', () => {
           speed: 80,
           autoStart: false
         },
-        'terrain_grass_block_center'
+        null,
+        null,
+        { tilePrefix: 'terrain_grass_block' }
       );
 
       // Should not throw error when moving
@@ -730,7 +752,9 @@ describe('Moving Platform Integration Tests', () => {
             speed: 80,
             autoStart: false
           },
-          'terrain_grass_block_center'
+          null,
+          null,
+          { tilePrefix: 'terrain_grass_block' }
         );
         platforms.push(platform);
       }
@@ -761,7 +785,9 @@ describe('Moving Platform Integration Tests', () => {
             speed: 60,
             autoStart: false
           },
-          'terrain_grass_block_center'
+          null,
+          null,
+          { tilePrefix: 'terrain_grass_block' }
         );
         platforms.push(platform);
         timeManager.register(platform);

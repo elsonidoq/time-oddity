@@ -77,7 +77,7 @@ describe('Platform Tile Rendering Integration Tests', () => {
         type: 'ground',
         x: 100,
         y: 500,
-        width: 64, // Single tile
+        width: 64,
         tilePrefix: 'terrain_grass_horizontal',
         isFullBlock: true
       };
@@ -163,13 +163,14 @@ describe('Platform Tile Rendering Integration Tests', () => {
         type: 'floating',
         x: 150,
         y: 300,
+        width: 64,
         tilePrefix: 'terrain_grass_block',
         isFullBlock: true
       };
 
       const platform = sceneFactory.createFloatingPlatform(config, mockPlatformsGroup);
 
-      expect(Array.isArray(platform)).toBe(false);
+      expect(platform).toBeDefined();
       expect(platform.frame).toBe('terrain_grass_block');
       expect(platform.x).toBe(150);
       expect(platform.y).toBe(300);

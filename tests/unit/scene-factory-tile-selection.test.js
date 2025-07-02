@@ -123,7 +123,7 @@ describe('SceneFactory Tile Selection Integration', () => {
       
       expect(platforms).toBeDefined();
       expect(platforms.length).toBe(1);
-      expect(platforms[0].frame).toBe('terrain_grass_horizontal_middle');
+      expect(platforms[0].frame).toBe('terrain_grass_horizontal');
     });
 
     test('should create multi-tile ground platform with correct left/middle/right tiles', () => {
@@ -208,7 +208,7 @@ describe('SceneFactory Tile Selection Integration', () => {
       const platform = sceneFactory.createFloatingPlatform(platformConfig, mockPlatformsGroup);
       
       expect(platform).toBeDefined();
-      expect(platform.frame).toBe('terrain_grass_block_center');
+      expect(platform.frame).toBe('terrain_grass_block');
     });
 
     test('should create multi-tile floating platform with correct left/center/right tiles', () => {
@@ -283,7 +283,7 @@ describe('SceneFactory Tile Selection Integration', () => {
       const platform = sceneFactory.createMovingPlatform(movingConfig, mockPlatformsGroup);
       
       expect(platform).toBeDefined();
-      expect(platform.frame).toBe('terrain_grass_block_center');
+      expect(platform.frame).toBe('terrain_grass_block');
     });
 
     test('should create multi-tile moving platform with correct left/center/right tiles', () => {
@@ -308,7 +308,7 @@ describe('SceneFactory Tile Selection Integration', () => {
       const platform = sceneFactory.createMovingPlatform(movingConfig, mockPlatformsGroup);
       
       expect(platform).toBeDefined();
-      expect(platform.frame).toBe('terrain_grass_block_center'); // MovingPlatform uses center for master sprite
+      expect(platform.frame).toBe('terrain_grass_block'); // MovingPlatform uses base name for master sprite
       expect(platform.width).toBe(192);
       expect(platform.spriteCount).toBe(3);
     });
@@ -400,7 +400,7 @@ describe('SceneFactory Tile Selection Integration', () => {
       // Verify moving platform
       const movingPlatform = platforms.find(p => p.x === 200);
       expect(movingPlatform).toBeDefined();
-      expect(movingPlatform.frame).toBe('terrain_grass_block_center');
+      expect(movingPlatform.frame).toBe('terrain_grass_block');
     });
 
     test('should skip platforms with old tileKey format', () => {

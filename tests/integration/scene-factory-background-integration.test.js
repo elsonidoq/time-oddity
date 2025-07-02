@@ -178,7 +178,7 @@ describe('SceneFactory Background Integration', () => {
   });
 
   describe('createBackgroundsFromConfig integration with loadConfiguration', () => {
-    test('should create backgrounds from loaded configuration', async () => {
+    test('should create backgrounds from loaded configuration', () => {
       // Arrange
       const levelConfig = {
         platforms: [],
@@ -224,7 +224,7 @@ describe('SceneFactory Background Integration', () => {
 
       // Act
       sceneFactory.loadConfiguration(levelConfig);
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(levelConfig.backgrounds);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(levelConfig.backgrounds);
 
       // Assert
       expect(backgrounds.length).toBe(2);
@@ -233,7 +233,7 @@ describe('SceneFactory Background Integration', () => {
       expect(mockScene.add.tileSprite).toHaveBeenNthCalledWith(2, 640, 360, 1280, 720, 'backgrounds', 'background_color_hills');
     });
 
-    test('should handle loaded configuration without backgrounds', async () => {
+    test('should handle loaded configuration without backgrounds', () => {
       // Arrange
       const levelConfig = {
         platforms: []
@@ -242,14 +242,14 @@ describe('SceneFactory Background Integration', () => {
 
       // Act
       sceneFactory.loadConfiguration(levelConfig);
-      const backgrounds = await sceneFactory.createBackgroundsFromConfig(levelConfig.backgrounds);
+      const backgrounds = sceneFactory.createBackgroundsFromConfig(levelConfig.backgrounds);
 
       // Assert
       expect(backgrounds).toEqual([]); // Should return empty array for undefined backgrounds
       expect(mockScene.add.tileSprite).not.toHaveBeenCalled();
     });
 
-    test('should create backgrounds with proper validation from loaded config', async () => {
+    test('should create backgrounds with proper validation from loaded config', () => {
       // Arrange
       const config = {
         platforms: [],
@@ -288,7 +288,7 @@ describe('SceneFactory Background Integration', () => {
       // When loadConfiguration returns false, config should not be used
       let backgrounds = [];
       if (loadResult) {
-        backgrounds = await sceneFactory.createBackgroundsFromConfig(config.backgrounds);
+        backgrounds = sceneFactory.createBackgroundsFromConfig(config.backgrounds);
       }
 
       // Assert

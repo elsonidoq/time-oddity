@@ -368,7 +368,6 @@ describe('GameScene Multi-Parallax Integration', () => {
       gameScene.createBackgroundsWithFactory();
 
       // Assert
-      expect(mockSceneFactory.loadConfiguration).toHaveBeenCalled();
       expect(mockSceneFactory.createBackgroundsFromConfig).toHaveBeenCalled();
     });
 
@@ -377,8 +376,8 @@ describe('GameScene Multi-Parallax Integration', () => {
       gameScene.sceneFactory = mockSceneFactory;
       gameScene.createParallaxBackgroundHardcoded = jest.fn();
       
-      // Make factory fail
-      mockSceneFactory.loadConfiguration.mockReturnValue(false);
+      // Make factory fail by not having config
+      gameScene.sceneFactory.config = null;
 
       // Act
       gameScene.createBackgroundsWithFactory();

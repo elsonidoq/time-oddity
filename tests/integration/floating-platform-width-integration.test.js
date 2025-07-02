@@ -49,7 +49,7 @@ describe('Integration: SceneFactory floating platform width', () => {
           x: 100,
           y: 500,
           width: 192, // 3 tiles
-          tileKey: 'terrain_grass_block_center',
+          tilePrefix: 'terrain_grass_block',
           isFullBlock: true
         }
       ]
@@ -62,10 +62,13 @@ describe('Integration: SceneFactory floating platform width', () => {
     expect(platforms[0].x).toBe(100);
     expect(platforms[1].x).toBe(164);
     expect(platforms[2].x).toBe(228);
+    // Check tile frames based on position
+    expect(platforms[0].frame).toBe('terrain_grass_block_left');
+    expect(platforms[1].frame).toBe('terrain_grass_block_center');
+    expect(platforms[2].frame).toBe('terrain_grass_block_right');
     platforms.forEach(p => {
       expect(p.y).toBe(500);
       expect(p.texture).toBe('tiles');
-      expect(p.frame).toBe('terrain_grass_block_center');
     });
   });
 
@@ -79,7 +82,7 @@ describe('Integration: SceneFactory floating platform width', () => {
           x: 300,
           y: 400,
           width: 128, // 2 tiles
-          tileKey: 'terrain_grass_block_center',
+          tilePrefix: 'terrain_grass_block',
           isFullBlock: true
         }
       ]
@@ -89,6 +92,9 @@ describe('Integration: SceneFactory floating platform width', () => {
     expect(platforms).toHaveLength(2);
     expect(platforms[0].x).toBe(300);
     expect(platforms[1].x).toBe(364);
+    // Check tile frames based on position
+    expect(platforms[0].frame).toBe('terrain_grass_block_left');
+    expect(platforms[1].frame).toBe('terrain_grass_block_right');
     platforms.forEach(p => {
       expect(p.y).toBe(400);
     });

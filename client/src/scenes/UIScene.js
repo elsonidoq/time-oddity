@@ -1,7 +1,6 @@
 import BaseScene from './BaseScene.js';
 import InputManager from '../systems/InputManager.js';
 import MapOverlay from '../ui/MapOverlay.js';
-import { debug } from 'node-media-server/src/core/logger.js';
 
 export default class UIScene extends BaseScene {
   constructor(mockScene = null) {

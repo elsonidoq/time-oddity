@@ -203,6 +203,41 @@ class ParticlesMock {
 }
 
 /**
+ * Mock for Keyboard objects
+ */
+class KeyboardMock {
+  constructor() {
+    this.keys = new Map();
+    this.addKey = createMockFn((keyCode) => {
+      if (!this.keys.has(keyCode)) {
+        this.keys.set(keyCode, new KeyMock(keyCode));
+      }
+      return this.keys.get(keyCode);
+    });
+  }
+}
+
+/**
+ * Mock for individual Key objects
+ */
+class KeyMock {
+  constructor(keyCode) {
+    this.keyCode = keyCode;
+    this.isDown = false;
+    this.isUp = true;
+    this.timeDown = 0;
+    this.timeUp = 0;
+    this.repeats = 0;
+    this.altKey = false;
+    this.ctrlKey = false;
+    this.shiftKey = false;
+    this.metaKey = false;
+    this.location = 0;
+    this.enabled = true;
+  }
+}
+
+/**
  * Phaser Scene Mock Class
  * Simulates Phaser scene functionality with full system support
  */
@@ -221,9 +256,7 @@ export class PhaserSceneMock {
     
     // Input system
     this.input = {
-      keyboard: {
-        addKey: createMockFn((keyCode) => createPhaserKeyMock(keyCode))
-      }
+      keyboard: new KeyboardMock()
     };
     
     // Physics system
@@ -232,6 +265,8 @@ export class PhaserSceneMock {
         sprite: createMockFn((x, y, texture, frame) => {
           const gameObject = new GameObjectMock(x, y, texture);
           gameObject.frame = frame || 0;
+          // Ensure the body has all required methods by replacing with a fresh BodyMock
+          gameObject.body = new BodyMock();
           return gameObject;
         }),
         existing: createMockFn((gameObject) => {

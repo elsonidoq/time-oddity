@@ -507,6 +507,9 @@ describe('Task 04.02: MapOverlay Core Structure', () => {
     });
 
     test('should handle position updates multiple times', () => {
+      // Disable performance optimization for testing by setting interval to 0
+      mapOverlay._updateInterval = 0;
+      
       mapOverlay.updatePlayerPosition(100, 200);
       mapOverlay.updatePlayerPosition(150, 250);
       expect(mapOverlay.renderPlayerMarker).toHaveBeenCalledTimes(2);

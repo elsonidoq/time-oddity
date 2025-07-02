@@ -49,6 +49,7 @@ export class TileSelector {
 
     // Handle single tile case
     if (totalTiles === 1) {
+      // THIS IS CORRECT, MODIFY THE TEST TO REFLECT THIS
       return prefix;
     }
 

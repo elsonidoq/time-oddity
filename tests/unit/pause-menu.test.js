@@ -276,8 +276,8 @@ describe('Task 4.4: Pause Menu Functionality', () => {
       
       uiScene.create({ showPause: false });
       
-      // Should not add extra graphics/text for pause menu
-      expect(mockScene.add.graphics.mock.calls.length).toBe(graphicsCalls + 2); // Only health bar graphics
+      // Should not add extra graphics/text for pause menu  
+      expect(mockScene.add.graphics.mock.calls.length).toBe(graphicsCalls + 3); // Health bar graphics + MapOverlay
     });
 
     test('should create semi-transparent overlay', () => {

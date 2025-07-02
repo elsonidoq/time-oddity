@@ -75,7 +75,7 @@ describe('SceneFactory', () => {
         movingConfig.y,
         'tiles',
         movingConfig.movement,
-        movingConfig.tileKey
+        movingConfig.tilePrefix
       );
 
       // Configure platform physics
@@ -112,7 +112,7 @@ describe('SceneFactory', () => {
             x: 0,
             y: 656,
             width: 1280,
-            tileKey: 'terrain_grass_horizontal_middle',
+            tilePrefix: 'terrain_grass_horizontal_middle',
             isFullBlock: true
           }
         ]
@@ -131,7 +131,7 @@ describe('SceneFactory', () => {
             type: 'moving',
             x: 400,
             y: 300,
-            tileKey: 'terrain_grass_block_center',
+            tilePrefix: 'terrain_grass_block_center',
             isFullBlock: true,
             movement: {
               type: 'linear',
@@ -795,7 +795,7 @@ describe('SceneFactory', () => {
             x: 0,
             y: 656,
             width: 1280,
-            tileKey: 'terrain_grass_horizontal_middle',
+            tilePrefix: 'terrain_grass_horizontal_middle',
             isFullBlock: true
           }
         ]

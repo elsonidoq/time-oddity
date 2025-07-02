@@ -96,9 +96,9 @@ describe('MovingPlatform - Width Support', () => {
         200,
         'tiles',
         movementConfig,
-        'terrain_grass_block_center',
         null,
-        { width: 192 } // 3 tiles
+        null,
+        { width: 192, tilePrefix: 'terrain_grass_block' }
       );
 
       // Should have an array of sprites
@@ -118,7 +118,7 @@ describe('MovingPlatform - Width Support', () => {
       expect(platform.sprites[2].y).toBe(200);
     });
 
-    test('should create single sprite when width is not specified', () => {
+    test('should create multiple sprites when width is specified', () => {
       const movementConfig = {
         type: 'linear',
         speed: 60,
@@ -136,13 +136,15 @@ describe('MovingPlatform - Width Support', () => {
         200,
         'tiles',
         movementConfig,
-        'terrain_grass_block_center'
+        null,
+        null,
+        { width: 192, tilePrefix: 'terrain_grass_block' }
       );
 
-      // Should have single sprite (backward compatibility)
+      // Should have multiple sprites for 192px width (3 tiles)
       expect(platform.sprites).toBeDefined();
       expect(Array.isArray(platform.sprites)).toBe(true);
-      expect(platform.sprites.length).toBe(1);
+      expect(platform.sprites.length).toBe(3);
 
       // Master sprite should be the only sprite
       expect(platform.masterSprite).toBe(platform.sprites[0]);
@@ -168,9 +170,9 @@ describe('MovingPlatform - Width Support', () => {
         200,
         'tiles',
         movementConfig,
-        'terrain_grass_block_center',
         null,
-        { width: 150 } // 2.34 tiles, should round up to 3
+        null,
+        { width: 150, tilePrefix: 'terrain_grass_block' }
       );
 
       expect(platform.sprites.length).toBe(3);
@@ -196,9 +198,9 @@ describe('MovingPlatform - Width Support', () => {
         200,
         'tiles',
         movementConfig,
-        'terrain_grass_block_center',
         null,
-        { width: 192 }
+        null,
+        { width: 192, tilePrefix: 'terrain_grass_block' }
       );
 
       // Simulate movement by updating master sprite position
@@ -237,9 +239,9 @@ describe('MovingPlatform - Width Support', () => {
         200,
         'tiles',
         movementConfig,
-        'terrain_grass_block_center',
         null,
-        { width: 192 }
+        null,
+        { width: 192, tilePrefix: 'terrain_grass_block' }
       );
 
       // Mock player body
@@ -274,9 +276,9 @@ describe('MovingPlatform - Width Support', () => {
         200,
         'tiles',
         movementConfig,
-        'terrain_grass_block_center',
         null,
-        { width: 192 }
+        null,
+        { width: 192, tilePrefix: 'terrain_grass_block' }
       );
 
       // Mock player body
@@ -321,9 +323,9 @@ describe('MovingPlatform - Width Support', () => {
         200,
         'tiles',
         movementConfig,
-        'terrain_grass_block_center',
         null,
-        { width: 192 }
+        null,
+        { width: 192, tilePrefix: 'terrain_grass_block' }
       );
 
       const state = platform.getStateForRecording();
@@ -352,9 +354,9 @@ describe('MovingPlatform - Width Support', () => {
         200,
         'tiles',
         movementConfig,
-        'terrain_grass_block_center',
         null,
-        { width: 192 }
+        null,
+        { width: 192, tilePrefix: 'terrain_grass_block' }
       );
 
       const state = {

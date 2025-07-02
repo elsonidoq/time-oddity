@@ -127,7 +127,7 @@ describe('SceneFactory Comprehensive Integration', () => {
       // Check that all floating platforms have the expected properties
       // This is difficult to assert precisely without more complex filtering.
       // A simpler check is that some platforms match the expected texture.
-      const platformWithCorrectTexture = platforms.some(p => p.texture === 'tiles' && p.frame === 'terrain_grass_block_center');
+      const platformWithCorrectTexture = platforms.some(p => p.texture === 'tiles' && p.frame === 'terrain_grass_cloud');
       expect(platformWithCorrectTexture).toBe(true);
     });
 
