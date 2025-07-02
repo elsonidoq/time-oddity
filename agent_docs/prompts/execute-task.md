@@ -11,10 +11,10 @@ Before beginning any task, you MUST review these documents:
 
 ## Task Assignment
 - Read all documentation
-- Read the task 3.02.2 described in @03_level_visual_config.md 
+- Read the task 4.01 described in @04_simplified_map_view.md 
 - Make sure to think the proper abstraction 
 - Write down a plan to implement it. Identify new states, invariants that need preservation
-- Follow a STRICT TDD approach and implement your plan to execute tasks 3.02.2 described in  @03_level_visual_config.md 
+- Follow a STRICT TDD approach and implement your plan to execute the task 4.01 described in @04_simplified_map_view.md  
 - After finishing a task, double check the task description to make sure you actually finished
 
 

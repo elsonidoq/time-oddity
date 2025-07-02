@@ -1,5 +1,7 @@
 import BaseScene from './BaseScene.js';
 import InputManager from '../systems/InputManager.js';
+import MapOverlay from '../ui/MapOverlay.js';
+import { debug } from 'node-media-server/src/core/logger.js';
 
 export default class UIScene extends BaseScene {
   constructor(mockScene = null) {
@@ -96,6 +98,28 @@ export default class UIScene extends BaseScene {
 
     // Initialize input manager for pause handling
     this.inputManager = new InputManager(this);
+
+    // Task 04.06: Create and initialize MapOverlay
+    this.mapOverlay = new MapOverlay(this);
+    this.mapOverlay.create();
+    this.mapVisible = false; // Start with map hidden
+    
+    // Initialize map with level data from GameScene
+    const gameSceneForMap = this.scene && this.scene.get ? this.scene.get('GameScene') : null;
+    if (gameSceneForMap) {
+      // Calculate map scale first
+      if (gameSceneForMap.levelWidth && gameSceneForMap.levelHeight) {
+        this.mapOverlay.calculateMapScale(gameSceneForMap.levelWidth, gameSceneForMap.levelHeight);
+      }
+      
+      // Render static level elements
+      if (gameSceneForMap.platforms && gameSceneForMap.platforms.children) {
+        this.mapOverlay.renderPlatforms(gameSceneForMap.platforms.children.entries);
+      }
+      if (gameSceneForMap.coins && gameSceneForMap.coins.children) {
+        this.mapOverlay.renderCoins(gameSceneForMap.coins.children.entries);
+      }
+    }
 
     // Listen for levelCompleted event from GameScene
     const gameSceneForLevelComplete = this.scene && this.scene.get ? this.scene.get('GameScene') : null;
@@ -216,6 +240,22 @@ export default class UIScene extends BaseScene {
       this.coinCounter.setText(`Coins: ${coinsCollected}`);
     }
 
+    // Task 04.06: Handle map toggle via T key
+    if (this.inputManager && this.inputManager.isMapToggleJustPressed) {
+      this.mapVisible = !this.mapVisible;
+      if (this.mapOverlay) {
+        this.mapOverlay.setVisible(this.mapVisible);
+      }
+    }
+    
+    // Task 04.06: Update player position when map is visible
+    if (this.mapVisible && this.mapOverlay) {
+      const gameSceneForMapUpdate = this.scene && this.scene.get ? this.scene.get('GameScene') : null;
+      if (gameSceneForMapUpdate && gameSceneForMapUpdate.player) {
+        this.mapOverlay.updatePlayerPosition(gameSceneForMapUpdate.player.x, gameSceneForMapUpdate.player.y);
+      }
+    }
+
     // --- Task 05.02.2: Handle SPACE key to return to menu ---
     this.handleLevelCompleteInput();
   }
@@ -255,6 +295,16 @@ export default class UIScene extends BaseScene {
         this.levelCompleteOverlay = null;
       }
       this.levelCompleteActive = false;
+    }
+  }
+
+  /**
+   * Cleanup method for map overlay resources
+   */
+  onShutdown() {
+    if (this.mapOverlay) {
+      this.mapOverlay.destroy();
+      this.mapOverlay = null;
     }
   }
 } 

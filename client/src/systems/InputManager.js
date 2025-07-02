@@ -40,6 +40,9 @@ export default class InputManager {
 
     // M key for mute toggle
     this.m = scene.input.keyboard.addKey('M');
+
+    // T key for map toggle
+    this.t = scene.input.keyboard.addKey('T');
   }
 
   /**
@@ -158,5 +161,19 @@ export default class InputManager {
    */
   get isMutePressed() {
     return this.m.isDown;
+  }
+
+  /**
+   * Check if the map toggle key is pressed (T)
+   */
+  get isMapTogglePressed() {
+    return this.t.isDown;
+  }
+
+  /**
+   * Check if the map toggle key was just pressed (T)
+   */
+  get isMapToggleJustPressed() {
+    return PhaserLib.Input.Keyboard.JustDown(this.t);
   }
 } 

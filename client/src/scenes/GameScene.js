@@ -16,9 +16,11 @@ export default class GameScene extends BaseScene {
   static CAMERA_DEADZONE_X = 0.3;
   static CAMERA_DEADZONE_Y = 0.25;
 
-  constructor(mockScene = null) {
+
+  constructor(mockScene = null, levelConfig = null) {
     super('GameScene', mockScene);
     this._mockScene = mockScene;
+    this._injectedLevelConfig = levelConfig;
   }
 
   init(data) {
@@ -32,6 +34,9 @@ export default class GameScene extends BaseScene {
   }
 
   create(data) {
+    // Use injected config if present, otherwise default
+    const levelConfig = this._injectedLevelConfig || testLevelConfig;
+    this.levelConfig = levelConfig;
     // Enable and configure Arcade Physics with proper error handling
     if (this.physics && this.physics.world) {
       this.physics.world.gravity.y = 980;
@@ -65,25 +70,22 @@ export default class GameScene extends BaseScene {
     let configLevelWidth = this.sys.game.config.width;
     let configLevelHeight = this.sys.game.config.height;
 
-    if (testLevelConfig && Array.isArray(testLevelConfig.platforms)) {
-      for (const p of testLevelConfig.platforms) {
+    if (levelConfig && Array.isArray(levelConfig.platforms) && levelConfig.platforms.length > 0) {
+      for (const p of levelConfig.platforms) {
         const tileWidth = 64;
         const platWidth = p.width ? p.width : tileWidth;
-        const platHeight = 64;
         const maxX = p.x + platWidth;
-        const maxY = p.y + platHeight;
         if (maxX > configLevelWidth) configLevelWidth = maxX;
-        if (maxY > configLevelHeight) configLevelHeight = maxY;
       }
+      configLevelHeight = Math.max(...levelConfig.platforms.map(p => p.y));
     }
 
-    // Store for global access before any visual elements are created
     this.levelWidth = configLevelWidth;
     this.levelHeight = configLevelHeight;
 
     // Initialize SceneFactory before background creation
     this.sceneFactory = new SceneFactory(this);
-    this.sceneFactory.loadConfiguration(testLevelConfig);
+    this.sceneFactory.loadConfiguration(levelConfig);
 
     // Create parallax background layers using factory or fallback to hardcoded
     this.createBackgroundsWithFactory();
@@ -119,12 +121,24 @@ export default class GameScene extends BaseScene {
     }
 
     // --- Player Integration ---
-    // The ground platform's visual top is at y=656.
-    const groundY = 656;
-    
-    // Create player at logical starting position (on ground platform)
-    // A small offset upwards (e.g., 2 pixels) ensures a clean initial collision.
-    this.player = new Player(this, 100, groundY - 2, 'characters', 'character_beige_idle', 100, this._mockScene);
+    let spawnX = 100;
+    let spawnY = 400;
+    if (levelConfig.playerSpawn && typeof levelConfig.playerSpawn.x === 'number' && typeof levelConfig.playerSpawn.y === 'number') {
+      spawnX = levelConfig.playerSpawn.x;
+      spawnY = levelConfig.playerSpawn.y;
+    } else if (levelConfig.platforms && levelConfig.platforms.length > 0) {
+      // Find lowest ground platform
+      const groundPlatforms = levelConfig.platforms.filter(p => p.type === 'ground');
+      if (groundPlatforms.length > 0) {
+        const lowestGroundY = Math.min(...groundPlatforms.map(p => p.y));
+        spawnY = lowestGroundY - 2; // Small offset above ground
+      } else {
+        // If no ground platforms, use the minimum y of any platform
+        const minY = Math.min(...levelConfig.platforms.map(p => p.y));
+        spawnY = minY - 2;
+      }
+    }
+    this.player = new Player(this, spawnX, spawnY, 'characters', 'character_beige_idle', 100, this._mockScene);
     this.player.inputManager = new InputManager(this);
     
     // Add player to physics group
@@ -252,9 +266,9 @@ export default class GameScene extends BaseScene {
   createCoinsWithFactory() {
     if (!this.coins || !this.sceneFactory) return;
 
-    if (testLevelConfig.coins && Array.isArray(testLevelConfig.coins)) {
+    if (this.levelConfig.coins && Array.isArray(this.levelConfig.coins)) {
       // Create all coins from configuration
-      const createdCoins = this.sceneFactory.createCoinsFromConfig(testLevelConfig.coins, this.coins);
+      const createdCoins = this.sceneFactory.createCoinsFromConfig(this.levelConfig.coins, this.coins);
       
       if (createdCoins.length === 0) {
         console.warn('[GameScene] No coins were created by SceneFactory, falling back to hardcoded creation');
@@ -362,7 +376,7 @@ export default class GameScene extends BaseScene {
     if (!this.enemies || !this.sceneFactory) return;
 
     // Use injected levelConfig if present, otherwise fallback
-    const levelConfig = this.levelConfig || testLevelConfig;
+    const levelConfig = this._injectedLevelConfig || testLevelConfig;
 
     let createdEnemies = [];
     // Always call createEnemiesFromConfig(levelConfig)

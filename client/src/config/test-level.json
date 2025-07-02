@@ -1,4 +1,5 @@
 {
+  "playerSpawn": { "x": 200, "y": 870 },
   "goal": {
     "x": 4000,
     "y": 850,
@@ -58,7 +59,7 @@
       "isFullBlock": true
     },
 
-    { "type": "floating", "x": 400, "y": 800, "width": 400, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
+    { "type": "floating", "x": 400, "y": 730, "width": 400, "tilePrefix": "terrain_grass_cloud", "isFullBlock": true },
     {
       "type": "moving",
       "x": 400,

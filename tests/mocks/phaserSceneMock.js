@@ -133,7 +133,9 @@ class GraphicsMock {
   constructor() {
     this.fillStyle = createMockFn(() => this);
     this.fillRect = createMockFn(() => this);
+    this.fillCircle = createMockFn(() => this);
     this.setVisible = createMockFn(() => this);
+    this.setPosition = createMockFn(() => this);
     this.clear = createMockFn(() => this);
     this.lineStyle = createMockFn(() => this);
     this.strokeRect = createMockFn(() => this);

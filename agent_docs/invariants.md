@@ -116,42 +116,10 @@ If you change key bindings ensure **all getters** in `InputManager` continue to 
 ---
 
 ## 13. Level / Platform Geometry
-1. Ground top pixel-row sits at **y = 656** in 720 p canvas; camera bounds & player spawn rely on this magic number.
-2. `configurePlatform(platform, isFullBlock)` sets hit-box to full sprite when `isFullBlock` is `true`; altering this function may break jump/fall tests.
-3. **Platform Configuration Ordering (CRITICAL)**: Platforms (including MovingPlatform instances) **MUST** be added to their physics group **BEFORE** calling `configurePlatform()` or any other physics configuration methods. Configuring platforms before adding them to the group causes the configuration to be lost when the group processes the platform. This ordering requirement applies to:
-   - `configurePlatform()` calls
-   - `setImmovable()`, `setAllowGravity()`, `setFriction()` physics body methods
-   - Any custom physics configuration in platform constructors
-   - Movement initialization that depends on physics body state
-
-   **Correct Order**: `new Platform()` → `group.add(platform)` → `configurePlatform(platform)` → `platform.initializeMovement()`
-   
-   **Incorrect Order**: `new Platform()` → `configurePlatform(platform)` → `group.add(platform)` ← **Configuration gets lost**
-
-4. **Moving Platform Player Carrying (CRITICAL)**: Phaser's Arcade Physics does **NOT** automatically carry objects on moving platforms. Moving platforms must implement manual player carrying logic:
-   - **Movement Tracking**: Platforms must track `previousX` and `previousY` positions for delta calculation
-   - **Collision Detection**: Use `playerBody.touching.down && platformBody.touching.up` to detect when player is standing on platform
-   - **Delta Application**: Calculate movement delta (`current - previous`) and apply it to player position
-   - **Update Timing**: Player carrying must happen **AFTER** platform movement in the update loop
-   - **GameScene Integration**: GameScene must call `platform.carryPlayerIfStanding(player.body)` for each MovingPlatform instance
-
-   **Required Methods**:
-   - `updatePreviousPosition()` - Called after movement to store current position as previous
-   - `isPlayerStandingOnTop(playerBody)` - Detects player-platform contact
-   - `carryPlayerIfStanding(playerBody)` - Applies platform movement delta to player
-
-   **GameScene Update Order**: `platform.update()` → `platform.updatePreviousPosition()` → `platform.carryPlayerIfStanding(player.body)`
-
-5. **Coin Physics Configuration (CRITICAL)**: Coins must follow the same physics configuration order as platforms to prevent gravity from affecting them. The proper sequence is:
-   - Create physics sprite: `this.scene.physics.add.sprite(x, y, texture)`
-   - Set parentCoin reference: `sprite.parentCoin = this`
-   - Add to physics group: `this.scene.coins.add(sprite)` 
-   - **THEN** configure physics: `sprite.body.setAllowGravity(false)`
-   
-   **Incorrect Order**: Configure physics → Add to group ← **Configuration gets lost, coins fall**
-   **Correct Order**: Create sprite → Add to group → Configure physics ← **Configuration preserved**
-
-6. **Coin Registry Time Reversal (CRITICAL)**: The `coinsCollected` registry value is recorded in TimeManager snapshots and restored during time reversal to ensure the HUD always matches the actual world state. This ensures consistency between the number of coins visible in the scene and the registry counter.
+1. Floor is at y=0; positive y is down. All platform and entity y-coordinates are measured from the top of the scene (0) downwards.
+2. Player spawn is configurable per-level via a top-level `playerSpawn` object in the level JSON. If not present, the player spawns just above the lowest ground platform.
+3. Scene height and width are inferred from the platform configuration: width is the maximum (x + width) of any platform, height is the maximum y of any platform. No hardcoded scene dimensions or magic numbers for ground/floor are allowed.
+4. All previous references to y=656 as ground/floor are obsolete and must not be used in new code or tests.
 
 ---
 
