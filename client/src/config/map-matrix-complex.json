@@ -1,0 +1,46 @@
+{
+  "playerSpawn": { "x": 130, "y": 90 },
+  "goal": {
+    "x": 10,
+    "y": 150,
+    "tileKey": "sign_exit",
+    "isFullBlock": true
+  },
+  "map_matrix": [
+    [
+      { "tileKey": "terrain_grass_block", "type": "decorative" },
+      { "tileKey": "terrain_grass_block", "type": "decorative" },
+      { "tileKey": "terrain_grass_block", "type": "decorative" },
+      { "tileKey": "bush", "type": "decorative" },
+      { "tileKey": "terrain_grass_block", "type": "decorative" }
+    ],
+    [
+      { "tileKey": "rock", "type": "decorative" },
+      { "tileKey": "terrain_grass_block", "type": "decorative" },
+      { "tileKey": "cactus", "type": "decorative" },
+      { "tileKey": "terrain_grass_block", "type": "decorative" },
+      { "tileKey": "mushroom_brown", "type": "decorative" }
+    ],
+    [
+      { "tileKey": "terrain_grass_block", "type": "decorative" },
+      { "tileKey": "terrain_grass_block", "type": "decorative" },
+      { "tileKey": "terrain_grass_block", "type": "decorative" },
+      { "tileKey": "terrain_grass_block", "type": "decorative" },
+      { "tileKey": "terrain_grass_block", "type": "decorative" }
+    ],
+    [
+      { "tileKey": "hill", "type": "decorative" },
+      { "tileKey": "terrain_grass_block", "type": "decorative" },
+      { "tileKey": "mushroom_red", "type": "ground" },
+      { "tileKey": "terrain_grass_block", "type": "decorative" },
+      { "tileKey": "hill_top", "type": "decorative" }
+    ],
+    [
+      { "tileKey": "terrain_grass_block", "type": "ground" },
+      { "tileKey": "terrain_grass_block", "type": "ground" },
+      { "tileKey": "terrain_grass_block", "type": "ground" },
+      { "tileKey": "terrain_grass_block", "type": "ground" },
+      { "tileKey": "terrain_grass_block", "type": "ground" }
+    ]
+  ]
+} 

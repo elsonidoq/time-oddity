@@ -113,7 +113,6 @@ describe('GameScene Multi-Parallax Integration', () => {
     gameScene.createPlatformsWithFactory = jest.fn();
     gameScene.createCoinsWithFactory = jest.fn();
     gameScene.createGoalsWithFactory = jest.fn();
-    gameScene.createParallaxBackgroundHardcoded = jest.fn();
     
     // Clear all mocks
     jest.clearAllMocks();
@@ -371,19 +370,15 @@ describe('GameScene Multi-Parallax Integration', () => {
       expect(mockSceneFactory.createBackgroundsFromConfig).toHaveBeenCalled();
     });
 
-    test('should fallback to hardcoded creation if SceneFactory fails', () => {
+    test('should handle missing SceneFactory gracefully', () => {
       // Arrange
-      gameScene.sceneFactory = mockSceneFactory;
-      gameScene.createParallaxBackgroundHardcoded = jest.fn();
+      gameScene.sceneFactory = null;
       
-      // Make factory fail by not having config
-      gameScene.sceneFactory.config = null;
-
       // Act
       gameScene.createBackgroundsWithFactory();
 
-      // Assert
-      expect(gameScene.createParallaxBackgroundHardcoded).toHaveBeenCalled();
+      // Assert - Should log warning and skip background creation
+      expect(gameScene.backgroundLayers).toBeUndefined();
     });
   });
 

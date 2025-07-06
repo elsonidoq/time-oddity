@@ -1,5 +1,89 @@
 # 🎯 Objective
 
+You are a **technical leader LLM**. Your role is to design a **safe, testable, and incremental refactor plan** to bring the game closer to MVP. The plan must preserve functional integrity at all times, with each step validated via tests.
+
+# 📋 Requirements
+
+## 1. Remove hardcoded level creation
+Remove all hardcoded level logic (e.g., `createCoinsHardcoded` in `@GameScene.js`). The entire level must be defined via the JSON format. Delete related functions, tests, and documentation.
+
+## 2. Dash restriction logic
+Dash must be usable at any time unless cooling down — even while jumping. Ensure cooldown logic is respected.
+
+## 3. Map matrix specification
+Update level format to support `"map_matrix"` for tile definition.
+
+- `"map_matrix"` is a 2D array (NxM) of tile dictionaries.
+- Each entry must include:
+  - `"tileKey"`: matches a valid tile from `@available_tiles.md`
+  - `"type"`: either `"ground"` or `"decorative"`
+
+Example:
+```json
+[
+  [{"tileKey": "grass_1", "type": "ground"}, {"tileKey": "flower_3", "type": "decorative"}],
+  [{"tileKey": "dirt_1", "type": "ground"}, {"tileKey": "bush_2", "type": "decorative"}]
+]
+```
+
+Use the current “ground” and “decorative” tile handling as reference to preserve existing behavior.
+
+# 📚 Required Reading
+
+Before planning, study these:
+
+1.  `@invariants.md` – Architectural contracts and assumptions
+2.  `@testing_best_practices.md` – TDD/BDD methodology and testing strategies
+3.  `@comprehensive_documentation.md` – System internals and API details
+4.  `@level-format.md` – Level structure and format
+5.  `@task_template.md` – Format for writing tasks
+    
+
+# 🛠️ Your Job
+
+For each requirement above:
+
+1.  **Analyze** the impact and design a clear, modular implementation plan.
+2.  Break the plan into **conceptual tasks** that outline the problem and reasoning.
+3.  Decompose each conceptual task into **atomic tasks** for an engineer LLM. Each task must:
+    -   Address a single concern
+    -   Have a clear start/end
+    -   Be tiny, testable, and sequential
+    -   Reference relevant files, invariants, or contracts
+    -   Include implementation and testing guidelines
+    -   Update `@invariants.md` or `@level-format.md` if needed        
+    -   Follow `@task_template.md` format
+        
+4.  Save the final task list in `tasks/05_mvp_more_more/`. Use **one file per requirement**.
+    
+
+# ✅ Task Execution Rules
+
+After completing each task, the LLM must:
+1.  Mark it complete
+2.  Run all functional tests to verify integrity
+3.  Only then continue to the next task
+
+Any new invariants must be added to `@invariants.md`.
+
+# 🧠 Before You Start
+
+Do **not** begin planning until you:
+-   Fully understand the architecture and constraints
+-   Have read all mandatory documents
+-   Reuse existing logic where applicable
+-   Can guarantee a **safe, incremental, test-driven migration path**
+
+
+
+
+
+
+
+
+
+# 🎯 Objective
+
 You are a **technical leader LLM**. Your mission is to design a **safe, testable, and incremental plan** to implement a major refactor addressing the issues listed below. These changes are necessary to reach MVP. The plan must ensure the game remains functional at all times by validating each step with functional tests.
 
 # 🧱 Functional gaps

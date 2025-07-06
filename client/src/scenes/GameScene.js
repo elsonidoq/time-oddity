@@ -7,7 +7,7 @@ import TimeManager from '../systems/TimeManager.js';
 import { LoopHound } from '../entities/enemies/LoopHound.js';
 import { SceneFactory } from '../systems/SceneFactory.js';
 import AudioManager from '../systems/AudioManager.js';
-import testLevelConfig from '../config/test-level.json';
+import testLevelConfig from '../config/map-matrix-complex.json';
 
 export default class GameScene extends BaseScene {
   // Camera follow constants for easy tuning
@@ -73,11 +73,13 @@ export default class GameScene extends BaseScene {
     if (levelConfig && Array.isArray(levelConfig.platforms) && levelConfig.platforms.length > 0) {
       for (const p of levelConfig.platforms) {
         const tileWidth = 64;
+        const tileHeight = 64;
         const platWidth = p.width ? p.width : tileWidth;
         const maxX = p.x + platWidth;
         if (maxX > configLevelWidth) configLevelWidth = maxX;
       }
-      configLevelHeight = Math.max(...levelConfig.platforms.map(p => p.y));
+      // FIX: Level height should be max of (platform.y + tileHeight)
+      configLevelHeight = Math.max(...levelConfig.platforms.map(p => (p.y + 64)));
     }
 
     this.levelWidth = configLevelWidth;
@@ -87,7 +89,7 @@ export default class GameScene extends BaseScene {
     this.sceneFactory = new SceneFactory(this);
     this.sceneFactory.loadConfiguration(levelConfig);
 
-    // Create parallax background layers using factory or fallback to hardcoded
+    // Create parallax background layers using SceneFactory
     this.createBackgroundsWithFactory();
 
     // Create decorative platforms (background tiles) after backgrounds but before regular platforms
@@ -252,11 +254,11 @@ export default class GameScene extends BaseScene {
     const createdPlatforms = this.sceneFactory.createPlatformsFromConfig(this.platforms);
     
     if (createdPlatforms.length === 0) {
-      console.warn('[GameScene] No platforms were created by SceneFactory, falling back to hardcoded creation');
-      this.createPlatformsHardcoded();
+      console.warn('[GameScene] No platforms were created by SceneFactory - level configuration may be missing or invalid');
     } else {
       // Register MovingPlatform instances with TimeManager for time reversal
       this.registerMovingPlatformsWithTimeManager(createdPlatforms);
+      console.log(`[GameScene] Created ${createdPlatforms.length} platforms using SceneFactory`);
     }
   }
 
@@ -271,8 +273,7 @@ export default class GameScene extends BaseScene {
       const createdCoins = this.sceneFactory.createCoinsFromConfig(this.levelConfig.coins, this.coins);
       
       if (createdCoins.length === 0) {
-        console.warn('[GameScene] No coins were created by SceneFactory, falling back to hardcoded creation');
-        this.createCoinsHardcoded();
+        console.warn('[GameScene] No coins were created by SceneFactory - coin configuration may be invalid');
       } else {
         // Register coins with TimeManager for time reversal support
         this.registerCoinsWithTimeManager(createdCoins);
@@ -283,30 +284,8 @@ export default class GameScene extends BaseScene {
         console.log(`[GameScene] Created ${createdCoins.length} coins using SceneFactory`);
       }
     } else {
-      console.warn('[GameScene] No coin configuration found, falling back to hardcoded creation');
-      this.createCoinsHardcoded();
+      console.log('[GameScene] No coin configuration found - skipping coin creation');
     }
-  }
-
-  /**
-   * Fallback method for hardcoded coin creation (maintains backward compatibility)
-   */
-  createCoinsHardcoded() {
-    if (!this.coins) return;
-
-    const coin1 = new Coin(this, 200, 950, 'tiles', this._mockScene);
-    const coin2 = new Coin(this, 1000, 500, 'tiles', this._mockScene);
-    const coin3 = new Coin(this, 640, 350, 'tiles', this._mockScene);
-    
-    // Register coins with TimeManager for time reversal support
-    if (this.timeManager) {
-      this.timeManager.register(coin1);
-      this.timeManager.register(coin2);
-      this.timeManager.register(coin3);
-    }
-    
-    // Store references for cleanup and future use
-    this.gameCoins = [coin1, coin2, coin3];
   }
 
   /**
@@ -366,6 +345,8 @@ export default class GameScene extends BaseScene {
       }
       
       console.log(`[GameScene] Created goal tile at (${createdGoalTile.x}, ${createdGoalTile.y})`);
+    } else {
+      console.warn('[GameScene] No goal tile configuration found - level may not have an exit');
     }
   }
 
@@ -440,28 +421,25 @@ export default class GameScene extends BaseScene {
   }
 
   /**
-   * Creates backgrounds using SceneFactory with fallback to hardcoded creation
+   * Creates backgrounds using SceneFactory with graceful error handling
    */
   createBackgroundsWithFactory() {
     // Check if SceneFactory is available
     if (!this.sceneFactory) {
-      console.warn('[GameScene] SceneFactory not available, falling back to hardcoded background creation');
-      this.createParallaxBackgroundHardcoded();
+      console.warn('[GameScene] SceneFactory not available, skipping background creation');
       return;
     }
 
     // Ensure SceneFactory has loaded configuration
     if (!this.sceneFactory.config || !this.sceneFactory.config.backgrounds) {
-      console.warn('[GameScene] SceneFactory configuration invalid or missing backgrounds, falling back to hardcoded background creation');
-      this.createParallaxBackgroundHardcoded();
+      console.warn('[GameScene] SceneFactory configuration invalid or missing backgrounds - skipping background creation');
       return;
     }
 
     // Create backgrounds from configuration (synchronous)
     const backgrounds = this.sceneFactory.createBackgroundsFromConfig(this.sceneFactory.config.backgrounds);
     if (!backgrounds || backgrounds.length === 0) {
-      console.warn('[GameScene] No backgrounds created from factory, falling back to hardcoded background creation');
-      this.createParallaxBackgroundHardcoded();
+      console.warn('[GameScene] No backgrounds created from factory - background configuration may be invalid');
       return;
     }
 
@@ -496,32 +474,6 @@ export default class GameScene extends BaseScene {
   }
 
   /**
-   * Fallback method for hardcoded background creation (maintains backward compatibility)
-   * Creates a simple 2-layer parallax background
-   */
-  createParallaxBackgroundHardcoded() {
-    // Calculate the new visible area based on camera zoom (1)
-    const zoom = 1;
-    const levelW = this.levelWidth || (1280);
-    const levelH = this.levelHeight || (720);
-    const bgWidth = levelW / zoom;
-    const bgHeight = levelH / zoom;
-    const centerX = bgWidth / 2;
-    const centerY = bgHeight / 2;
-
-    // Layer 1: Sky background (far background, no parallax)
-    this.skyBackground = this.add.tileSprite(centerX, centerY, bgWidth, bgHeight, 'backgrounds', 'background_solid_sky');
-    this.skyBackground.setDepth(-2); // Behind everything (negative depth)
-    
-    // Layer 2: Hills background (mid background, slow parallax)
-    this.hillsBackground = this.add.tileSprite(centerX, centerY, bgWidth, bgHeight, 'backgrounds', 'background_color_hills');
-    this.hillsBackground.setDepth(-1); // Behind platforms but in front of sky
-    
-    // Store initial positions for parallax calculation
-    this.hillsBackground.setData('initialX', this.hillsBackground.x);
-  }
-
-  /**
    * Registers MovingPlatform instances with TimeManager for time reversal support
    * @param {Array} platforms - Array of all created platforms
    */
@@ -540,32 +492,6 @@ export default class GameScene extends BaseScene {
     for (const movingPlatform of movingPlatforms) {
       this.timeManager.register(movingPlatform);
     }
-  }
-
-  /**
-   * Fallback method for hardcoded platform creation (maintains backward compatibility)
-   */
-  createPlatformsHardcoded() {
-    if (!this.platforms) return;
-
-    // The visual top of the ground should be at y=656 to be fully visible.
-    const groundY = 656;
-    for (let x = 0; x < this.sys.game.config.width; x += 64) {
-        const groundTile = this.platforms.create(x, groundY, 'tiles', 'terrain_grass_horizontal_middle').setOrigin(0, 0);
-        this.configurePlatform(groundTile, true); // Use full block for ground
-    }
-
-    // Floating platforms
-    const platform1 = this.platforms.create(200, 500, 'tiles', 'terrain_grass_block_center');
-    const platform2 = this.platforms.create(1000, 550, 'tiles', 'terrain_grass_block_center');
-    const platform3 = this.platforms.create(640, 400, 'tiles', 'terrain_grass_block_center');
-    const platform4 = this.platforms.create(350, 250, 'tiles', 'terrain_grass_block_center');
-    const platform5 = this.platforms.create(800, 200, 'tiles', 'terrain_grass_block_center');
-    this.configurePlatform(platform1, true); // `isFullBlock` = true
-    this.configurePlatform(platform2, true); // `isFullBlock` = true
-    this.configurePlatform(platform3, true); // `isFullBlock` = true
-    this.configurePlatform(platform4, true);
-    this.configurePlatform(platform5, true);
   }
 
   handlePlayerCoinOverlap(player, coinSprite) {

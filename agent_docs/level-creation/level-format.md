@@ -18,7 +18,8 @@ This document defines the **canonical JSON schema** for describing a level in Ti
   "coins":               [ /* Array<CoinConfig>       */ ],
   "enemies":             [ /* Array<EnemyConfig>      */ ],
   "backgrounds":         [ /* Array<BackgroundConfig> */ ],
-  "decorativePlatforms": [ /* Array<DecorativeConfig> */ ]
+  "decorativePlatforms": [ /* Array<DecorativeConfig> */ ],
+  "map_matrix":          [ /* Array<Array<TileDict>>  */ ]
 }
 ```
 Every field is **optional** – `SceneFactory` and `GameScene` fall back to sensible defaults when fields are missing.
@@ -98,7 +99,6 @@ Field            | Type    | Required | Description
 - **Single tile**: `terrain_grass_horizontal` → `terrain_grass_horizontal`
 - **Multi-tile**: `terrain_grass_horizontal` → `terrain_grass_horizontal_left`, `terrain_grass_horizontal_middle`, `terrain_grass_horizontal_right`
 
-**Backward Compatibility:** The old `tileKey` system has been removed for upgraded platform types (ground, floating, moving). All platforms must now use `tilePrefix`.
 
 ### 4.2 Common Fields
 Field            | Type    | Required | Description
@@ -358,9 +358,101 @@ Field            | Type    | Required | Description
 
 ---
 
-## 6. Collectible Objects
+## 6. Map Matrix Objects
 
-### 6.1 Coin (`type: "coin"`)
+The `map_matrix` provides an alternative 2D tile-based approach to level definition, allowing for grid-based level design with automatic coordinate calculation.
+
+### 6.1 Map Matrix Structure (`map_matrix`)
+
+The `map_matrix` is a 2D array where each entry contains a tile dictionary with tile and type information.
+
+**Matrix Structure:**
+```jsonc
+[
+  [
+    { "tileKey": "terrain_grass_block", "type": "ground" },
+    { "tileKey": "bush", "type": "decorative" }
+  ],
+  [
+    { "tileKey": "terrain_grass_block", "type": "ground" },
+    { "tileKey": "rock", "type": "decorative" }
+  ]
+]
+```
+
+**Tile Dictionary Fields:**
+Field            | Type    | Required | Description
+-----------------|---------|----------|------------
+`tileKey`        | string  | yes      | Tile sprite frame name from the `tiles` atlas (must be valid from `available_tiles.md`).
+`type`           | string  | yes      | Platform type: `"ground"` or `"decorative"`.
+
+**Coordinate System:**
+- **Matrix Position**: `matrix[row][col]` maps to world position `(col * 64, row * 64)`
+- **Tile Size**: Each matrix cell represents a 64x64 pixel tile
+- **Origin**: Matrix position (0,0) maps to world position (0,0)
+- **Y-Axis**: Matrix rows increase downward (positive Y in world coordinates)
+
+**Coordinate Mapping Examples:**
+- `matrix[0][0]` → world position (0, 0)
+- `matrix[0][1]` → world position (64, 0)
+- `matrix[1][0]` → world position (0, 64)
+- `matrix[1][1]` → world position (64, 64)
+
+**Platform Type Behavior:**
+- **`"ground"`**: Creates physics-enabled platform tiles that participate in collision detection and time reversal
+- **`"decorative"`**: Creates visual-only background tiles with no collision detection (depth -0.5)
+
+**Validation Rules:**
+- `map_matrix`: Must be a 2D array (array of arrays)
+- `tileKey`: Must be a valid tile key from `available_tiles.md`
+- `type`: Must be either `"ground"` or `"decorative"`
+- **Empty Matrix**: Empty array `[]` is valid and creates no tiles
+- **Row Consistency**: All rows should have the same number of columns for consistent level width
+
+**Example Map Matrix Level:**
+```jsonc
+{
+  "playerSpawn": { "x": 200, "y": 870 },
+  "goal": {
+    "x": 4000,
+    "y": 850,
+    "tileKey": "sign_exit",
+    "isFullBlock": true
+  },
+  "map_matrix": [
+    [
+      { "tileKey": "terrain_grass_block", "type": "ground" },
+      { "tileKey": "terrain_grass_block", "type": "ground" },
+      { "tileKey": "bush", "type": "decorative" }
+    ],
+    [
+      { "tileKey": "terrain_grass_block", "type": "ground" },
+      { "tileKey": "terrain_grass_block", "type": "ground" },
+      { "tileKey": "rock", "type": "decorative" }
+    ]
+  ]
+}
+```
+
+**Resulting World Positions:**
+- `matrix[0][0]` → ground tile at (0, 0)
+- `matrix[0][1]` → ground tile at (64, 0)
+- `matrix[0][2]` → decorative bush at (128, 0)
+- `matrix[1][0]` → ground tile at (0, 64)
+- `matrix[1][1]` → ground tile at (64, 64)
+- `matrix[1][2]` → decorative rock at (128, 64)
+
+**Integration with Existing Format:**
+- `map_matrix` can be used alongside traditional platform definitions
+- When both `map_matrix` and `platforms` arrays are present, both are processed
+- `map_matrix` provides a grid-based alternative to individual platform positioning
+- Maintains full backward compatibility with existing level format
+
+---
+
+## 7. Collectible Objects
+
+### 7.1 Coin (`type: "coin"`)
 Field            | Type    | Required | Description
 -----------------|---------|----------|------------
 `type`           | string  | yes      | Always `"coin"`.
@@ -381,9 +473,9 @@ Field            | Type    | Required | Description
 
 ---
 
-## 7. Enemy Objects
+## 8. Enemy Objects
 
-### 7.1 Common Enemy Fields
+### 8.1 Common Enemy Fields
 Field            | Type    | Required | Description
 -----------------|---------|----------|------------
 `type`           | string  | yes      | Enemy type discriminator – see sub-types below.
@@ -391,7 +483,7 @@ Field            | Type    | Required | Description
 `texture`        | string  | no       | Texture atlas key (default: `"enemies"`).
 `frame`          | string  | no       | Frame name or index (default: `"barnacle_attack_rest"`).
 
-### 7.2 LoopHound Enemy (`type: "LoopHound"`)
+### 8.2 LoopHound Enemy (`type: "LoopHound"`)
 A patrolling enemy that moves back and forth along a fixed horizontal path. Implements custom state recording for time reversal compatibility.
 
 Field            | Type    | Required | Description
@@ -430,11 +522,11 @@ Field            | Type    | Required | Description
 
 ---
 
-## 8. Background Objects
+## 9. Background Objects
 
 Background layers provide visual depth and atmosphere to levels. Multiple layers can be configured with different depths, parallax scrolling speeds, and sprite assets from the `backgrounds` atlas.
 
-### 8.1 Background Layer (`type: "layer"`)
+### 9.1 Background Layer (`type: "layer"`)
 
 Field            | Type    | Required | Description
 -----------------|---------|----------|------------
@@ -469,7 +561,7 @@ Field            | Type    | Required | Description
 }
 ```
 
-### 8.2 Background Configuration Examples
+### 9.2 Background Configuration Examples
 
 **Simple Single Layer Background:**
 ```jsonc
@@ -527,7 +619,7 @@ Field            | Type    | Required | Description
 
 ---
 
-## 9. Complete Level Example (from `test-level.json`)
+## 10. Complete Level Example (from `test-level.json`)
 
 ```jsonc
 {
@@ -585,7 +677,7 @@ Field            | Type    | Required | Description
 
 ---
 
-## 10. Extensibility Rules
+## 11. Extensibility Rules
 1. **New object types** must implement their own creation function in `SceneFactory` and be listed here.
 2. Tests must cover:
    * JSON validation logic.
