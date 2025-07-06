@@ -75,19 +75,14 @@ Before writing any tasks, you MUST study these documents:
 # 🛠️ What You Must Do
 
 For each functional gap listed above:
-1. Break down the product requirements into a list of **modular and incremental list of functional tasks**
+1. Break down the product requirements into a list of **modular and incremental list of functional tasks**. The tasks must follow the template described in @coarse_task_template.md
 2. Review those tasks, the documentation and make sure those steps actually solves the product requirements. You can ask for user input for additional context to complete this step.
 3. Write that plan into `agent_docs/level-creation/06_coarse_plan.md`
 
 # ✅ Task Execution Rules
 
-- The plan must be at a very early stage be user verifiable, and continue being user verifiable after every task. 
-- After completing each task, the LLM must:
-  1. Mark it as complete
-  2. Run all functional tests to ensure no regressions
-  3. Only then proceed to the next task
-
-- If any **new invariant** is introduced, add it to `@invariants.md`
+The plan must be at a very early stage be user verifiable, and continue being user verifiable after every task. 
+That means you have to plan in a way the user can either load a JSON in the game or see, if it is too early in the development, the user has to see evidence after each task
 
 # 🧠 Before You Begin
 
