@@ -8,7 +8,7 @@ Before beginning any task, you MUST review these documents:
 2. **@testing_best_practices.md** - Defines TDD/BDD methodologies, testing strategies, and LLM-assisted development workflows  
 3. **@level-format.md**: Contains documentation of the structure that a JSON describing a level must have 
 4. **@04_comprehensive_documentation.md** - Provides comprehensive documentation for level creation specific tech stack
-5. ** @level_creation_interfaces_and_invariants.md  ** - Provides all invariants, and interfaces that must be considered for level creation. Update this document as you implement everything
+5. **  @/interfaces_and_invariants   ** - Provides all invariants, and interfaces that must be considered for level creation. Update this document as you implement everything. Use @index.md as the table of contents
 
 
 # Task Assignment:
@@ -29,7 +29,7 @@ Follow the rule debugging.mdc
 
 ### Architectural Compliance
 - **Maintain decoupled architecture** (logic separated from engine dependencies)
-- **Follow established patterns** from  @small_comprehensive_documentation.md and @level_creation_comprehensive_docs.md 
+- **Follow established patterns** from  @/interfaces_and_invariants and @04_comprehensive_documentation.md 
 - **Preserve existing event contracts** and runtime event names
 - **Ensure compatibility with existing mocks and test utilities**
 

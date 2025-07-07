@@ -326,4 +326,98 @@ validateSolvability(grid: ndarray, startPos: {x: number, y: number}, goalPos: {x
 - Memory allocation failures
 - Performance threshold exceeded
 
+### 3.7 PhysicsAwareReachabilityAnalyzer Interface
+
+**File**: `src/analysis/PhysicsAwareReachabilityAnalyzer.js`
+
+**Purpose**: Implements physics-aware reachability analysis with jump constraints, unreachable area detection, and platform placement planning.
+
+**Constructor**:
+```javascript
+constructor(config?: Object)
+```
+
+**Configuration Interface**:
+```javascript
+{
+  jumpHeight?: number,    // Player jump height in pixels (default: 800)
+  gravity?: number        // Gravity in pixels/s² (default: 980)
+}
+```
+
+**Public Methods**:
+```javascript
+calculateJumpDistance(): number
+isReachableByJump(start: {x: number, y: number}, end: {x: number, y: number}, grid?: ndarray): boolean
+detectUnreachableAreas(grid: ndarray): Array<{x: number, y: number}>
+planPlatformPlacement(grid: ndarray, unreachableAreas: Array<{x: number, y: number}>): Array<Object>
+validatePlatformPlacement(grid: ndarray, platform: Object): boolean
+analyzeReachability(grid: ndarray): Object
+```
+
+**Platform Placement Interface**:
+```javascript
+{
+  x: number,              // Platform x coordinate
+  y: number,              // Platform y coordinate
+  width: number,          // Platform width in tiles
+  height: number,         // Platform height in tiles
+  type: string,           // Platform type ('floating', 'moving')
+  bridging: boolean,      // Whether platform bridges unreachable areas
+  blocking: boolean       // Whether platform blocks movement
+}
+```
+
+**Reachability Analysis Interface**:
+```javascript
+{
+  reachableTiles: Array<{x: number, y: number}>,    // All reachable tiles
+  unreachableAreas: Array<{x: number, y: number}>,  // Unreachable area coordinates
+  platformSuggestions: Array<Object>,                // Platform placement suggestions
+  jumpConstraints: {                                 // Jump constraint information
+    maxJumpDistance: number,
+    maxJumpHeight: number,
+    physicsParameters: Object
+  },
+  analysisStats: {                                   // Analysis statistics
+    totalTiles: number,
+    reachableCount: number,
+    unreachableCount: number,
+    platformCount: number
+  }
+}
+```
+
+**Physics Parameters Interface**:
+```javascript
+{
+  jumpHeight: number,     // Player jump height in pixels
+  gravity: number,        // Gravity in pixels/s²
+  tileSize: number,       // Tile size in pixels (default: 64)
+  maxJumpDistance: number, // Maximum horizontal jump distance
+  maxJumpHeight: number   // Maximum vertical jump height
+}
+```
+
+**Invariants**:
+- **PHYSICS-1**: Jump constraints accurately model player movement capabilities
+- **PHYSICS-2**: Unreachable area detection identifies all areas beyond jump capabilities
+- **PHYSICS-3**: Platform placement suggestions restore accessibility
+- **PHYSICS-4**: Physics parameters are validated and consistent
+- **PHYSICS-5**: Coordinate validation prevents out-of-bounds access
+- **PHYSICS-6**: Performance optimization handles large cave systems
+- **PHYSICS-7**: Platform validation ensures physics compliance
+
+**Error Conditions**:
+- Invalid physics parameters (negative values)
+- Invalid grid input
+- Out-of-bounds coordinates
+- Memory allocation failures
+- Algorithm failures
+
+**Performance Characteristics**:
+- Time Complexity: O(n²) for unreachable area detection
+- Space Complexity: O(n) for BFS traversal
+- Optimization: Jump window limiting for large grids
+
 ---

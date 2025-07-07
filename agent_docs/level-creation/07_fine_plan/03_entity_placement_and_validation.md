@@ -333,7 +333,7 @@ Implement physics-aware reachability analysis system that identifies unreachable
 ## Task CG-04.6: Floating Platform Placement Algorithm
 
 ### Objective
-Implement floating platform placement algorithm that strategically places floating platforms to bridge unreachable areas while minimizing visual impact and maintaining level aesthetics.
+Implement floating platform placement algorithm that strategically places floating platforms to bridge unreachable areas while minimizing visual impact and maintaining level aesthetics. 
 
 ### Task ID: CG-04.6
 
@@ -359,7 +359,7 @@ Implement floating platform placement algorithm that strategically places floati
 #### Integration Points
 - **Systems affected**: Floating platform placement, strategic positioning, visual impact assessment
 - **State machines**: Platform placement state, strategic positioning state
-- **External libraries**: Uses PhysicsAwareReachabilityAnalyzer for placement planning
+- **External libraries**: Uses PhysicsAwareReachabilityAnalyzer for placement planning, see the method `detectReachablePositionsFromStartingPoint` 
 
 #### Testing Strategy
 - **Test files to create/update**: `tests/placement/FloatingPlatformPlacer.test.js`
