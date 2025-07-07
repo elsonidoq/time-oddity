@@ -15,7 +15,7 @@
 
 ## NEW SEQUENCE - PHASE 3 CONTINUATION:
 
-## Task CG-04.6: Strategic Coin Distribution Algorithm
+## Task CG-04.6: Strategic Coin Distribution Algorithm ✅
 
 ### Objective
 Implement strategic coin distribution algorithm that places coins in dead-ends, exploration areas, and strategic locations BEFORE platform placement, ensuring coins are positioned where platforms will be needed to make them reachable.
@@ -25,38 +25,38 @@ Implement strategic coin distribution algorithm that places coins in dead-ends, 
 ### Pre-Implementation Analysis
 
 #### Documentation Dependencies
-- [ ] **01_blueprint.md sections to review**: "§3.7 Strategic Coin Placement"
-- [ ] **level-format.md sections to reference**: "§7 Collectible Objects"
-- [ ] **testing_best_practices.md sections to apply**: "§3.1 TDD-as-Prompting Technique"
+- [x] **01_blueprint.md sections to review**: "§3.7 Strategic Coin Placement"
+- [x] **level-format.md sections to reference**: "§7 Collectible Objects"
+- [x] **testing_best_practices.md sections to apply**: "§3.1 TDD-as-Prompting Technique"
 
 #### State & Invariant Impact Assessment
-- [ ] **New states to create**: Coin distribution state, strategic placement analysis
-- [ ] **Existing states to preserve**: Cave structure, player spawn, and goal placement
-- [ ] **Time reversal compatibility**: Coins must follow time reversal mechanics
+- [x] **New states to create**: Coin distribution state, strategic placement analysis
+- [x] **Existing states to preserve**: Cave structure, player spawn, and goal placement
+- [x] **Time reversal compatibility**: Coins must follow time reversal mechanics
 
 ### Implementation Plan
 
 #### Files/Classes to Change
-- **Create**: `src/placement/CoinDistributor.js`
-- **Create**: `tests/placement/CoinDistributor.test.js`
-- **Modify**: `agent_docs/level-creation/level_creation_interfaces_and_invariants.md`
+- [x] **Create**: `src/placement/CoinDistributor.js`
+- [x] **Create**: `tests/placement/CoinDistributor.test.js`
+- [x] **Modify**: `agent_docs/level-creation/level_creation_interfaces_and_invariants.md`
 
 #### Integration Points
-- **Systems affected**: Coin placement, strategic analysis, exploration incentivization
-- **State machines**: Coin distribution state, strategic analysis state
-- **External libraries**: Uses PathfindingIntegration for strategic analysis
+- [x] **Systems affected**: Coin placement, strategic analysis, exploration incentivization
+- [x] **State machines**: Coin distribution state, strategic analysis state
+- [x] **External libraries**: Uses PathfindingIntegration for strategic analysis
 
 #### Testing Strategy
-- **Test files to create/update**: `tests/placement/CoinDistributor.test.js`
-- **Key test cases**: Strategic placement accuracy, dead-end detection, exploration incentivization
-- **Mock requirements**: Mock PathfindingIntegration for controlled strategic testing
+- [x] **Test files to create/update**: `tests/placement/CoinDistributor.test.js`
+- [x] **Key test cases**: Strategic placement accuracy, dead-end detection, exploration incentivization
+- [x] **Mock requirements**: Mock PathfindingIntegration for controlled strategic testing
 
 ### Task Breakdown & Acceptance Criteria
-- [ ] **Dead-End Detection**: Implement dead-end corridor detection for coin placement
-- [ ] **Exploration Analysis**: Implement exploration area analysis and scoring
-- [ ] **Strategic Placement**: Implement strategic placement algorithm with density control
-- [ ] **Unreachable Coin Placement**: Implement placement of coins in areas that will require platforms
-- [ ] **Distribution Optimization**: Implement distribution optimization for balanced exploration
+- [x] **Dead-End Detection**: Implement dead-end corridor detection for coin placement
+- [x] **Exploration Analysis**: Implement exploration area analysis and scoring
+- [x] **Strategic Placement**: Implement strategic placement algorithm with density control
+- [x] **Unreachable Coin Placement**: Implement placement of coins in areas that will require platforms
+- [x] **Distribution Optimization**: Implement distribution optimization for balanced exploration
 
 ### Expected Output
 - Strategic coin distribution algorithm with dead-end detection
@@ -70,140 +70,12 @@ Implement strategic coin distribution algorithm that places coins in dead-ends, 
 - **Fallback plan**: Use simple random distribution if strategic placement is complex
 
 ### Definition of Done
-- [ ] All acceptance criteria are met
-- [ ] Strategic coin distribution encourages player exploration
-- [ ] Dead-end detection places coins in appropriate exploration areas
-- [ ] Unreachable coin placement incentivizes platform usage
-- [ ] **Update level_creation_interfaces_and_invariants.md** with coin distribution interfaces
-- [ ] Distribution optimization provides balanced coin placement
-
----
-
-## Task CG-04.7: Coin Collision Detection and Validation
-
-### Objective
-Implement comprehensive collision detection system that prevents coin placement inside any colliding blocks (ground, floating, moving platforms) as required by functional requirements.
-
-### Task ID: CG-04.7
-
-### Pre-Implementation Analysis
-
-#### Documentation Dependencies
-- [ ] **_00_v1_functional_requirements.md sections to apply**: "All coins not placed inside colliding blocks"
-- [ ] **level-format.md sections to reference**: Collision detection requirements
-- [ ] **testing_best_practices.md sections to apply**: "§3.1 TDD-as-Prompting Technique"
-
-#### State & Invariant Impact Assessment
-- [ ] **New states to create**: Collision detection state, object overlap validation
-- [ ] **Existing states to preserve**: Coin distribution and cave structure
-- [ ] **Time reversal compatibility**: Collision detection must ensure game compatibility
-
-### Implementation Plan
-
-#### Files/Classes to Change
-- **Create**: `src/validation/CoinCollisionDetector.js`
-- **Create**: `tests/validation/CoinCollisionDetector.test.js`
-- **Modify**: `agent_docs/level-creation/level_creation_interfaces_and_invariants.md`
-
-#### Integration Points
-- **Systems affected**: Collision detection, coin placement validation, object overlap prevention
-- **State machines**: Collision detection state, overlap validation state
-- **External libraries**: None (custom collision detection)
-
-#### Testing Strategy
-- **Test files to create/update**: `tests/validation/CoinCollisionDetector.test.js`
-- **Key test cases**: Platform collision detection, boundary overlap testing, edge case validation
-- **Mock requirements**: Mock platform data for controlled collision testing
-
-### Task Breakdown & Acceptance Criteria
-- [ ] **Platform Collision Detection**: Implement collision detection against all platform types
-- [ ] **Boundary Overlap Testing**: Implement boundary overlap testing for precise collision detection
-- [ ] **Multi-Object Validation**: Implement validation against multiple overlapping objects
-- [ ] **Edge Case Handling**: Implement edge case handling for complex collision scenarios
-- [ ] **Performance Optimization**: Optimize collision detection for large numbers of objects
-
-### Expected Output
-- Comprehensive collision detection system preventing coin-platform overlap
-- Boundary overlap testing with precise collision detection
-- Multi-object validation handling complex overlap scenarios
-- Performance optimization for large-scale collision detection
-
-### Risk Assessment
-- **Potential complexity**: Comprehensive collision detection for complex platform arrangements
-- **Dependencies**: Platform generation accuracy and coordinate precision
-- **Fallback plan**: Use simple bounding box collision if complex detection fails
-
-### Definition of Done
-- [ ] All acceptance criteria are met
-- [ ] Collision detection prevents coin placement inside any colliding blocks
-- [ ] Boundary overlap testing ensures precise collision detection
-- [ ] Multi-object validation handles complex overlap scenarios
-- [ ] **Update level_creation_interfaces_and_invariants.md** with collision detection interfaces
-- [ ] Performance optimized for large-scale collision detection operations
-
----
-
-## Task CG-04.8: Coin Reachability Analysis (Pre-Platform)
-
-### Objective
-Implement coin reachability analysis system that identifies which coins are currently unreachable from player spawn BEFORE platform placement, enabling strategic platform placement to restore accessibility.
-
-### Task ID: CG-04.8
-
-### Pre-Implementation Analysis
-
-#### Documentation Dependencies
-- [ ] **_00_v1_functional_requirements.md sections to apply**: "All coins are collectible"
-- [ ] **01_blueprint.md sections to reference**: Reachability validation requirements
-- [ ] **testing_best_practices.md sections to apply**: "§3.1 TDD-as-Prompting Technique"
-
-#### State & Invariant Impact Assessment
-- [ ] **New states to create**: Reachability analysis state, unreachable coin identification
-- [ ] **Existing states to preserve**: Coin distribution and collision detection
-- [ ] **Time reversal compatibility**: Reachability must account for time reversal mechanics
-
-### Implementation Plan
-
-#### Files/Classes to Change
-- **Create**: `src/analysis/CoinReachabilityAnalyzer.js`
-- **Create**: `tests/analysis/CoinReachabilityAnalyzer.test.js`
-- **Modify**: `agent_docs/level-creation/level_creation_interfaces_and_invariants.md`
-
-#### Integration Points
-- **Systems affected**: Reachability analysis, pathfinding verification, coin accessibility
-- **State machines**: Reachability analysis state, path verification state
-- **External libraries**: Uses PathfindingIntegration for reachability testing
-
-#### Testing Strategy
-- **Test files to create/update**: `tests/analysis/CoinReachabilityAnalyzer.test.js`
-- **Key test cases**: Unreachable coin identification, path analysis, platform necessity scoring
-- **Mock requirements**: Mock PathfindingIntegration for controlled reachability testing
-
-### Task Breakdown & Acceptance Criteria
-- [ ] **Unreachable Coin Identification**: Implement identification of coins unreachable from player spawn
-- [ ] **Path Analysis**: Implement comprehensive path analysis for each coin
-- [ ] **Platform Necessity Scoring**: Implement scoring system for platform placement necessity
-- [ ] **Gap Detection**: Implement detection of gaps requiring platform placement
-- [ ] **Performance Optimization**: Optimize reachability analysis for large numbers of coins
-
-### Expected Output
-- Coin reachability analysis system with unreachable coin identification
-- Path analysis for comprehensive accessibility assessment
-- Platform necessity scoring system for optimal placement
-- Gap detection identifying areas requiring platform placement
-
-### Risk Assessment
-- **Potential complexity**: Comprehensive reachability analysis for complex cave systems
-- **Dependencies**: PathfindingIntegration reliability and coin placement accuracy
-- **Fallback plan**: Use simple distance-based reachability if pathfinding analysis fails
-
-### Definition of Done
-- [ ] All acceptance criteria are met
-- [ ] Unreachable coin identification provides accurate assessment
-- [ ] Path analysis confirms accessibility from player spawn
-- [ ] Platform necessity scoring optimizes platform placement
-- [ ] **Update level_creation_interfaces_and_invariants.md** with reachability analysis interfaces
-- [ ] Performance optimized for large-scale reachability analysis
+- [x] All acceptance criteria are met
+- [x] Strategic coin distribution encourages player exploration
+- [x] Dead-end detection places coins in appropriate exploration areas
+- [x] Unreachable coin placement incentivizes platform usage
+- [x] **Update level_creation_interfaces_and_invariants.md** with coin distribution interfaces
+- [x] Distribution optimization provides balanced coin placement
 
 ---
 
@@ -227,6 +99,11 @@ Implement floating platform placement algorithm that strategically places floati
 - [ ] **Time reversal compatibility**: Generated floating platforms must follow platform physics rules
 
 ### Implementation Plan
+
+#### Guidelines
+- Floating platforms can be represented in the `grid` of `detectReachablePositionsFromStartingPoint` from `PhysicsAwareReachabilityAnalyzer` by filling the tiles occupied in the grid with a wall type tile
+- That way the reachability algorithm will work on the map with the platform
+
 
 #### Files/Classes to Change
 - **Create**: `src/placement/FloatingPlatformPlacer.js`
@@ -291,6 +168,11 @@ Implement moving platform placement algorithm that creates dynamic platforms wit
 - [ ] **Time reversal compatibility**: Generated moving platforms must follow platform physics rules
 
 ### Implementation Plan
+
+#### Guidelines
+- Moving platforms move cyclicaly from point (x1, y1) to point (x2, y2)
+- Moving platforms can be represented in the `grid` of `detectReachablePositionsFromStartingPoint` from `PhysicsAwareReachabilityAnalyzer` by representing all the tiles that the moving platform will be in. 
+- That way the reachability algorithm will work on the map with the platform
 
 #### Files/Classes to Change
 - **Create**: `src/placement/MovingPlatformPlacer.js`
