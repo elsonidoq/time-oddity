@@ -9,17 +9,17 @@ Before beginning any task, you MUST review these documents:
 2. **@testing_best_practices.md** - Defines TDD/BDD methodologies, testing strategies, and LLM-assisted development workflows  
 3. **@level-format.md**: Contains documentation of the structure that a JSON describing a level must have 
 4. **@04_comprehensive_documentation.md** - Provides comprehensive documentation for level creation specific tech stack
-5. ** @level_creation_interfaces_and_invariants.md  ** - Provides all invariants, and interfaces that must be considered for level creation. Update this document as you implement everything
+5. **  @/interfaces_and_invariants   ** - Provides all invariants, and interfaces that must be considered for level creation. Update this document as you implement everything. Use @index.md as the table of contents
 
 
 ## Task Assignment
-- Mark task CG-01.2 as completed  in @01_foundation_and_analysis.md .
+- Mark the task CG-04.3 described in @03_entity_placement_and_validation.md as DONE.
 - Read all documentation.
-- Read the task CG-01.3 described in @01_foundation_and_analysis.md .
+- Read the task CG-04.4 described in @03_entity_placement_and_validation.md .
 - Make sure to think the proper abstraction to solve the task.
 - Ask the user for clarification if there is any ambiguity or you consider the task specification to be incomplete. 
 - Write down a plan to implement it. Identify new states, invariants that need preservation.
-- Follow a STRICT TDD approach and implement your plan to execute the task CG-01.3 described in @01_foundation_and_analysis.md .  IMPLEMENT THE WHOLE TASK WITHOUT USER INPUT
+- Follow a STRICT TDD approach and implement your plan to execute the task CG-04.4 described in @03_entity_placement_and_validation.md .  IMPLEMENT THE WHOLE TASK WITHOUT USER INPUT
 - After finishing a task, double check the task definition of done to make sure you actually finished.
 
 
@@ -35,7 +35,7 @@ Before beginning any task, you MUST review these documents:
 
 ### Architectural Compliance
 - **Maintain decoupled architecture** (logic separated from engine dependencies)
-- **Follow established patterns** from  and @level_creation_comprehensive_docs.md 
+- **Follow established patterns** from @04_comprehensive_documentation.md 
 - **Maintain documentation updated**
 - **Preserve existing event contracts** and runtime event names
 - **Ensure compatibility with existing mocks and test utilities**

@@ -49,7 +49,7 @@ We want to build a level generation algorithm for cave like biomas. In these lev
 2. Goal is reachable from player spawn position
 3. All coins are collectible
 4. All coins and the goal are not placed inside another colliding block (ground, floating platform, moving platforms)
-5. Floating and moving platforms are used to make sure the game is playable
+5. Floating and moving platforms are used to ensure the coins are collectible and the goal is reachable
 6. Tiles are coherently used maintaining a visual consistency in the game
 7. Tiles are correctly used so that edges and corners. 
    - Edges use tiles with _left or _right suffix
