@@ -1,16 +1,15 @@
 # Context
-There are some issues with the  @generate-cave-levels.js   script 
-1. It generates  very small levels, with few platforms
-2. The goal is inside a tile
 
 # Required Documentation Review
 Before beginning any task, you MUST review these documents:
 
-1. **@level_creation_interfaces_and_invariants.md**: Contains all non-negotiable architectural assumptions, state structures, and contracts that must be preserved. Must make sure that no other thing breaks 
+
+1. **@_00_v1_functional_requirements.md**: Contains the functional requirements for the cave generation algorithm. all non-negotiable architectural assumptions, state structures, and contracts that must be preserved. Must make sure that no other thing breaks 
 2. **@testing_best_practices.md** - Defines TDD/BDD methodologies, testing strategies, and LLM-assisted development workflows  
-4. **@level-format.md**: Contains documentation of the structure that a JSON describing a level must have 
-5. **@level_creation_comprehensive_docs.md** - Provides comprehensive documentation for level creation specific tech stack
-6. **@comprehensive_documentation.md** Provides technical implementation details, API references, and architectural patterns of the game engine (Phaser, GSAP, etc)
+3. **@level-format.md**: Contains documentation of the structure that a JSON describing a level must have 
+4. **@04_comprehensive_documentation.md** - Provides comprehensive documentation for level creation specific tech stack
+5. ** @level_creation_interfaces_and_invariants.md  ** - Provides all invariants, and interfaces that must be considered for level creation. Update this document as you implement everything
+
 
 # Task Assignment:
 - Perform an in-depth analysis to understand the root cause of the problem

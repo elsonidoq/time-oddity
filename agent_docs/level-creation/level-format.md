@@ -36,7 +36,6 @@ Field            | Type    | Required | Description
 `x`              | number  | yes      | Player spawn X position in pixels.
 `y`              | number  | yes      | Player spawn Y position in pixels.
 
-**Fallback Behavior**: If `playerSpawn` is not provided, the player spawns just above the lowest ground platform, or at default coordinates (100, 400) if no platforms exist.
 
 ```jsonc
 {

@@ -5,21 +5,23 @@ You are working on the Time Oddity project, a Phaser 3-based platformer game wit
 Before beginning any task, you MUST review these documents:
 
 
-1. **@level_creation_interfaces_and_invariants.md**: Contains all non-negotiable architectural assumptions, state structures, and contracts that must be preserved. Must make sure that no other thing breaks 
+1. **@_00_v1_functional_requirements.md**: Contains the functional requirements for the cave generation algorithm. all non-negotiable architectural assumptions, state structures, and contracts that must be preserved. Must make sure that no other thing breaks 
 2. **@testing_best_practices.md** - Defines TDD/BDD methodologies, testing strategies, and LLM-assisted development workflows  
-4. **@level-format.md**: Contains documentation of the structure that a JSON describing a level must have 
-5. **@level_creation_comprehensive_docs.md** - Provides comprehensive documentation for level creation specific tech stack
+3. **@level-format.md**: Contains documentation of the structure that a JSON describing a level must have 
+4. **@04_comprehensive_documentation.md** - Provides comprehensive documentation for level creation specific tech stack
+5. ** @level_creation_interfaces_and_invariants.md  ** - Provides all invariants, and interfaces that must be considered for level creation. Update this document as you implement everything
+
 
 ## Task Assignment
-- Read all documentation
-- Read the task 2.1 described in @02_core_generation.md 
-- Make sure to think the proper abstraction to solve the task
-- Write down a plan to implement it. Identify new states, invariants that need preservation
-- Follow a STRICT TDD approach and implement your plan to execute the task 2.1 described in @02_core_generation.md 
-- Create the levels with @simple-test-generator.test.js  as the task's definition of done specifies, place the files in @/config 
-- After finishing a task, double check the task definition of done to make sure you actually finished
+- Mark task CG-01.2 as completed  in @01_foundation_and_analysis.md .
+- Read all documentation.
+- Read the task CG-01.3 described in @01_foundation_and_analysis.md .
+- Make sure to think the proper abstraction to solve the task.
+- Ask the user for clarification if there is any ambiguity or you consider the task specification to be incomplete. 
+- Write down a plan to implement it. Identify new states, invariants that need preservation.
+- Follow a STRICT TDD approach and implement your plan to execute the task CG-01.3 described in @01_foundation_and_analysis.md .  IMPLEMENT THE WHOLE TASK WITHOUT USER INPUT
+- After finishing a task, double check the task definition of done to make sure you actually finished.
 
-EXECUTE THE WHOLE TASK WITHOUT USER INPUT
 
 ## Critical Requirements
 
@@ -33,7 +35,7 @@ EXECUTE THE WHOLE TASK WITHOUT USER INPUT
 
 ### Architectural Compliance
 - **Maintain decoupled architecture** (logic separated from engine dependencies)
-- **Follow established patterns** from @level_creation_interfaces_and_invariants.md and @level_creation_comprehensive_docs.md 
+- **Follow established patterns** from  and @level_creation_comprehensive_docs.md 
 - **Maintain documentation updated**
 - **Preserve existing event contracts** and runtime event names
 - **Ensure compatibility with existing mocks and test utilities**

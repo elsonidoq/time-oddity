@@ -45,7 +45,7 @@ We want to build a level generation algorithm for cave like biomas. In these lev
 
 # Functional requirements
 
-1. Player spawns over the floor
+1. Player spawns over a wall type tile, preventing him from falling
 2. Goal is reachable from player spawn position
 3. All coins are collectible
 4. All coins and the goal are not placed inside another colliding block (ground, floating platform, moving platforms)
