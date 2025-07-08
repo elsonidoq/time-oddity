@@ -134,4 +134,42 @@ getGoalStatistics(grid: ndarray, playerSpawn: {x: number, y: number}): Object
 - Out-of-bounds coordinates
 - No valid goal positions found
 
+### 4.4 Platform Placement System (PLANNED)
+
+**Purpose**: Platform placement system that uses PhysicsAwareReachabilityAnalyzer to determine optimal platform locations for coin accessibility.
+
+**CRITICAL DEPENDENCY**: Platform placement MUST use `PhysicsAwareReachabilityAnalyzer.detectReachablePositionsFromStartingPoint()` to determine where platforms are needed.
+
+**Platform Placement Workflow**:
+1. **Coin Placement First**: Place all coins in strategic locations (dead-ends, exploration areas)
+2. **Reachability Analysis**: Use `detectReachablePositionsFromStartingPoint(playerSpawn, null)` to find ALL reachable areas
+3. **Unreachable Coin Identification**: Compare coin positions with reachable areas to identify unreachable coins
+4. **Platform Placement**: Place floating/moving platforms to bridge gaps to unreachable coins
+5. **Final Validation**: Verify all coins are now reachable after platform placement
+
+**Required Methods** (to be implemented):
+```javascript
+// Coin Distribution
+placeCoinsInStrategicLocations(grid: ndarray, playerSpawn: {x: number, y: number}, coinCount: number): Array<{x: number, y: number}>
+
+// Platform Placement
+placeFloatingPlatforms(grid: ndarray, unreachableCoins: Array<{x: number, y: number}>, playerSpawn: {x: number, y: number}): Array<PlatformObject>
+placeMovingPlatforms(grid: ndarray, remainingUnreachableCoins: Array<{x: number, y: number}>, playerSpawn: {x: number, y: number}): Array<PlatformObject>
+
+// Validation
+validateAllCoinsReachable(grid: ndarray, coins: Array<{x: number, y: number}>, playerSpawn: {x: number, y: number}): boolean
+```
+
+**Invariants**:
+- **PLATFORM-1**: Coins must be placed BEFORE platforms
+- **PLATFORM-2**: Platform placement MUST use reachability analysis to determine necessity
+- **PLATFORM-3**: All coins must be reachable after platform placement
+- **PLATFORM-4**: Goal must be reachable after platform placement
+- **PLATFORM-5**: Platform placement must minimize visual impact while ensuring accessibility
+
+**Error Conditions**:
+- No valid platform positions found for unreachable coins
+- Platform placement fails to make all coins reachable
+- Goal remains unreachable after platform placement
+
 ---

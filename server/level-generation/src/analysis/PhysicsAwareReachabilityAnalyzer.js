@@ -378,23 +378,21 @@ class PhysicsAwareReachabilityAnalyzer {
    * @returns {boolean} True if placement is valid, false otherwise
    */
   validatePlatformPlacement(grid, platform) {
-    if (!platform || typeof platform.x !== 'number' || typeof platform.y !== 'number') {
+    if (!platform || typeof platform.x !== 'number' || typeof platform.y !== 'number' || typeof platform.width !== 'number') {
       return false;
     }
 
     const [width, height] = grid.shape;
     
     // Check if platform is within grid bounds
-    if (platform.x < 0 || platform.y < 0 || platform.x >= width || platform.y >= height) {
+    if (platform.x < 0 || platform.y < 0 || platform.x + platform.width > width || platform.y >= height) {
       return false;
     }
 
-    // Debug printout
-    const platformTiles = Math.ceil(platform.width / 64);
-    for (let i = 0; i < platformTiles; i++) {
+    // Check if platform overlaps with walls
+    for (let i = 0; i < platform.width; i++) {
       const tileX = platform.x + i;
       const tileY = platform.y;
-      if (tileX >= width) break;
       const value = grid.get(tileX, tileY);
       if (value === 1) {
         return false; // Cannot place platform on top of a wall
@@ -491,10 +489,10 @@ class PhysicsAwareReachabilityAnalyzer {
    * Detects all reachable positions from a starting point within a specified number of moves
    * @param {ndarray} grid - The ndarray grid to analyze
    * @param {Object} playerPosition - Starting position {x, y}
-   * @param {number} maxMoves - Maximum number of moves allowed
+   * @param {number} maxMoves - Maximum number of moves allowed (optional, if null then no move limit)
    * @returns {Array<Object>} Array of reachable position coordinates {x, y}
    */
-  detectReachablePositionsFromStartingPoint(grid, playerPosition, maxMoves) {
+  detectReachablePositionsFromStartingPoint(grid, playerPosition, maxMoves = null) {
     // Validate input parameters
     if (!grid) {
       throw new Error('Grid is required');
@@ -512,7 +510,7 @@ class PhysicsAwareReachabilityAnalyzer {
       throw new Error('Player position must have x and y coordinates');
     }
 
-    if (maxMoves < 0) {
+    if (maxMoves !== null && maxMoves < 0) {
       throw new Error('Max moves must be non-negative');
     }
 
@@ -540,6 +538,7 @@ class PhysicsAwareReachabilityAnalyzer {
     // BFS to find all reachable positions within maxMoves
     const reachablePositions = [];
     const visited = new Map(); // Maps "x,y" -> minimum moves to reach
+    const main_loop_visited = new Set(); // NEW: tracks visited positions by main loop
     const queue = [{ pos: actualStartPosition, moves: 0 }];
     
     visited.set(`${actualStartPosition.x},${actualStartPosition.y}`, 0);
@@ -548,14 +547,23 @@ class PhysicsAwareReachabilityAnalyzer {
     while (queue.length > 0) {
       const current = queue.shift();
       
-      // Don't explore further if we've reached max moves
-      if (current.moves >= maxMoves) {
+      // NEW: Check if current position is already visited by main loop
+      const currentKey = `${current.pos.x},${current.pos.y}`;
+      if (main_loop_visited.has(currentKey)) {
+        continue;
+      }
+      
+      // Don't explore further if we've reached max moves (only if maxMoves is not null)
+      if (maxMoves !== null && current.moves >= maxMoves) {
         continue;
       }
 
       // Explore all possible moves from current position
       this._exploreMovesFromPosition(current, grid, visited, queue, reachablePositions, 
                                      maxJumpTiles, maxJumpHeightTiles, width, height, maxMoves);
+      
+      // NEW: Add current position to main_loop_visited after processing
+      main_loop_visited.add(currentKey);
     }
 
     return reachablePositions;
@@ -580,7 +588,7 @@ class PhysicsAwareReachabilityAnalyzer {
     const { pos, moves } = current;
 
     // 1. Walking moves (left/right) - these count as 1 move each
-    // this._exploreWalkingMoves(pos, moves, grid, visited, queue, reachablePositions, width, height, maxMoves);
+    this._exploreWalkingMoves(pos, moves, grid, visited, queue, reachablePositions, width, height, maxMoves);
 
     // 2. Jumping moves - these count as 1 move each
     this._exploreJumpingMoves(pos, moves, grid, visited, queue, reachablePositions, 
@@ -840,7 +848,7 @@ class PhysicsAwareReachabilityAnalyzer {
    * @param {Map} visited - Map of visited positions
    * @param {Array} queue - BFS queue
    * @param {Array} reachablePositions - Array to store reachable positions
-   * @param {number} maxMoves - Maximum allowed moves
+   * @param {number} maxMoves - Maximum allowed moves (can be null for unlimited)
    * @private
    */
   _addReachablePosition(position, moves, visited, queue, reachablePositions, maxMoves) {
@@ -856,8 +864,8 @@ class PhysicsAwareReachabilityAnalyzer {
         reachablePositions.push({ x: position.x, y: position.y });
       }
       
-      // Add to queue for further exploration if we haven't reached max moves
-      if (moves < maxMoves) {
+      // Add to queue for further exploration if we haven't reached max moves (or if maxMoves is null)
+      if (maxMoves === null || moves < maxMoves) {
         queue.push({ pos: { x: position.x, y: position.y }, moves });
       }
     }

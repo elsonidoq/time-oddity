@@ -330,7 +330,7 @@ validateSolvability(grid: ndarray, startPos: {x: number, y: number}, goalPos: {x
 
 **File**: `src/analysis/PhysicsAwareReachabilityAnalyzer.js`
 
-**Purpose**: Implements physics-aware reachability analysis with jump constraints, unreachable area detection, and platform placement planning.
+**Purpose**: Implements physics-aware reachability analysis with jump constraints, unreachable area detection, and platform placement planning. This system is CRITICAL for platform placement decisions and MUST be used to determine where platforms are needed.
 
 **Constructor**:
 ```javascript
@@ -353,7 +353,41 @@ detectUnreachableAreas(grid: ndarray): Array<{x: number, y: number}>
 planPlatformPlacement(grid: ndarray, unreachableAreas: Array<{x: number, y: number}>): Array<Object>
 validatePlatformPlacement(grid: ndarray, platform: Object): boolean
 analyzeReachability(grid: ndarray): Object
+detectReachablePositionsFromStartingPoint(grid: ndarray, playerPosition: {x: number, y: number}, maxMoves?: number): Array<{x: number, y: number}>
 ```
+
+**CRITICAL METHOD: detectReachablePositionsFromStartingPoint**
+
+This method is the PRIMARY tool for platform placement decisions. It analyzes all positions reachable from a starting point considering physics constraints.
+
+**Parameters**:
+- `grid: ndarray` - The cave grid to analyze
+- `playerPosition: {x: number, y: number}` - Starting position for reachability analysis
+- `maxMoves?: number` - Optional maximum moves to limit exploration (null = unlimited exploration)
+
+**Return Value**:
+```javascript
+Array<{x: number, y: number}>  // All reachable positions from starting point
+```
+
+**Behavior**:
+- When `maxMoves` is `null`: Explores ALL reachable positions without move count limits
+- When `maxMoves` is a number: Limits exploration to positions reachable within that many moves
+- Uses BFS with physics constraints (jump distance, gravity, solid ground requirements)
+- Simulates falling after each move to find final landing positions
+- Tracks visited positions to avoid infinite loops
+
+**Platform Placement Usage**:
+- MUST be called with `maxMoves = null` to find ALL unreachable areas
+- Compare result with coin positions to identify coins that need platform access
+- Use unreachable coin positions to determine optimal platform placement locations
+
+**CRITICAL COORDINATE SYSTEM NOTES**:
+- Grid coordinates use (x, y) where x is horizontal (columns) and y is vertical (rows)
+- Grid is stored as ndarray with shape [width, height] where width = columns, height = rows
+- IMPORTANT: When visualizing grids, they may appear transposed - verify coordinate interpretation
+- Dead-end detection must check for floor tiles (value 0) with walls (value 1) on multiple sides
+- Wall tiles (value 1) are NOT dead-ends - only floor tiles (value 0) can be dead-ends
 
 **Platform Placement Interface**:
 ```javascript
@@ -419,5 +453,86 @@ analyzeReachability(grid: ndarray): Object
 - Time Complexity: O(n²) for unreachable area detection
 - Space Complexity: O(n) for BFS traversal
 - Optimization: Jump window limiting for large grids
+
+### 3.8 ReachableFrontierAnalyzer Interface
+
+**File**: `src/analysis/ReachableFrontierAnalyzer.js`
+
+**Purpose**: Implements reachable frontier analysis to identify reachable tiles with neighboring non-reachable floor tiles, which are optimal locations for platform placement. This system is CRITICAL for determining where platforms should be placed to expand reachability.
+
+**Constructor**:
+```javascript
+constructor(config?: Object)
+```
+
+**Configuration Interface**:
+```javascript
+{
+  jumpHeight?: number,    // Player jump height in pixels (default: 800)
+  gravity?: number        // Gravity in pixels/s² (default: 980)
+}
+```
+
+**Public Methods**:
+```javascript
+findReachableFrontier(playerPosition: {x: number, y: number}, grid: ndarray): Array<{x: number, y: number}>
+```
+
+**CRITICAL METHOD: findReachableFrontier**
+
+This method identifies frontier tiles - reachable tiles that have at least one neighboring non-reachable floor tile. These tiles represent optimal locations for platform placement to expand reachability.
+
+**Parameters**:
+- `playerPosition: {x: number, y: number}` - Player position for distance calculations
+- `grid: ndarray` - The cave grid to analyze
+
+**Return Value**:
+```javascript
+Array<{x: number, y: number}>  // Array of frontier tile positions
+```
+
+**Algorithm**:
+1. Get all reachable tiles from player position using PhysicsAwareReachabilityAnalyzer
+2. For each reachable tile:
+   - Get all neighboring tiles (4-directional: up, down, left, right)
+   - Check if any neighbor is a non-reachable floor tile (value 0)
+   - If at least one neighbor is a non-reachable floor tile, tile is a frontier tile
+
+**Frontier Detection Logic**:
+- A tile is a frontier tile if it has at least one neighboring non-reachable floor tile
+- Only considers 4-directional neighbors (up, down, left, right)
+- Only floor tiles (value 0) are considered as potential non-reachable neighbors
+- Wall tiles (value 1) are not considered as non-reachable neighbors
+- Player position can be included in frontier results if it meets the criteria
+
+**Platform Placement Usage**:
+- Frontier tiles represent optimal locations for platform placement
+- Placing platforms at frontier locations maximizes reachability expansion
+- Used by CriticalRingAnalyzer to identify platform placement candidates
+- Integrates with strategic platform placement algorithms
+
+**Performance Characteristics**:
+- Time Complexity: O(n) where n is number of reachable tiles
+- Space Complexity: O(n) for reachable tiles set
+- Optimization: Efficient neighbor lookup using Set data structure
+
+**Invariants**:
+- **FRONTIER-1**: Frontier tiles are always reachable from player position
+- **FRONTIER-2**: Frontier tiles have at least one neighboring non-reachable floor tile
+- **FRONTIER-3**: Player position can be included in frontier results if it meets the criteria
+- **FRONTIER-4**: Only floor tiles (value 0) are considered as potential non-reachable neighbors
+- **FRONTIER-5**: Only 4-directional neighbors are considered
+- **FRONTIER-6**: Frontier analysis is deterministic for given inputs
+
+**Error Conditions**:
+- Invalid player position (null, missing coordinates)
+- Invalid grid input (null, undefined)
+- Physics analyzer errors (propagated from PhysicsAwareReachabilityAnalyzer)
+
+**Integration Points**:
+- Uses PhysicsAwareReachabilityAnalyzer for reachability detection
+- Used by CriticalRingAnalyzer for platform placement optimization
+- Integrates with strategic platform placement algorithms
+- Supports time reversal compatibility through physics-aware analysis
 
 ---
