@@ -14,6 +14,12 @@ This document defines all interfaces, invariants, and contracts for the Time Odd
 8. [Performance and Error Handling Contracts](08_contracts.md) - Time/space complexity, performance benchmarks, error handling, and integration contracts
 9. [Implementation Lessons Learned](09_implementation_lessons_learned.md) - Critical lessons learned during implementation and behaviors for future development
 
+## Testing Documentation
+
+10. [Testing Anti-Patterns](testing_antipatterns.md) - Critical anti-patterns to avoid when testing level generation, including the phaserMock ES/CommonJS problem
+11. [Server Testing Patterns](server_testing_patterns.md) - Proper testing patterns and utilities for server-side level generation tests
+12. [Test Examples](test_examples.md) - Concrete examples of proper level generation tests for each pipeline step
+
 ---
 
 This document serves as the definitive reference for all interfaces, invariants, and contracts in the Time Oddity cave generation system. Any changes to the system must be reflected in this document to maintain consistency and reliability.
