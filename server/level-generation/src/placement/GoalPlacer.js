@@ -6,6 +6,7 @@
 
 const GridUtilities = require('../core/GridUtilities');
 const PathfindingIntegration = require('../pathfinding/PathfindingIntegration');
+const PhysicsAwareReachabilityAnalyzer = require('../analysis/PhysicsAwareReachabilityAnalyzer');
 
 /**
  * GoalPlacer class for goal placement with comprehensive validation
@@ -35,6 +36,9 @@ class GoalPlacer {
     
     // Create pathfinding integration for reachability testing
     this.pathfinding = new PathfindingIntegration();
+    
+    // Create physics-aware reachability analyzer
+    this.physicsAnalyzer = new PhysicsAwareReachabilityAnalyzer();
     
     // Validate configuration
     this.validateConfig(config);
@@ -319,6 +323,87 @@ class GoalPlacer {
       validPositions: valid,
       validityRatio: total > 0 ? valid / total : 0
     };
+  }
+
+  /**
+   * Places a goal after platform placement using reachability analysis
+   * 
+   * This method implements the algorithm specified in Task CG-04.10.A:
+   * 1. Run reachability analysis from player spawn (call detectReachablePositionsFromStartingPoint ONCE)
+   * 2. Filter reachable positions by minimum distance from player spawn
+   * 3. Randomly select a valid goal position from the filtered list
+   * 4. Return the selected position or throw if none found
+   * 
+   * @param {ndarray} grid - The grid with platforms marked as walls
+   * @param {Object} playerSpawn - Player spawn position {x, y}
+   * @param {number} minDistance - Minimum distance from player spawn
+   * @param {Function} rng - Random number generator function
+   * @returns {Object} Goal position {x, y}
+   * @throws {Error} If no valid goal position found after platform placement
+   */
+  placeGoalAfterPlatforms(grid, playerSpawn, minDistance, rng) {
+    if (!grid) {
+      throw new Error('Grid is required');
+    }
+    
+    if (!playerSpawn) {
+      throw new Error('Player spawn is required');
+    }
+    
+    if (!rng) {
+      throw new Error('Random number generator is required');
+    }
+    
+    if (minDistance <= 0) {
+      throw new Error('Minimum distance must be positive');
+    }
+
+    // Step 1: Run reachability analysis from player spawn (ONCE)
+    const reachablePositions = this.physicsAnalyzer.detectReachablePositionsFromStartingPoint(
+      grid, playerSpawn, null
+    );
+
+    // Step 2: Filter reachable positions by minimum distance and floor tiles
+    const validGoalPositions = [];
+    
+    for (const position of reachablePositions) {
+      const { x, y } = position;
+      
+      // Check if position is a floor tile (not a platform/wall)
+      if (grid.get(x, y) !== 0) {
+        continue; // Skip wall/platform tiles
+      }
+      // Skip positions on the left side of the map
+      if (x < 4*width / 5) {
+        continue;
+      }
+
+      
+      // Check if position has a wall below it (required for goal placement)
+      const [width, height] = grid.shape;
+      if (y + 1 >= height || grid.get(x, y + 1) !== 1) {
+        continue; // No wall below
+      }
+      
+      // Check minimum distance constraint
+      const distance = this.calculateDistance(playerSpawn, { x, y });
+      if (distance < minDistance) {
+        continue; // Too close to player spawn
+      }
+      
+      validGoalPositions.push({ x, y });
+    }
+
+    // Step 3: Randomly select a valid goal position
+    if (validGoalPositions.length === 0) {
+      throw new Error('No valid goal position found after platform placement');
+    }
+
+    // Use seeded RNG to select a random position
+    const randomIndex = Math.floor(rng() * validGoalPositions.length);
+    const selectedPosition = validGoalPositions[randomIndex];
+
+    return selectedPosition;
   }
 }
 

@@ -6,22 +6,21 @@ Before beginning any task, you MUST review these documents:
 
 
 1. **@_00_v1_functional_requirements.md**: Contains the functional requirements for the cave generation algorithm. all non-negotiable architectural assumptions, state structures, and contracts that must be preserved. Must make sure that no other thing breaks 
-2. **@testing_best_practices.md** - Defines TDD/BDD methodologies, testing strategies, and LLM-assisted development workflows  
+2. **@testing_best_practices.md @server_testing_patterns.md @test_examples.md @testing_antipatterns.md ** - Defines TDD/BDD methodologies, testing strategies, and LLM-assisted development workflows  
 3. **@level-format.md**: Contains documentation of the structure that a JSON describing a level must have 
 4. **@04_comprehensive_documentation.md** - Provides comprehensive documentation for level creation specific tech stack
-5. **  @/interfaces_and_invariants   ** - Provides all invariants, and interfaces that must be considered for level creation. Update this document as you implement everything. Use @index.md as the table of contents
+5. ** @/interfaces_and_invariants    ** - Provides all invariants, and interfaces that must be considered for level creation. Update this document as you implement everything. Use @index.md as the table of contents
 
 
 ## Task Assignment
-- Mark the task CG-04.3 described in @03_entity_placement_and_validation.md as DONE.
 - Read all documentation.
-- Read the task CG-04.4 described in @03_entity_placement_and_validation.md .
+- Read the task CG-04.10 described in @03_entity_placement_and_validation.md .
 - Make sure to think the proper abstraction to solve the task.
 - Ask the user for clarification if there is any ambiguity or you consider the task specification to be incomplete. 
 - Write down a plan to implement it. Identify new states, invariants that need preservation.
-- Follow a STRICT TDD approach and implement your plan to execute the task CG-04.4 described in @03_entity_placement_and_validation.md .  IMPLEMENT THE WHOLE TASK WITHOUT USER INPUT
+- Follow a STRICT TDD approach and implement your plan to execute the task CG-04.10 described in @03_entity_placement_and_validation.md .  IMPLEMENT THE WHOLE TASK WITHOUT USER INPUT
+- Modify the script `generate-70x70-level-with-json.js` to use this coin placement algoritm
 - After finishing a task, double check the task definition of done to make sure you actually finished.
-
 
 ## Critical Requirements
 

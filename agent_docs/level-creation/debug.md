@@ -14,7 +14,7 @@ Before beginning any task, you MUST review these documents:
 # Task Assignment:
 - Perform an in-depth analysis to understand the root cause of the problem
 - Write down a detailed and grounded plan 
-- EXECUTE the plan following the TDD methodology strictl
+- EXECUTE the plan following the TDD methodology strictly
 
 Follow the rule debugging.mdc 
 

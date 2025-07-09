@@ -167,7 +167,7 @@ class PlayerSpawnPlacer {
     
     // Scan the entire grid for valid spawn positions
     for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
+      for (let x = 0; x < Math.floor(width / 5); x++) {
         if (this.isValidSpawnPosition(grid, x, y)) {
           validPositions.push({ x, y });
         }

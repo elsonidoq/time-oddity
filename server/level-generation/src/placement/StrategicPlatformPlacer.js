@@ -299,9 +299,12 @@ class StrategicPlatformPlacer {
       iterations++;
       
       // Find critical ring for optimal placement
-      const criticalRing = this.criticalRingAnalyzer.findCriticalRing(playerPosition, grid);
+      const referenceCriticalRing = this.criticalRingAnalyzer.findCriticalRing(playerPosition, grid);
+      // Perform a second pass to find the critical ring, using the reference critical ring as a starting point
+      // This is to ensure the player can always reach the critical ring
+      const criticalRing = this.criticalRingAnalyzer.findCriticalRing(playerPosition, grid, referenceCriticalRing);
       
-      if (!criticalRing || criticalRing.length === 0) {
+      if (!referenceCriticalRing || referenceCriticalRing.length === 0) {
         // No critical ring found, cannot place more platforms
         break;
       }

@@ -57,9 +57,10 @@ class CriticalRingAnalyzer {
    * Finds the critical ring - tiles that are one step closer to the player than the frontier
    * @param {Object} playerPosition - Player position {x, y}
    * @param {ndarray} grid - The grid to analyze
+   * @param {Array<Object>} referenceCriticalRing - The initial critical ring to use, if provided. Allows for iterative analysis.
    * @returns {Array<Object>} Array of critical ring tile positions
    */
-  findCriticalRing(playerPosition, grid) {
+  findCriticalRing(playerPosition, grid, referenceCriticalRing=null) {
     // Validate inputs
     if (!playerPosition) {
       throw new Error('Player position is required');
@@ -71,19 +72,30 @@ class CriticalRingAnalyzer {
       throw new Error('Grid is required');
     }
 
-    // Get frontier tiles using the frontier analyzer
-    const frontierTiles = this.frontierAnalyzer.findReachableFrontier(playerPosition, grid);
-    
-    if (frontierTiles.length === 0) {
-      return [];
+    const referenceSet = new Set();
+    if (referenceCriticalRing) {
+        if (referenceCriticalRing.length === 0) {
+            return [];
+        }
+
+        // Create a set of frontier positions for fast lookup
+        referenceCriticalRing.forEach(tile => {
+            referenceSet.add(`${tile.x},${tile.y}`);
+        });
+
+    } else {
+        // Get frontier tiles using the frontier analyzer
+        const frontierTiles = this.frontierAnalyzer.findReachableFrontier(playerPosition, grid);
+        
+        if (frontierTiles.length === 0) {
+            return [];
+        }
+
+        // Create a set of frontier positions for fast lookup
+        frontierTiles.forEach(tile => {
+            referenceSet.add(`${tile.x},${tile.y}`);
+        });
     }
-
-    // Create a set of frontier positions for fast lookup
-    const frontierSet = new Set();
-    frontierTiles.forEach(tile => {
-      frontierSet.add(`${tile.x},${tile.y}`);
-    });
-
     // Get all reachable tiles to find the critical ring
     const reachableTiles = this.frontierAnalyzer.physicsAnalyzer.detectReachablePositionsFromStartingPoint(
       grid,
@@ -95,8 +107,8 @@ class CriticalRingAnalyzer {
     const criticalRing = [];
     for (const tile of reachableTiles) {
       const tileKey = `${tile.x},${tile.y}`;
-      // Exclude tiles that are in the frontier
-      if (frontierSet.has(tileKey)) {
+      // Exclude tiles that are in the reference critical ring
+      if (referenceSet.has(tileKey)) {
         continue;
       }
       const neighbors = this.getNeighboringTiles(tile, grid);
@@ -105,7 +117,7 @@ class CriticalRingAnalyzer {
       for (const neighbor of neighbors) {
         const neighborKey = `${neighbor.x},${neighbor.y}`;
         // If neighbor is in the frontier, this tile is in the critical ring
-        if (frontierSet.has(neighborKey)) {
+        if (referenceSet.has(neighborKey)) {
           hasFrontierNeighbor = true;
           break;
         }

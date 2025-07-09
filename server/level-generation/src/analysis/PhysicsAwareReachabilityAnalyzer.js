@@ -15,10 +15,12 @@ class PhysicsAwareReachabilityAnalyzer {
    * @param {Object} config - Configuration options
    * @param {number} config.jumpHeight - Player jump height in pixels (default: 800)
    * @param {number} config.gravity - Gravity in pixels/s² (default: 980)
+   * @param {number} config.playerHeight - Player height in blocks (default: 2)
    */
   constructor(config = {}) {
     this.jumpHeight = config.jumpHeight !== undefined ? config.jumpHeight : 800;
     this.gravity = config.gravity !== undefined ? config.gravity : 980;
+    this.playerHeight = config.playerHeight !== undefined ? config.playerHeight : 2;
     
     // Validate physics parameters
     this._validatePhysicsParameters();
@@ -36,6 +38,10 @@ class PhysicsAwareReachabilityAnalyzer {
     
     if (this.gravity <= 0) {
       throw new Error('Gravity must be positive');
+    }
+
+    if (this.playerHeight <= 0) {
+      throw new Error('Player height must be positive');
     }
   }
 
@@ -96,9 +102,16 @@ class PhysicsAwareReachabilityAnalyzer {
       return false;
     }
     
-    // For jumps, check for obstacles in the path since players cannot jump through walls
-    if (grid && !this._checkPathForObstacles(start, end, grid)) {
-      return false;
+    // Check for obstacles in the path and vertical clearance
+    if (grid) {
+      if (!this._checkPathForObstacles(start, end, grid)) {
+        return false;
+      }
+      
+      // Check vertical clearance along the entire path
+      if (!this._checkPathVerticalClearance(start, end, grid)) {
+        return false;
+      }
     }
     
     return true;
@@ -628,8 +641,13 @@ class PhysicsAwareReachabilityAnalyzer {
         continue;
       }
 
-      // Check if target tile is walkable (floor)
+      // Check if target tile is walkable (floor) and has sufficient vertical clearance
       if (grid.get(newX, newY) !== 0) {
+        continue;
+      }
+
+      // Check vertical clearance for player height
+      if (!this._hasVerticalClearance({ x: newX, y: newY }, grid)) {
         continue;
       }
 
@@ -686,8 +704,13 @@ class PhysicsAwareReachabilityAnalyzer {
           continue;
         }
 
-        // Check if target tile is reachable (floor)
+        // Check if target tile is reachable (floor) and has sufficient vertical clearance
         if (grid.get(targetX, targetY) !== 0) {
+          continue;
+        }
+
+        // Check vertical clearance for player height at target position
+        if (!this._hasVerticalClearance({ x: targetX, y: targetY }, grid)) {
           continue;
         }
 
@@ -735,6 +758,73 @@ class PhysicsAwareReachabilityAnalyzer {
     return false;
   }
 
+  /**
+   * Checks if a position has sufficient vertical clearance for the player
+   * @param {Object} pos - Position coordinates {x, y}
+   * @param {ndarray} grid - The grid to check
+   * @returns {boolean} True if position has sufficient vertical clearance, false otherwise
+   * @private
+   */
+  _hasVerticalClearance(pos, grid) {
+    const [width, height] = grid.shape;
+    
+    // Check if position is within bounds
+    if (pos.x < 0 || pos.x >= width || pos.y < 0 || pos.y >= height) {
+      return false;
+    }
+    
+    // Check if the position itself is a floor tile
+    if (grid.get(pos.x, pos.y) !== 0) {
+      return false;
+    }
+    
+    // Check vertical clearance for player height
+    for (let y = pos.y; y > pos.y - this.playerHeight; y--) {
+      // If we go above the grid, that's fine (open air)
+      if (y < 0) {
+        continue;
+      }
+      
+      // Check if this position is blocked by a wall
+      if (grid.get(pos.x, y) === 1) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  /**
+   * Checks if a path has sufficient vertical clearance for the player
+   * @param {Object} start - Start coordinates {x, y}
+   * @param {Object} end - End coordinates {x, y}
+   * @param {ndarray} grid - The grid to check
+   * @returns {boolean} True if path has sufficient vertical clearance, false otherwise
+   * @private
+   */
+  _checkPathVerticalClearance(start, end, grid) {
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    // Use Bresenham's line algorithm to check all tiles along the path
+    const steps = Math.max(Math.abs(dx), Math.abs(dy));
+    if (steps === 0) return this._hasVerticalClearance(start, grid);
+    const xStep = dx / steps;
+    const yStep = dy / steps;
+    for (let i = 0; i <= steps; i++) {
+      const x = Math.round(start.x + xStep * i);
+      const y = Math.round(start.y + yStep * i);
+      const pos = { x, y };
+      const hasClearance = this._hasVerticalClearance(pos, grid);
+      if (process.env.DEBUG_JUMP_PATH) {
+        // eslint-disable-next-line no-console
+        console.log(`[DEBUG_JUMP_PATH] Checking clearance at (${x},${y}): ${hasClearance}`);
+      }
+      if (!hasClearance) {
+        return false;
+      }
+    }
+    return true;
+  }
 
 
   /**

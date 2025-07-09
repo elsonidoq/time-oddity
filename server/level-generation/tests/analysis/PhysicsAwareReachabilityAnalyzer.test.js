@@ -976,4 +976,183 @@ describe('PhysicsAwareReachabilityAnalyzer', () => {
       expect(reachablePositions).toContainEqual({ x: 3, y: 1 }); // Right
     });
   });
+
+  describe('player height constraints', () => {
+    test('should reject walking into 1-block high corridor', () => {
+      // Create a grid with a 1-block high corridor
+      const grid = createGrid([
+        [1, 1, 1, 1, 1, 1, 1, 1], // Row 0: wall
+        [1, 0, 0, 0, 0, 0, 0, 1], // Row 1: floor (1-block high corridor)
+        [1, 1, 1, 1, 1, 1, 1, 1]  // Row 2: wall
+      ]);
+
+      const start = { x: 1, y: 1 };
+      const reachablePositions = analyzer.detectReachablePositionsFromStartingPoint(grid, start);
+      
+      // Player should not be able to walk into the corridor due to height constraint
+      // The corridor is only 1 block high, but player is 2 blocks tall
+      expect(reachablePositions).toHaveLength(1); // Only starting position
+      expect(reachablePositions[0]).toEqual(start);
+    });
+
+    test('should allow walking into 2-block high corridor', () => {
+      // Create a grid with a 2-block high corridor
+      const grid = createGrid([
+        [1, 1, 1, 1, 1, 1, 1, 1], // Row 0: wall
+        [1, 0, 0, 0, 0, 0, 0, 1], // Row 1: floor (2-block high corridor)
+        [1, 0, 0, 0, 0, 0, 0, 1], // Row 2: floor (2-block high corridor)
+        [1, 1, 1, 1, 1, 1, 1, 1]  // Row 3: wall
+      ]);
+
+      const start = { x: 1, y: 1 };
+      const reachablePositions = analyzer.detectReachablePositionsFromStartingPoint(grid, start);
+      
+      // Player should be able to walk into the corridor
+      // The corridor is 2 blocks high, matching player height
+      expect(reachablePositions.length).toBeGreaterThan(1);
+      
+      // Should be able to reach positions in the corridor
+      const corridorPositions = reachablePositions.filter(pos => 
+        pos.x >= 1 && pos.x <= 6 && pos.y >= 1 && pos.y <= 2
+      );
+      expect(corridorPositions.length).toBeGreaterThan(0);
+    });
+
+    test('should reject jumping into 1-block high space', () => {
+      // Create a grid with a gap that leads to a 1-block high space
+      const grid = createGrid([
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Row 0: wall
+        [1, 0, 0, 0, 1, 1, 0, 0, 0, 1], // Row 1: platform with gap
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Row 2: wall
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // Row 3: empty space
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // Row 4: empty space
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  // Row 5: ground
+      ]);
+
+      const start = { x: 1, y: 1 };
+      const reachablePositions = analyzer.detectReachablePositionsFromStartingPoint(grid, start);
+      
+      // Player should not be able to jump to the other side due to height constraint
+      // The landing area is only 1 block high
+      const unreachablePositions = reachablePositions.filter(pos => 
+        pos.x >= 6 && pos.x <= 8 && pos.y === 1
+      );
+      expect(unreachablePositions).toHaveLength(0);
+    });
+
+    test('should allow jumping into 2-block high space', () => {
+      // Create a grid with a gap that leads to a 2-block high space
+      const grid = createGrid([
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Row 0: wall
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1], // Row 1: open for 2-block clearance
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1], // Row 2: open for jump path
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Row 3: wall
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // Row 4: empty space
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // Row 5: empty space
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  // Row 6: ground
+      ]);
+
+      // Use a valid starting position on solid ground and a reachable jump target
+      const start = { x: 2, y: 2 }; // On solid ground (row 2, col 2)
+      const jumpTarget = { x: 6, y: 2 }; // 4 tiles to the right, within 256px
+      
+      // Debug: Print grid layout
+      let debug = '';
+      debug += 'Grid layout:\n';
+      for (let y = 0; y < 7; y++) {
+        let row = '';
+        for (let x = 0; x < 10; x++) {
+          row += grid.get(x, y) + ' ';
+        }
+        debug += `Row ${y}: ${row}\n`;
+      }
+      
+      debug += `Starting position: (${start.x}, ${start.y})\n`;
+      debug += `Is on solid ground: ${analyzer._isOnSolidGround(start, grid)}\n`;
+      debug += `Testing jump to: (${jumpTarget.x}, ${jumpTarget.y})\n`;
+      debug += `Jump distance: ${analyzer.calculateJumpDistance()}px\n`;
+      debug += `Horizontal distance: ${Math.abs(jumpTarget.x - start.x) * 64}px\n`;
+      debug += `Can jump directly: ${analyzer.isReachableByJump(start, jumpTarget, grid)}\n`;
+      
+      const reachablePositions = analyzer.detectReachablePositionsFromStartingPoint(grid, start);
+      debug += 'All reachable positions: ' + JSON.stringify(reachablePositions) + '\n';
+      
+      // Player should be able to jump to the other side because it has 2-block high space
+      const reachablePositionsOnOtherSide = reachablePositions.filter(pos => 
+        pos.x >= 6 && pos.x <= 8 && (pos.y === 1 || pos.y === 2)
+      );
+      debug += 'Reachable positions on other side: ' + JSON.stringify(reachablePositionsOnOtherSide) + '\n';
+      if (reachablePositionsOnOtherSide.length === 0) {
+        throw new Error(debug);
+      }
+      expect(reachablePositionsOnOtherSide.length).toBeGreaterThan(0);
+    });
+
+    test('should check vertical clearance along jump path', () => {
+      // Create a grid with a jump path that has insufficient vertical clearance
+      const grid = createGrid([
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Row 0: wall
+        [1, 0, 0, 0, 1, 1, 0, 0, 0, 1], // Row 1: platform with gap
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Row 2: wall
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // Row 3: empty space
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // Row 4: empty space
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  // Row 5: ground
+      ]);
+
+      const start = { x: 1, y: 1 };
+      const end = { x: 6, y: 1 };
+      
+      // This jump should be rejected because the path doesn't have sufficient vertical clearance
+      expect(analyzer.isReachableByJump(start, end, grid)).toBe(false);
+    });
+
+    test('DEBUG: simple jump test', () => {
+      const grid = createGrid([
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Row 0: wall
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1], // Row 1: floor (2-block high corridor)
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1], // Row 2: floor (2-block high corridor)
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  // Row 3: wall
+      ]);
+
+      const start = { x: 1, y: 1 };
+      const end = { x: 3, y: 1 }; // Reduced from 6 to 3 (2 tiles = 128px, within 136px limit)
+      
+      console.log('DEBUG: simple jump test');
+      console.log(`- Jump distance: ${analyzer.calculateJumpDistance()}px`);
+      console.log(`- Horizontal distance: ${Math.abs(end.x - start.x) * 64}px`);
+      console.log(`- Is on solid ground: ${analyzer._isOnSolidGround(start, grid)}`);
+      console.log(`- Has vertical clearance at end: ${analyzer._hasVerticalClearance(end, grid)}`);
+      
+      const result = analyzer.isReachableByJump(start, end, grid);
+      console.log(`- Jump result: ${result}`);
+      
+      expect(result).toBe(true);
+    });
+
+    test('should allow jump when path has sufficient vertical clearance', () => {
+      // Create a grid with a jump path that has sufficient vertical clearance
+      const grid = createGrid([
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Row 0: wall
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1], // Row 1: floor (2-block high corridor)
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1], // Row 2: floor (2-block high corridor)
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  // Row 3: wall
+      ]);
+
+      const start = { x: 1, y: 1 };
+      const end = { x: 3, y: 1 }; // Reduced from 6 to 3 (2 tiles = 128px, within 136px limit)
+      
+      // Debug the jump calculation
+      console.log('Debug jump test:');
+      console.log(`- Start: (${start.x}, ${start.y})`);
+      console.log(`- End: (${end.x}, ${end.y})`);
+      console.log(`- Jump distance: ${analyzer.calculateJumpDistance()}px`);
+      console.log(`- Horizontal distance: ${Math.abs(end.x - start.x) * 64}px`);
+      console.log(`- Vertical distance: ${(end.y - start.y) * 64}px`);
+      console.log(`- Is on solid ground: ${analyzer._isOnSolidGround(start, grid)}`);
+      console.log(`- Has vertical clearance at end: ${analyzer._hasVerticalClearance(end, grid)}`);
+      
+      // This jump should be allowed because the path has sufficient vertical clearance
+      expect(analyzer.isReachableByJump(start, end, grid)).toBe(true);
+    });
+  });
 }); 

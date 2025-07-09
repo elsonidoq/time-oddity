@@ -53,7 +53,7 @@ export default class GameScene extends BaseScene {
     if (this.cameras && this.cameras.main) {
       this.cameras.main.setBounds(0, 0, this.sys.game.config.width, this.sys.game.config.height);
       // Zoom out to make scene 2 times bigger
-      this.cameras.main.setZoom(1);
+      this.cameras.main.setZoom(0.5);
     }
 
     // Initialize physics groups with proper error handling
@@ -64,6 +64,8 @@ export default class GameScene extends BaseScene {
       this.enemies = this.physics.add.group();
       this.coins = this.physics.add.group();
       this.goalTiles = this.physics.add.group();
+      // Create separate group for decorative tiles (no collision)
+      this.decorativeTiles = this.physics.add.group();
     }
 
     // === Determine level dimensions from configuration (width/height) ===
@@ -250,8 +252,8 @@ export default class GameScene extends BaseScene {
   createPlatformsWithFactory() {
     if (!this.platforms || !this.sceneFactory) return;
 
-    // Create all platforms from configuration
-    const createdPlatforms = this.sceneFactory.createPlatformsFromConfig(this.platforms);
+    // Create all platforms from configuration, passing decorative group for separation
+    const createdPlatforms = this.sceneFactory.createPlatformsFromConfig(this.platforms, this.decorativeTiles);
     
     if (createdPlatforms.length === 0) {
       console.warn('[GameScene] No platforms were created by SceneFactory - level configuration may be missing or invalid');
@@ -316,8 +318,8 @@ export default class GameScene extends BaseScene {
     // Get decorative platforms configuration from SceneFactory
     const decorativeConfig = this.sceneFactory.config ? this.sceneFactory.config.decorativePlatforms : undefined;
 
-    // Create decorative platforms from configuration
-    const createdDecoratives = this.sceneFactory.createDecorativePlatformsFromConfig(decorativeConfig);
+    // Create decorative platforms from configuration, passing decorative group for separation
+    const createdDecoratives = this.sceneFactory.createDecorativePlatformsFromConfig(decorativeConfig, this.decorativeTiles);
     
     if (createdDecoratives && createdDecoratives.length > 0) {
       console.log(`[GameScene] Created ${createdDecoratives.length} decorative platform tiles`);

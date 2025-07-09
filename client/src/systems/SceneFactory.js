@@ -477,9 +477,10 @@ export class SceneFactory {
   /**
    * Creates all platforms from the loaded configuration
    * @param {Phaser.Physics.Arcade.Group} platformsGroup - The physics group to add platforms to
+   * @param {Phaser.Physics.Arcade.Group} [decorativeGroup] - The decorative group to add decorative tiles to
    * @returns {Array} - Array of all created platform sprites
    */
-  createPlatformsFromConfig(platformsGroup) {
+  createPlatformsFromConfig(platformsGroup, decorativeGroup = null) {
     if (!this.config || !platformsGroup) {
       return [];
     }
@@ -488,7 +489,7 @@ export class SceneFactory {
 
     // Precedence: If map_matrix is present and valid, use only map_matrix
     if (this.config.map_matrix && Array.isArray(this.config.map_matrix) && this.config.map_matrix.length > 0) {
-      const mapMatrixResult = this.createMapMatrixFromConfig(platformsGroup);
+      const mapMatrixResult = this.createMapMatrixFromConfig(platformsGroup, decorativeGroup);
       if (mapMatrixResult && mapMatrixResult.groundPlatforms && Array.isArray(mapMatrixResult.groundPlatforms) && mapMatrixResult.groundPlatforms.length > 0) {
         allPlatforms.push(...mapMatrixResult.groundPlatforms);
         // Note: Decorative platforms are handled separately
@@ -790,9 +791,10 @@ export class SceneFactory {
   /**
    * Creates decorative platforms from configuration array
    * @param {Array} decorativeConfigs - Array of decorative platform configurations
+   * @param {Phaser.Physics.Arcade.Group} [decorativeGroup] - The decorative group to add decorative tiles to
    * @returns {Array} - Array of created decorative platform sprites
    */
-  createDecorativePlatformsFromConfig(decorativeConfigs) {
+  createDecorativePlatformsFromConfig(decorativeConfigs, decorativeGroup = null) {
     const createdDecoratives = [];
 
     // Handle traditional decorativePlatforms array
@@ -816,7 +818,7 @@ export class SceneFactory {
 
     // Handle map_matrix decorative platforms if present
     if (this.config && this.config.map_matrix) {
-      const mapMatrixResult = this.createMapMatrixFromConfig(null); // Pass null since we only want decorative platforms
+      const mapMatrixResult = this.createMapMatrixFromConfig(null, decorativeGroup); // Pass decorativeGroup for proper separation
       if (mapMatrixResult && mapMatrixResult.decorativePlatforms && Array.isArray(mapMatrixResult.decorativePlatforms)) {
         createdDecoratives.push(...mapMatrixResult.decorativePlatforms);
       }
@@ -970,13 +972,16 @@ export class SceneFactory {
       }
 
       // Validate column count limit
-      if (row.length > 100) {
+      if (row.length > 1000) {
         return false;
       }
 
       // Validate each tile dictionary in the row
       for (let colIndex = 0; colIndex < row.length; colIndex++) {
         const tileDict = row[colIndex];
+        if (!tileDict) {
+          continue;
+        }
         
         // Validate tile dictionary structure
         if (!tileDict || typeof tileDict !== 'object') {
@@ -1118,21 +1123,19 @@ export class SceneFactory {
 
   /**
    * Creates platforms from map_matrix configuration
-   * @param {Phaser.GameObjects.Group} platformsGroup - The platforms group to add platforms to
+   * @param {Phaser.GameObjects.Group} platformsGroup - The platforms group to add ground platforms to
+   * @param {Phaser.GameObjects.Group} [decorativeGroup] - The decorative group to add decorative tiles to
    * @returns {Object|null} - Object with groundPlatforms and decorativePlatforms arrays, or null if no map_matrix or empty
    */
-  createMapMatrixFromConfig(platformsGroup) {
+  createMapMatrixFromConfig(platformsGroup, decorativeGroup = null) {
     if (!this.config || !this.config.map_matrix) {
       return null;
     }
 
     const mapMatrix = this.config.map_matrix;
-    // Handle empty matrix (return null to match test expectation)
     if (!Array.isArray(mapMatrix) || mapMatrix.length === 0) {
       return null;
     }
-
-    // Return null if no platforms group provided (to match test expectation)
     if (!platformsGroup) {
       return null;
     }
@@ -1140,61 +1143,45 @@ export class SceneFactory {
     const groundPlatforms = [];
     const decorativePlatforms = [];
 
-    // Parse each row of the matrix
+    // Iterate over each cell in the map matrix
     for (let rowIndex = 0; rowIndex < mapMatrix.length; rowIndex++) {
       const row = mapMatrix[rowIndex];
-      let currentGroundGroup = null;
-
-      // Process each column in the row
       for (let colIndex = 0; colIndex < row.length; colIndex++) {
         const tileDict = row[colIndex];
+        if (!tileDict) {
+          continue;
+        }
+
         const worldX = colIndex * 64;
         const worldY = rowIndex * 64;
-
         if (tileDict.type === 'ground') {
-          // Handle ground tiles - group adjacent tiles into multi-tile platforms
-          if (currentGroundGroup === null) {
-            // Start a new ground group
-            currentGroundGroup = {
-              startCol: colIndex,
-              endCol: colIndex,
-              tileKey: tileDict.tileKey,
-              rowIndex: rowIndex,
-              worldX: worldX,
-              worldY: worldY
-            };
-          } else {
-            // Extend existing ground group
-            currentGroundGroup.endCol = colIndex;
+          // Create ground tile sprite in platforms group (collision-enabled)
+          if (!platformsGroup) {
+            console.warn('[SceneFactory] No valid platforms group provided for ground tile creation');
+            continue;
           }
+          const sprite = platformsGroup.create(worldX, worldY, 'tiles', tileDict.tileKey);
+          sprite.setOrigin(0, 0);
+          if (sprite.body) {
+            sprite.body.setImmovable(true);
+            sprite.body.setAllowGravity(false);
+          }
+          groundPlatforms.push(sprite);
         } else if (tileDict.type === 'decorative') {
-          // Finish any pending ground group before processing decorative tile
-          if (currentGroundGroup !== null) {
-            this.createMultiTileGroundPlatform(currentGroundGroup, groundPlatforms, platformsGroup);
-            currentGroundGroup = null;
+          // Create decorative tile sprite in decorative group (no collision)
+          const targetGroup = decorativeGroup || platformsGroup; // Fallback to platformsGroup if no decorativeGroup
+          if (!targetGroup) {
+            console.warn('[SceneFactory] No valid group provided for decorative tile creation');
+            continue;
           }
-
-          // Create decorative platform
-          const selectedTileKey = TileSelector.getTileKey(tileDict.tileKey, colIndex, 1, 0);
-          const decorativeConfig = {
-            type: 'decorative',
-            x: worldX,
-            y: worldY,
-            tilePrefix: selectedTileKey,
-            depth: -0.5
-          };
-          const platform = this.createDecorativePlatform(decorativeConfig);
-          if (Array.isArray(platform)) {
-            decorativePlatforms.push(...platform);
-          } else if (platform) {
-            decorativePlatforms.push(platform);
+          const sprite = targetGroup.create(worldX, worldY, 'tiles', tileDict.tileKey);
+          sprite.setOrigin(0, 0);
+          if (sprite.body) {
+            sprite.body.setAllowGravity(false);
+            // Do not setImmovable or enable collision for decorative
           }
+          decorativePlatforms.push(sprite);
         }
-      }
-
-      // Finish any pending ground group at the end of the row
-      if (currentGroundGroup !== null) {
-        this.createMultiTileGroundPlatform(currentGroundGroup, groundPlatforms, platformsGroup);
       }
     }
 
@@ -1202,42 +1189,6 @@ export class SceneFactory {
       groundPlatforms,
       decorativePlatforms
     };
-  }
-
-  /**
-   * Creates a multi-tile ground platform from a group of adjacent ground tiles
-   * @param {Object} groundGroup - The ground tile group information
-   * @param {Array} groundPlatforms - Array to add the created platform to
-   * @param {Phaser.GameObjects.Group} platformsGroup - The platforms group
-   */
-  createMultiTileGroundPlatform(groundGroup, groundPlatforms, platformsGroup) {
-    const totalTiles = groundGroup.endCol - groundGroup.startCol + 1;
-    const width = totalTiles * 64;
-
-    // Create a single multi-tile platform configuration
-    const groundConfig = {
-      type: 'ground',
-      x: groundGroup.worldX,
-      y: groundGroup.worldY,
-      width: width,
-      tilePrefix: groundGroup.tileKey, // Use tileKey as tilePrefix for map matrix
-      isFullBlock: true
-    };
-    
-    // Create the individual platform sprites
-    const platforms = this.createGroundPlatform(groundConfig, platformsGroup);
-    if (Array.isArray(platforms) && platforms.length > 0) {
-      // For map matrix, we want to represent this as a single multi-tile platform
-      // Create a wrapper object that represents the multi-tile platform
-      const multiTilePlatform = {
-        x: groundGroup.worldX,
-        y: groundGroup.worldY,
-        width: width,
-        type: 'ground',
-        platforms: platforms // Store the individual sprites for reference
-      };
-      groundPlatforms.push(multiTilePlatform);
-    }
   }
 
   // ========================================

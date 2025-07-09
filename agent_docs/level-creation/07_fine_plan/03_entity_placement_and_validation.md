@@ -331,6 +331,79 @@ Implement strategic coin placement algorithm that places coins ONLY in reachable
 - [ ] Strategic placement provides optimal gameplay experience
 - [ ] **Update level_creation_interfaces_and_invariants.md** with reachable coin interfaces
 - [ ] Collision prevention ensures no coins in blocks
+- [ ] Modify the script `generate-70x70-level-with-json.js` to use this coin placement algoritm
+
+---
+
+## Task CG-04.10.A: Reachable Goal Placement After Platform Placement
+
+### Objective
+Modify the existing GoalPlacer to place goals in reachable areas AFTER platform placement, ensuring the goal is accessible to the player through the platform network. IMPORTANT: THE ALGORITHM MUST CALL `detectReachablePositionsFromStartingPoint` EXACTLY ONCE. 
+
+### Task ID: CG-04.10.A
+
+### Pre-Implementation Analysis
+
+#### Documentation Dependencies
+- [x] **_00_v1_functional_requirements.md sections to apply**: "Goal is reachable from player spawn position"
+- [x] **level-format.md sections to reference**: "§3.1 Goal Configuration" for goal placement requirements
+- [x] **testing_best_practices.md sections to apply**: "§3.1 TDD-as-Prompting Technique"
+
+#### State & Invariant Impact Assessment
+- [x] **New states to create**: Post-platform reachability validation, goal accessibility verification
+- [x] **Existing states to preserve**: Platform placement and reachability analysis
+- [x] **Time reversal compatibility**: Goal placement must work with time reversal mechanics
+
+### Implementation Plan
+
+#### Guidelines
+- Goal must be placed AFTER platform placement to ensure it is reachable
+- Use reachability analysis to identify valid goal placement locations
+- Ensure goal is not placed inside colliding blocks (ground, floating platforms, moving platforms)
+- Validate that goal is reachable from player spawn through platform network
+- Maintain minimum distance constraints from player spawn
+
+#### Files/Classes to Change
+- [ ] **Modify**: `src/placement/GoalPlacer.js` - Add post-platform placement methods
+- [ ] **Create**: `tests/placement/GoalPlacer.test.js` - Add tests for post-platform placement
+- [ ] **Modify**: `agent_docs/level-creation/interfaces_and_invariants/04_placement_and_pathfinding_interfaces.md` - Update GoalPlacer interface
+
+#### Integration Points
+- [ ] **Systems affected**: Goal placement, platform integration, reachability validation
+- [ ] **State machines**: Post-platform reachability state, goal accessibility state
+- [ ] **External libraries**: Uses PhysicsAwareReachabilityAnalyzer for reachability validation
+
+#### Testing Strategy
+- [ ] **Test files to create/update**: `tests/placement/GoalPlacer.test.js`
+- [ ] **Key test cases**: Post-platform reachability validation, goal accessibility, collision prevention
+- [ ] **Mock requirements**: Mock PhysicsAwareReachabilityAnalyzer for controlled goal testing
+
+### Task Breakdown & Acceptance Criteria
+- [ ] **Post-Platform Reachability Validation**: Implement validation that goal position is reachable after platform placement
+- [ ] **Platform Integration**: Implement awareness of platform positions for collision detection
+- [ ] **Goal Accessibility Verification**: Implement verification that goal is accessible through platform network
+- [ ] **Collision Prevention**: Implement prevention of goal placement in colliding blocks
+- [ ] **Distance Constraint Maintenance**: Implement maintenance of minimum distance from player spawn
+
+### Expected Output
+- Modified GoalPlacer with post-platform placement capabilities
+- Goal accessibility verification through platform network
+- Collision prevention ensuring goal is not placed in blocks
+- Distance constraint validation for fair gameplay
+
+### Risk Assessment
+- **Potential complexity**: Platform integration and reachability validation
+- **Dependencies**: Platform placement accuracy and reachability analysis
+- **Fallback plan**: Use simple reachable placement if platform integration is complex
+
+### Definition of Done
+- [ ] All acceptance criteria are met
+- [ ] Goal is placed in reachable areas after platform placement
+- [ ] Goal accessibility is verified through platform network
+- [ ] **Update interfaces_and_invariants** with post-platform goal placement interfaces
+- [ ] Collision prevention ensures goal is not placed in blocks
+- [ ] Distance constraints are maintained for fair gameplay
+- [ ] Modify the script `generate-70x70-level-with-json.js` to use post-platform goal placement
 
 ---
 

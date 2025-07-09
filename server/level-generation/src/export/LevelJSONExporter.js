@@ -64,13 +64,13 @@ class LevelJSONExporter {
 
     // Neighbor analysis for tileKey selection
     // Only DOWN is floor
-    if (down === 0 && up !== 0 && left !== 0 && right !== 0) return `terrain_${biome}_block_top`;
+    if (down === 0 && up !== 0 && left !== 0 && right !== 0) return `terrain_${biome}_block_bottom`;
     // Only UP is floor
-    if (up === 0 && down !== 0 && left !== 0 && right !== 0) return `terrain_${biome}_block_bottom`;
+    if (up === 0 && down !== 0 && left !== 0 && right !== 0) return `terrain_${biome}_block_top`;
     // Only RIGHT is floor
-    if (right === 0 && up !== 0 && down !== 0 && left !== 0) return `terrain_${biome}_block_left`;
+    if (right === 0 && up !== 0 && down !== 0 && left !== 0) return `terrain_${biome}_block_right`;
     // Only LEFT is floor
-    if (left === 0 && up !== 0 && down !== 0 && right !== 0) return `terrain_${biome}_block_right`;
+    if (left === 0 && up !== 0 && down !== 0 && right !== 0) return `terrain_${biome}_block_left`;
     // Only UP and LEFT are floor
     if (up === 0 && left === 0 && down !== 0 && right !== 0) return `terrain_${biome}_block_top_left`;
     // Only UP and RIGHT are floor
@@ -80,7 +80,16 @@ class LevelJSONExporter {
     // Only DOWN and RIGHT are floor
     if (down === 0 && right === 0 && up !== 0 && left !== 0) return `terrain_${biome}_block_bottom_right`;
     // No neighbors are floor
-    if (up !== 0 && down !== 0 && left !== 0 && right !== 0) return `terrain_${biome}_block_center`;
+     if (up !== 0 && down !== 0 && left !== 0 && right !== 0) return `terrain_${biome}_block_center`;
+
+     // horizontal tiles
+     if (up === 0 && down === 0 && left === 0 && right !== 0) return `terrain_${biome}_horizontal_left`;
+     if (up === 0 && down === 0 && left !== 0 && right === 0) return `terrain_${biome}_horizontal_right`;
+     if (up === 0 && down === 0 && left !== 0 && right !== 0) return `terrain_${biome}_horizontal_middle`;
+     if (up === 0 && down !== 0 && left === 0 && right === 0) return `terrain_${biome}_vertical_top`;
+     if (up !== 0 && down === 0 && left === 0 && right === 0) return `terrain_${biome}_vertical_bottom`;
+     if (up !== 0 && down !== 0 && left === 0 && right === 0) return `terrain_${biome}_vertical_middle`;
+
     // Default to center for complex patterns
     return `terrain_${biome}_block_center`;
   }
@@ -105,7 +114,7 @@ class LevelJSONExporter {
           row.push({ tileKey, type: "ground" });
         } else {
           // Floor tile - use block_empty, type: "decorative" (visual only, no collision)
-          row.push({ tileKey: "block_empty", type: "decorative" });
+          row.push(null);
         }
       }
       matrix.push(row);
