@@ -7,7 +7,7 @@ import TimeManager from '../systems/TimeManager.js';
 import { LoopHound } from '../entities/enemies/LoopHound.js';
 import { SceneFactory } from '../systems/SceneFactory.js';
 import AudioManager from '../systems/AudioManager.js';
-import testLevelConfig from '../config/test-level.json';
+import testLevelConfig from '../config/test-cave.json';
 
 export default class GameScene extends BaseScene {
   // Camera follow constants for easy tuning

@@ -47,62 +47,6 @@ This document captures critical lessons learned during implementation and behavi
 
 **Invariant**: **COORD-6**: Physics-aware reachability analysis MUST be used for platform placement decisions
 
-### 4. Platform Placement Sequence
-
-**Critical Finding**: Platform placement must follow a specific sequence to ensure proper functionality.
-
-**Required Sequence**:
-1. **Coins First**: Place all coins in strategic locations (dead-ends, exploration areas)
-2. **Reachability Analysis**: Use physics-aware reachability analysis to find unreachable areas
-3. **Platform Placement**: Place platforms to bridge gaps to unreachable coins
-4. **Validation**: Verify all coins and goal are reachable after platform placement
-
-**Invariant**: **COORD-7**: Platform placement MUST follow the sequence: coins → reachability analysis → platform placement → validation
-
-## Lessons Learned (L-1 through L-5)
-
-### L-1: Grid visualization can be misleading - always verify coordinate interpretation
-- Always check actual grid values when coordinate interpretation seems wrong
-- Use debugging tools to verify tile types at specific coordinates
-- Don't rely solely on visual representation
-
-### L-2: Dead-end detection logic must distinguish between floor tiles (0) and wall tiles (1)
-- Only floor tiles (value 0) can be dead-ends
-- Wall tiles (value 1) are never dead-ends
-- Implement proper tile type checking in all detection algorithms
-
-### L-3: PhysicsAwareReachabilityAnalyzer.detectReachablePositionsFromStartingPoint() is the PRIMARY tool for platform placement
-- This method provides the foundation for all platform placement decisions
-- Must be called with `maxMoves = null` to find ALL unreachable areas
-- Compare results with coin positions to identify where platforms are needed
-
-### L-4: Platform placement must be based on actual reachability analysis, not assumptions
-- Don't assume platform placement based on visual inspection
-- Use reachability analysis to determine optimal platform locations
-- Validate platform placement effectiveness through reachability testing
-
-### L-5: Coordinate system consistency is critical for all grid-based algorithms
-- Maintain consistent coordinate interpretation across all algorithms
-- Document coordinate system assumptions clearly
-- Test coordinate handling with known grid configurations
-
-## Critical Behaviors for Future Development
-
-### 1. Platform Placement Dependencies
-- Platform placement MUST use `PhysicsAwareReachabilityAnalyzer.detectReachablePositionsFromStartingPoint()`
-- Coins must be placed BEFORE platforms
-- Platform placement must be based on actual reachability analysis
-
-### 2. Grid Analysis Requirements
-- Always verify coordinate interpretation when working with grids
-- Distinguish between floor tiles (0) and wall tiles (1) in all algorithms
-- Use actual grid values rather than visual assumptions
-
-### 3. Validation Requirements
-- All platform placement must include reachability validation
-- Verify that all coins are reachable after platform placement
-- Ensure goal is reachable with platform assistance
-
 ## Implementation Guidelines
 
 ### For Platform Placement Tasks:

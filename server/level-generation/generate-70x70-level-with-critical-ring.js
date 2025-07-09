@@ -10,15 +10,15 @@ const CoinDistributor = require('./src/placement/CoinDistributor');
 const PhysicsAwareReachabilityAnalyzer = require('./src/analysis/PhysicsAwareReachabilityAnalyzer');
 const ReachableFrontierAnalyzer = require('./src/analysis/ReachableFrontierAnalyzer');
 const CriticalRingAnalyzer = require('./src/analysis/CriticalRingAnalyzer');
-const StrategicPlatformPlacer = require('./src/placement/StrategicPlatformPlacer');
 
 const width = 100;
 const height = 30;
 const seed = new Date().toISOString();
+// const seed = 'pepe';
 console.log(`seed: ${seed}`);
 const rng = new RandomGenerator(seed);
 
-console.log('=== Time Oddity Cave Generation with Platform Placement Demo ===\n');
+console.log('=== Time Oddity Cave Generation with Critical Ring Analysis Demo ===\n');
 
 // 1. Seed the grid
 console.log('Step 1: Seeding the grid...');
@@ -47,6 +47,7 @@ const spawnPlacer = new PlayerSpawnPlacer({
   maxAttempts: 100,
   safetyRadius: 2
 });
+
 const spawnResult = spawnPlacer.placeSpawn(connectedGrid, rng);
 let playerPos = null;
 if (spawnResult.success) {
@@ -82,6 +83,7 @@ const coinDistributor = new CoinDistributor({
   unreachableWeight: 0.3,
   minDistance: 3
 });
+
 const coins = coinDistributor.distributeCoins(connectedGrid, playerPos, rng);
 console.log(`✅ Placed ${coins.length} coins`);
 
@@ -91,7 +93,11 @@ const physicsAnalyzer = new PhysicsAwareReachabilityAnalyzer({
   jumpHeight: 800,
   gravity: 980
 });
+
+// Get reachable tiles from player position 
 const reachableTiles = physicsAnalyzer.detectReachablePositionsFromStartingPoint(connectedGrid, playerPos, null);
+
+// Create a set of reachable positions for fast lookup
 const reachableSet = new Set(reachableTiles.map(tile => `${tile.x},${tile.y}`));
 
 // 9. Frontier Analysis
@@ -100,8 +106,11 @@ const frontierAnalyzer = new ReachableFrontierAnalyzer({
   jumpHeight: 800,
   gravity: 980
 });
+
 const frontierTiles = frontierAnalyzer.findReachableFrontier(playerPos, connectedGrid);
 console.log(`✅ Found ${frontierTiles.length} frontier tiles`);
+
+// Create a set of frontier positions for fast lookup
 const frontierSet = new Set(frontierTiles.map(tile => `${tile.x},${tile.y}`));
 
 // 10. Critical Ring Analysis
@@ -110,78 +119,44 @@ const criticalRingAnalyzer = new CriticalRingAnalyzer({
   jumpHeight: 800,
   gravity: 980
 });
+
 const criticalRingTiles = criticalRingAnalyzer.findCriticalRing(playerPos, connectedGrid);
 console.log(`✅ Found ${criticalRingTiles.length} critical ring tiles`);
+
+// Create a set of critical ring positions for fast lookup
 const criticalRingSet = new Set(criticalRingTiles.map(tile => `${tile.x},${tile.y}`));
 
-// 11. Platform Placement
-console.log('\nStep 11: Placing platforms to achieve 85% reachability...');
-const platformPlacer = new StrategicPlatformPlacer({
-  targetReachability: 0.85,
-  floatingPlatformProbability: 0.4,
-  movingPlatformProbability: 0.6,
-  minPlatformSize: 2,
-  maxPlatformSize: 6
-});
-const platformRng = new RandomGenerator('platform-seed');
-const platforms = platformPlacer.placePlatforms(connectedGrid, playerPos, () => platformRng.random());
-console.log(`✅ Placed ${platforms.length} platforms`);
-
-// 12. Recalculate reachability after platform placement
-console.log('\nStep 12: Recalculating reachability with platforms...');
-const gridWithPlatforms = GridUtilities.copyGrid(connectedGrid);
-
-// Mark platform tiles as walls in the grid
-platforms.forEach(platform => {
-  platform.getOccupiedTiles().forEach(tile => {
-    GridUtilities.setSafe(gridWithPlatforms, tile.x, tile.y, 1); // Mark as wall
-  });
-});
-
-// Recalculate reachability with platforms
-const reachableTilesWithPlatforms = physicsAnalyzer.detectReachablePositionsFromStartingPoint(gridWithPlatforms, playerPos, null);
-const reachableSetWithPlatforms = new Set(reachableTilesWithPlatforms.map(tile => `${tile.x},${tile.y}`));
-
-console.log(`✅ Recalculated reachability: ${reachableTilesWithPlatforms.length} reachable tiles with platforms`);
-
-// Helper function to generate ASCII visualization with platforms
-function generateMapWithPlatforms() {
+// Helper function to generate ASCII visualization with frontier and critical ring
+function generateMapWithCoinsFrontierAndCriticalRing() {
   const vizGrid = GridUtilities.copyGrid(connectedGrid);
-
+  
   // Mark player and goal
   if (playerPos) GridUtilities.setSafe(vizGrid, playerPos.x, playerPos.y, 2);
   if (goalPos) GridUtilities.setSafe(vizGrid, goalPos.x, goalPos.y, 3);
-
-  // Mark reachable tiles AFTER platform placement
-  reachableTilesWithPlatforms.forEach(tile => {
+  
+  // Mark reachable tiles
+  reachableTiles.forEach(tile => {
     if (vizGrid.get(tile.x, tile.y) === 0) {
       GridUtilities.setSafe(vizGrid, tile.x, tile.y, 4);
     }
   });
-
-  // Mark frontier tiles (from before platform placement)
+  
+  // Mark frontier tiles
   frontierTiles.forEach(tile => {
     GridUtilities.setSafe(vizGrid, tile.x, tile.y, 7); // 7 = frontier tile
   });
-
-  // Mark critical ring tiles (from before platform placement)
+  
+  // Mark critical ring tiles
   criticalRingTiles.forEach(tile => {
     GridUtilities.setSafe(vizGrid, tile.x, tile.y, 8); // 8 = critical ring tile
   });
-
-  // Mark coins with updated reachability
+  
+  // Mark coins
   coins.forEach((coin, index) => {
-    const isReachable = reachableSetWithPlatforms.has(`${coin.x},${coin.y}`);
+    const isReachable = reachableSet.has(`${coin.x},${coin.y}`);
     GridUtilities.setSafe(vizGrid, coin.x, coin.y, isReachable ? 5 : 6); // 5=reachable coin, 6=unreachable coin
   });
-
-  // Mark platforms with 'T'
-  platforms.forEach(platform => {
-    platform.getOccupiedTiles().forEach(tile => {
-      GridUtilities.setSafe(vizGrid, tile.x, tile.y, 9); // 9 = platform tile
-    });
-  });
-
+  
   let ascii = '';
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -204,20 +179,18 @@ function generateMapWithPlatforms() {
         ascii += 'X'; // Frontier tiles marked with X
       } else if (value === 8) {
         ascii += 'I'; // Critical ring tiles marked with I
-      } else if (value === 9) {
-        ascii += 'T'; // Platform tiles marked with T
       }
     }
     ascii += '\n';
   }
-
+  
   return ascii;
 }
 
 // Print the final level
-console.log('\n=== Final Level with Platforms, Coins, Frontier, and Critical Ring ===');
-console.log('Legend: . = floor, # = wall, P = player, G = goal, R = reachable area, C = reachable coin, c = unreachable coin, X = frontier, I = critical ring, T = platform');
-console.log(generateMapWithPlatforms());
+console.log('\n=== Final Level with Coins, Frontier, and Critical Ring ===');
+console.log('Legend: . = floor, # = wall, P = player, G = goal, R = reachable area, C = reachable coin, c = unreachable coin, X = frontier, I = critical ring');
+console.log(generateMapWithCoinsFrontierAndCriticalRing());
 
 // Print coin reachability analysis
 console.log('\n=== Coin Reachability Analysis ===');
@@ -225,7 +198,7 @@ let reachableCoins = 0;
 let unreachableCoins = 0;
 
 coins.forEach((coin, index) => {
-  const isReachable = reachableSetWithPlatforms.has(`${coin.x},${coin.y}`);
+  const isReachable = reachableSet.has(`${coin.x},${coin.y}`);
   const status = isReachable ? 'REACHABLE' : 'UNREACHABLE';
   const symbol = isReachable ? 'C' : 'c';
   console.log(`Coin ${index + 1} at (${coin.x},${coin.y}): ${status} ${symbol}`);
@@ -243,31 +216,41 @@ console.log(`- Reachable coins: ${reachableCoins}`);
 console.log(`- Unreachable coins: ${unreachableCoins}`);
 console.log(`- Reachability rate: ${((reachableCoins / coins.length) * 100).toFixed(1)}%`);
 
-// Print strategic placement analysis
-console.log('\n=== Strategic Placement Analysis ===');
-const deadEnds = coinDistributor.detectDeadEnds(connectedGrid);
-const explorationAnalysis = coinDistributor.analyzeExplorationAreas(connectedGrid);
-const unreachableAreas = coinDistributor.identifyUnreachableAreas(connectedGrid, playerPos);
+// Print frontier analysis
+console.log('\n=== Frontier Analysis ===');
+console.log(`- Total reachable tiles: ${reachableTiles.length}`);
+console.log(`- Frontier tiles: ${frontierTiles.length}`);
+console.log(`- Frontier percentage: ${((frontierTiles.length / reachableTiles.length) * 100).toFixed(1)}%`);
 
-console.log(`- Dead-ends detected: ${deadEnds.length}`);
-console.log(`- Exploration areas: ${explorationAnalysis.explorationAreas.length}`);
-console.log(`- Unreachable areas identified: ${unreachableAreas.length}`);
+// Print critical ring analysis
+console.log('\n=== Critical Ring Analysis ===');
+console.log(`- Critical ring tiles: ${criticalRingTiles.length}`);
+console.log(`- Critical ring percentage: ${((criticalRingTiles.length / reachableTiles.length) * 100).toFixed(1)}%`);
 
-// Print floating platform analysis
-console.log('\n=== Floating Platform Analysis ===');
-platforms.forEach((platform, index) => {
-  // Visual impact is not stored, so recalculate for display
-  const visualImpact = platformPlacer.assessVisualImpact(connectedGrid, platform);
-  console.log(`Platform ${index + 1}: (${platform.x},${platform.y}) size ${platform.width}x${platform.height || 1}, visual impact: ${visualImpact.toFixed(3)}`);
+// Analyze critical ring effectiveness for platform placement
+console.log('\n=== Critical Ring Effectiveness Analysis ===');
+let criticalRingWithUnreachableNeighbors = 0;
+criticalRingTiles.forEach(tile => {
+  const neighbors = criticalRingAnalyzer.getNeighboringTiles(tile, connectedGrid);
+  let hasUnreachableNeighbor = false;
+  
+  for (const neighbor of neighbors) {
+    const neighborKey = `${neighbor.x},${neighbor.y}`;
+    // Check if neighbor is a floor tile but not reachable
+    if (connectedGrid.get(neighbor.x, neighbor.y) === 0 && !reachableSet.has(neighborKey)) {
+      hasUnreachableNeighbor = true;
+      break;
+    }
+  }
+  
+  if (hasUnreachableNeighbor) {
+    criticalRingWithUnreachableNeighbors++;
+  }
 });
 
-console.log(`\nPlatform Summary:`);
-console.log(`- Total platforms placed: ${platforms.length}`);
-console.log(`- Average platform size: ${platforms.length > 0 ? (platforms.reduce((sum, p) => sum + p.width * (p.height || 1), 0) / platforms.length).toFixed(1) : 0} tiles`);
-console.log(`- Average visual impact: ${platforms.length > 0 ? (platforms.reduce((sum, p) => sum + platformPlacer.assessVisualImpact(connectedGrid, p), 0) / platforms.length).toFixed(3) : 0}`);
+console.log(`- Critical ring tiles with unreachable neighbors: ${criticalRingWithUnreachableNeighbors}`);
+console.log(`- Effectiveness rate: ${((criticalRingWithUnreachableNeighbors / criticalRingTiles.length) * 100).toFixed(1)}%`);
 
-// === Platform Placement Analysis ===
-// const groupedAreas = platformPlacer.groupUnreachableAreas(platformPlacer.identifyUnreachableAreas(connectedGrid, playerPos));
-// console.log('Grouped unreachable areas:', groupedAreas.length);
-
-console.log('\n=== Demo Complete ==='); 
+console.log('\n=== Analysis Complete ===');
+console.log('The critical ring (I) represents optimal locations for platform placement');
+console.log('to expand reachability and make unreachable coins accessible.'); 

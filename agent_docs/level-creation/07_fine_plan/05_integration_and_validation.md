@@ -92,6 +92,46 @@ Implement complete JSON export system with comprehensive schema validation ensur
 
 ### Implementation Plan
 
+#### Tile selection algorithm
+##### 1. Select Biome and Platform Shape
+- Randomly select a `biome` from: `grass`, `dirt`, `sand`, `snow`, `stone`, `purple`
+- Randomly select a `platform_shape` from: `horizontal`, `cloud`
+- Define `tilePrefix` for platform tiles as:  
+  `terrain_${biome}_${platform_shape}`
+
+##### 2. Determine `tileKey` for Cave Tiles in `map_matrix`
+For each tile in the map:
+- Analyze the four cardinal neighbors: `up`, `down`, `left`, `right`
+- Based on floor neighbors, set `tileKey` using the following logic:
+
+If no neighbors are floor:
+  tileKey = "terrain_${biome}_block_center"
+
+If only the 'up' neighbor is floor:
+  tileKey = "terrain_${biome}_top"
+
+If only the 'down' neighbor is floor:
+  tileKey = "terrain_${biome}_bottom"
+
+If only the 'left' neighbor is floor:
+  tileKey = "terrain_${biome}_left"
+
+If only the 'right' neighbor is floor:
+  tileKey = "terrain_${biome}_right"
+
+If only 'up' and 'left' are floor:
+  tileKey = "terrain_${biome}_top_left"
+
+If only 'up' and 'right' are floor:
+  tileKey = "terrain_${biome}_top_right"
+
+If only 'down' and 'left' are floor:
+  tileKey = "terrain_${biome}_bottom_left"
+
+If only 'down' and 'right' are floor:
+  tileKey = "terrain_${biome}_bottom_right"
+
+
 #### Files/Classes to Change
 - **Create**: `src/export/LevelJSONExporter.js`
 - **Create**: `src/validation/JSONSchemaValidator.js`
@@ -132,6 +172,7 @@ Implement complete JSON export system with comprehensive schema validation ensur
 - [ ] Background layer generation provides visual depth
 - [ ] **Update level_creation_interfaces_and_invariants.md** with JSON export interfaces
 - [ ] Export accuracy validated against all generated components
+- [ ] Create a script based on `generate-70x70-level-with-platforms.js`, that additionally generates a json file and writes it in test-cave.json
 
 ---
 

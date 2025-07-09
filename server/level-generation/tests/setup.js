@@ -16,8 +16,7 @@ global.testUtils = {
    */
   createMockGrid: (width, height) => {
     const ndarray = require('ndarray');
-    const Uint8Array = require('typedarray').Uint8Array;
-    
+    // Use native Uint8Array
     const data = new Uint8Array(width * height);
     return ndarray(data, [width, height]);
   },

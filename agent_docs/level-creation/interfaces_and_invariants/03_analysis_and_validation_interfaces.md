@@ -535,4 +535,35 @@ Array<{x: number, y: number}>  // Array of frontier tile positions
 - Integrates with strategic platform placement algorithms
 - Supports time reversal compatibility through physics-aware analysis
 
+### 3.6 CriticalRingAnalyzer Interface
+
+**File**: `src/analysis/CriticalRingAnalyzer.js`
+
+**Purpose**: Implements critical ring analysis for optimal platform placement. Identifies tiles one step closer to the player than the frontier, used for platform placement optimization.
+
+**Constructor**:
+```javascript
+constructor(config?: Object)
+```
+
+**Public Methods**:
+```javascript
+getNeighboringTiles(tile: {x: number, y: number}, grid: ndarray): Array<{x: number, y: number}>
+findCriticalRing(playerPosition: {x: number, y: number}, grid: ndarray): Array<{x: number, y: number}>
+```
+
+**Integration**:
+- Uses ReachableFrontierAnalyzer for frontier detection
+- Relies on PhysicsAwareReachabilityAnalyzer for reachability
+
+**Invariants**:
+- **CRITICALRING-1**: Only reachable tiles with at least one frontier neighbor are included
+- **CRITICALRING-2**: No tile in the critical ring is itself a frontier tile
+- **CRITICALRING-3**: All returned tiles are within grid bounds
+- **CRITICALRING-4**: Algorithm is efficient (no nested full-grid loops)
+
+**Error Conditions**:
+- Invalid player position or grid
+- No reachable or frontier tiles
+
 ---

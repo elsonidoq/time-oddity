@@ -73,3 +73,80 @@ getMemoryUsage(grid: ndarray): {dataSize: number, totalSize: number}
 - Invalid region bounds
 
 ---
+
+### 1.3 LevelJSONExporter Interface
+
+**File**: `src/export/LevelJSONExporter.js`
+
+**Purpose**: Exports complete level data to the canonical Time Oddity JSON format, ensuring all components and tile keys are correctly assembled for engine and test compatibility.
+
+**Static Methods**:
+```javascript
+exportLevel(levelData: Object): Object // Exports level data to JSON-compliant object
+generateTileKey(grid: Object, x: number, y: number, biome: string): string // Generates tile key based on neighbor analysis
+generateMapMatrix(grid: Object, biome: string): Array // Generates map matrix with proper tile entries for all positions
+convertPlatformsToJSON(platforms: Array, tileSize: number, biome: string, platformShape: string): Array
+convertCoinsToJSON(coins: Array, tileSize: number): Array
+convertEnemiesToJSON(enemies: Array, tileSize: number): Array
+generateBackgrounds(config: Object): Array
+selectRandomBiome(): string
+selectRandomPlatformShape(): string
+```
+
+**Invariants**:
+- All exported coordinates are converted from grid coordinates to pixel coordinates using tileSize
+- Tile keys are generated based on neighbor analysis for wall tiles (value === 1)
+- **Wall tiles (value === 1) use "ground" type** (solid, colliding, physics-enabled)
+- **Floor tiles (value === 0) use "decorative" type** (visual-only, no collision, depth -0.5)
+- Map matrix contains valid tile entries for all positions (no sparse matrices)
+- Background layers provide visual depth with negative depth values
+- All required level components are included in export
+
+**Error Conditions**:
+- Invalid grid dimensions or coordinates
+- Missing required level components
+- Invalid biome or platform shape values
+- Grid access out of bounds
+
+**Contracts**:
+- Input levelData must contain: grid, startPos, goalPos, coins, enemies, platforms, config
+- Output JSON must conform to level format specification
+- All tile keys must be valid according to available tiles list
+- Map matrix must be complete 2D array with no null values
+- Tile types must be either "ground" or "decorative" as per level format specification
+
+---
+
+### 1.4 JSONSchemaValidator Interface
+
+**File**: `src/validation/JSONSchemaValidator.js`
+
+**Purpose**: Validates exported level JSON against the canonical schema, ensuring 100% compliance with the Time Oddity format and providing detailed error reporting for all fields and subcomponents.
+
+**Static Methods**:
+```javascript
+validateLevelJSON(levelJSON: Object): { isValid: boolean, errors: Array<string> }
+validateTileKey(tileKey: string): { isValid: boolean, error: string|null }
+validateEnemyConfiguration(enemy: Object): { isValid: boolean, errors: Array<string> }
+validateBackgroundConfiguration(background: Object): { isValid: boolean, errors: Array<string> }
+// ...plus internal helpers for platforms, coins, map_matrix, etc.
+```
+
+**Invariants**:
+- **SCHEMA-1**: All required fields and subfields are validated for type, range, and allowed values
+- **SCHEMA-2**: All tile keys, background keys, and enemy types are checked against master lists
+- **SCHEMA-3**: All coordinates are non-negative and within plausible bounds
+- **SCHEMA-4**: All errors are reported with field context for debugging
+
+**Error Conditions**:
+- Missing required fields (e.g., playerSpawn, goal)
+- Invalid tileKey, spriteKey, or enemy configuration
+- Out-of-bounds or negative coordinates
+- Malformed arrays or map_matrix
+
+---
+
+**Export/Validation Contract**:
+- The output of `LevelJSONExporter.exportLevel()` is guaranteed to be accepted by `JSONSchemaValidator.validateLevelJSON()` if all input data is valid and contracts are followed.
+- Any changes to the JSON format or schema must be reflected in both the exporter and validator, and covered by tests.
+- The exported JSON is the single source of truth for engine loading, test snapshots, and integration validation.

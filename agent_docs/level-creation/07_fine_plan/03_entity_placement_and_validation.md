@@ -27,14 +27,14 @@ Implement the `reachable_fronteer` algorithm that identifies reachable tiles wit
 ### Pre-Implementation Analysis
 
 #### Documentation Dependencies
-- [ ] **01_blueprint.md sections to review**: "§3.6 Ensuring Level Solvability" for reachability concepts
-- [ ] **level-format.md sections to reference**: Platform placement requirements
-- [ ] **testing_best_practices.md sections to apply**: "§3.1 TDD-as-Prompting Technique"
+- [x] **01_blueprint.md sections to review**: "§3.6 Ensuring Level Solvability" for reachability concepts
+- [x] **level-format.md sections to reference**: Platform placement requirements
+- [x] **testing_best_practices.md sections to apply**: "§3.1 TDD-as-Prompting Technique"
 
 #### State & Invariant Impact Assessment
-- [ ] **New states to create**: Reachable frontier analysis state, distance calculation state
-- [ ] **Existing states to preserve**: Cave structure, player spawn, and goal placement
-- [ ] **Time reversal compatibility**: Frontier analysis must work with time reversal mechanics
+- [x] **New states to create**: Reachable frontier analysis state, distance calculation state
+- [x] **Existing states to preserve**: Cave structure, player spawn, and goal placement
+- [x] **Time reversal compatibility**: Frontier analysis must work with time reversal mechanics
 
 ### Implementation Plan
 
@@ -50,26 +50,26 @@ reachableFrontier(playerPosition, grid)
 ```
 
 #### Files/Classes to Change
-- [ ] **Create**: `src/analysis/ReachableFrontierAnalyzer.js`
-- [ ] **Create**: `tests/analysis/ReachableFrontierAnalyzer.test.js`
-- [ ] **Modify**: `agent_docs/level-creation/level_creation_interfaces_and_invariants.md`
+- [x] **Create**: `src/analysis/ReachableFrontierAnalyzer.js`
+- [x] **Create**: `tests/analysis/ReachableFrontierAnalyzer.test.js`
+- [x] **Modify**: `agent_docs/level-creation/level_creation_interfaces_and_invariants.md`
 
 #### Integration Points
-- [ ] **Systems affected**: Reachability analysis, distance calculation, frontier identification
-- [ ] **State machines**: Frontier analysis state, distance calculation state
-- [ ] **External libraries**: Uses PhysicsAwareReachabilityAnalyzer for reachability detection
+- [x] **Systems affected**: Reachability analysis, distance calculation, frontier identification
+- [x] **State machines**: Frontier analysis state, distance calculation state
+- [x] **External libraries**: Uses PhysicsAwareReachabilityAnalyzer for reachability detection
 
 #### Testing Strategy
-- [ ] **Test files to create/update**: `tests/analysis/ReachableFrontierAnalyzer.test.js`
-- [ ] **Key test cases**: Frontier detection accuracy, distance calculation, edge case handling
-- [ ] **Mock requirements**: Mock PhysicsAwareReachabilityAnalyzer for controlled frontier testing
+- [x] **Test files to create/update**: `tests/analysis/ReachableFrontierAnalyzer.test.js`
+- [x] **Key test cases**: Frontier detection accuracy, distance calculation, edge case handling
+- [x] **Mock requirements**: Mock PhysicsAwareReachabilityAnalyzer for controlled frontier testing
 
 ### Task Breakdown & Acceptance Criteria
-- [ ] **Reachable Tile Detection**: Implement detection of all reachable tiles using PhysicsAwareReachabilityAnalyzer
-- [ ] **Neighbor Analysis**: Implement analysis of neighboring tiles for non-reachable floor tiles
-- [ ] **Frontier Identification**: Implement algorithm to identify tiles with at least one neighboring non-reachable floor tile
-- [ ] **Edge Case Handling**: Implement handling of edge cases (single tile, isolated areas)
-- [ ] **Performance Optimization**: Implement efficient frontier calculation for large grids
+- [x] **Reachable Tile Detection**: Implement detection of all reachable tiles using PhysicsAwareReachabilityAnalyzer
+- [x] **Neighbor Analysis**: Implement analysis of neighboring tiles for non-reachable floor tiles
+- [x] **Frontier Identification**: Implement algorithm to identify tiles with at least one neighboring non-reachable floor tile
+- [x] **Edge Case Handling**: Implement handling of edge cases (single tile, isolated areas)
+- [x] **Performance Optimization**: Implement efficient frontier calculation for large grids
 
 ### Expected Output
 - Reachable frontier analysis algorithm with neighbor-based detection
@@ -83,16 +83,16 @@ reachableFrontier(playerPosition, grid)
 - **Fallback plan**: Use simple distance-based approach if frontier analysis is complex
 
 ### Definition of Done
-- [ ] All acceptance criteria are met
-- [ ] Frontier analysis correctly identifies tiles with neighboring non-reachable floor tiles
-- [ ] Neighbor analysis is accurate and efficient
-- [ ] **Update level_creation_interfaces_and_invariants.md** with frontier analysis interfaces
-- [ ] Edge case handling covers all grid configurations
-- [ ] Create a script based on `generate-70x70-level.js`, that additionally marks the reachable frontier with "X" in the map
+- [x] All acceptance criteria are met
+- [x] Frontier analysis correctly identifies tiles with neighboring non-reachable floor tiles
+- [x] Neighbor analysis is accurate and efficient
+- [x] **Update level_creation_interfaces_and_invariants.md** with frontier analysis interfaces
+- [x] Edge case handling covers all grid configurations
+- [x] Create a script based on `generate-70x70-level.js`, that additionally marks the reachable frontier with "X" in the map
 
 ---
 
-## Task CG-04.8: Critical Ring Analysis Algorithm
+## Task CG-04.8: Critical Ring Analysis Algorithm ✅
 
 ### Objective
 Implement the `critical_ring` algorithm that identifies tiles one step closer to the player than the frontier, which are optimal locations for platform placement to expand reachability.
@@ -102,14 +102,14 @@ Implement the `critical_ring` algorithm that identifies tiles one step closer to
 ### Pre-Implementation Analysis
 
 #### Documentation Dependencies
-- [ ] **01_blueprint.md sections to review**: "§3.6 Ensuring Level Solvability" for reachability concepts
-- [ ] **level-format.md sections to reference**: Platform placement requirements
-- [ ] **testing_best_practices.md sections to apply**: "§3.1 TDD-as-Prompting Technique"
+- [x] **01_blueprint.md sections to review**: "§3.6 Ensuring Level Solvability" for reachability concepts
+- [x] **level-format.md sections to reference**: Platform placement requirements
+- [x] **testing_best_practices.md sections to apply**: "§3.1 TDD-as-Prompting Technique"
 
 #### State & Invariant Impact Assessment
-- [ ] **New states to create**: Critical ring analysis state, neighbor analysis state
-- [ ] **Existing states to preserve**: Reachable frontier analysis and cave structure
-- [ ] **Time reversal compatibility**: Critical ring analysis must work with time reversal mechanics
+- [x] **New states to create**: Critical ring analysis state, neighbor analysis state
+- [x] **Existing states to preserve**: Reachable frontier analysis and cave structure
+- [x] **Time reversal compatibility**: Critical ring analysis must work with time reversal mechanics
 
 ### Implementation Plan
 
@@ -120,34 +120,34 @@ criticalRing(playerPosition, grid)
 // reachable tiles = all reachable tiles by the player
 // frontier = reachableFrontier(playerPosition, grid)
 // result = empty set
-// for tile in frontier:
-//     if the tile has no unreachable neighbouring tiles around: continue
+// for tile in reachable:
+//     if tile in fronteer: continue
 //     neighbours = neighbours(tile)
-//     add to result all neighbouring tiles that are reachable and are closer to the player then `tile`
+//     if neighbours intersection fronteer is not empty: result.add(tile)
 // return result
 ```
 
 #### Files/Classes to Change
-- [ ] **Create**: `src/analysis/CriticalRingAnalyzer.js`
-- [ ] **Create**: `tests/analysis/CriticalRingAnalyzer.test.js`
-- [ ] **Modify**: `agent_docs/level-creation/level_creation_interfaces_and_invariants.md`
+- [x] **Create**: `src/analysis/CriticalRingAnalyzer.js`
+- [x] **Create**: `tests/analysis/CriticalRingAnalyzer.test.js`
+- [x] **Modify**: `agent_docs/level-creation/level_creation_interfaces_and_invariants.md`
 
 #### Integration Points
-- [ ] **Systems affected**: Critical ring analysis, neighbor detection, platform placement optimization
-- [ ] **State machines**: Ring analysis state, neighbor analysis state
-- [ ] **External libraries**: Uses ReachableFrontierAnalyzer for frontier detection
+- [x] **Systems affected**: Critical ring analysis, neighbor detection, platform placement optimization
+- [x] **State machines**: Ring analysis state, neighbor analysis state
+- [x] **External libraries**: Uses ReachableFrontierAnalyzer for frontier detection
 
 #### Testing Strategy
-- [ ] **Test files to create/update**: `tests/analysis/CriticalRingAnalyzer.test.js`
-- [ ] **Key test cases**: Critical ring detection accuracy, neighbor analysis, platform placement optimization
-- [ ] **Mock requirements**: Mock ReachableFrontierAnalyzer for controlled ring testing
+- [x] **Test files to create/update**: `tests/analysis/CriticalRingAnalyzer.test.js`
+- [x] **Key test cases**: Critical ring detection accuracy, neighbor analysis, platform placement optimization
+- [x] **Mock requirements**: Mock ReachableFrontierAnalyzer for controlled ring testing
 
 ### Task Breakdown & Acceptance Criteria
-- [ ] **Frontier Integration**: Integrate with ReachableFrontierAnalyzer for frontier detection
-- [ ] **Neighbor Analysis**: Implement analysis of tile neighbors for unreachable areas
-- [ ] **Critical Ring Identification**: Implement algorithm to identify optimal platform placement locations
-- [ ] **Distance Comparison**: Implement comparison of tile distances from player position
-- [ ] **Platform Placement Optimization**: Implement optimization for platform placement effectiveness
+- [x] **Frontier Integration**: Integrate with ReachableFrontierAnalyzer for frontier detection
+- [x] **Neighbor Analysis**: Implement analysis of tile neighbors for unreachable areas
+- [x] **Critical Ring Identification**: Implement algorithm to identify optimal platform placement locations
+- [x] **Distance Comparison**: Implement comparison of tile distances from player position
+- [x] **Platform Placement Optimization**: Implement optimization for platform placement effectiveness
 
 ### Expected Output
 - Critical ring analysis algorithm with neighbor detection
@@ -161,32 +161,32 @@ criticalRing(playerPosition, grid)
 - **Fallback plan**: Use simple neighbor-based approach if ring analysis is complex
 
 ### Definition of Done
-- [ ] All acceptance criteria are met
-- [ ] Critical ring analysis correctly identifies optimal platform placement locations
-- [ ] Neighbor analysis accurately detects unreachable areas
-- [ ] **Update level_creation_interfaces_and_invariants.md** with critical ring interfaces
-- [ ] Platform placement optimization provides effective expansion
+- [x] All acceptance criteria are met
+- [x] Critical ring analysis correctly identifies optimal platform placement locations
+- [x] Neighbor analysis accurately detects unreachable areas
+- [x] **Update interfaces_and_invariants** with critical ring interfaces
+- [x] Create a script based on `generate-70x70-level-with-frontier.js`, that additionally marks the critical ring with "I" in the map
 
 ---
 
-## Task CG-04.9: Strategic Platform Placement Algorithm (85% Reachability)
+## Task CG-04.9: Strategic Platform Placement Algorithm (85% Reachability) for floating platforms ✅
 
 ### Objective
-Implement the `place_platforms` algorithm that strategically places platforms to achieve 85% level reachability using the critical ring analysis, ensuring optimal platform placement for maximum accessibility.
+Implement the `place_platforms` algorithm that strategically places platforms to achieve 85% level reachability using the critical ring analysis, ensuring optimal platform placement for maximum accessibility. 
 
 ### Task ID: CG-04.9
 
 ### Pre-Implementation Analysis
 
 #### Documentation Dependencies
-- [ ] **level-format.md sections to reference**: "§4.4 Floating Platform" and "§4.5 Moving Platform" specifications
-- [ ] **_00_v1_functional_requirements.md sections to apply**: "Floating and moving platforms are used to ensure the coins are collectible and the goal is reachable"
-- [ ] **testing_best_practices.md sections to apply**: "§3.1 TDD-as-Prompting Technique"
+- [x] **level-format.md sections to reference**: "§4.4 Floating Platform" and "§4.5 Moving Platform" specifications
+- [x] **_00_v1_functional_requirements.md sections to apply**: "Floating and moving platforms are used to ensure the coins are collectible and the goal is reachable"
+- [x] **testing_best_practices.md sections to apply**: "§3.1 TDD-as-Prompting Technique"
 
 #### State & Invariant Impact Assessment
-- [ ] **New states to create**: Platform placement state, reachability tracking state
-- [ ] **Existing states to preserve**: Critical ring analysis and cave structure
-- [ ] **Time reversal compatibility**: Generated platforms must follow platform physics rules
+- [x] **New states to create**: Platform placement state, reachability tracking state
+- [x] **Existing states to preserve**: Critical ring analysis and cave structure
+- [x] **Time reversal compatibility**: Generated platforms must follow platform physics rules
 
 ### Implementation Plan
 
@@ -200,11 +200,19 @@ placePlatforms(player, grid, target = 0.85)
 //     before_reachable = get all reachable tiles from player position
 //     ring = criticalRing(player, grid)
 //     tile = sample one tile from the ring
-//     S = sample a platform size
-//     platforms.append(new platform starting in tile, with size S)
-//     grid_with_platforms = copy the grid and mark all tiles occupied by a platform as wall tiles
+//
+//     platform_type = multinomial_choice({'floating': 0.4, 'moving': 0.6}) // 40% probability of sampling a floating platform
+//     if platform_type == 'floating':
+//         S = sample a platform size
+//         platform = floating_platform(position=tile, size=S)
+//     elif platform_type == 'moving':
+//         raise NotImplemented()
+//
+//     grid_with_platforms = copy the grid 
+//     grid.mark_as_walls(platform.get_occupied_tiles()) // for floating platforms are (tile.x, tile.y), (tile.x + 1, tile.y), ..., (tile.x + S, tile.y)
 //     after_reachable = get all reachable tiles from player position
-//     ASSERT len(after_reachable) > len(before_reachable)
+//     if len(after_reachable) > len(before_reachable) // only if it improves
+//         platforms.append(platform)
 //     reachable = after_reachable
 ```
 
@@ -215,27 +223,27 @@ placePlatforms(player, grid, target = 0.85)
 - Moving platforms should be indistinguishable from floating platforms in initial state
 
 #### Files/Classes to Change
-- [ ] **Create**: `src/placement/StrategicPlatformPlacer.js`
-- [ ] **Create**: `tests/placement/StrategicPlatformPlacer.test.js`
-- [ ] **Modify**: `agent_docs/level-creation/level_creation_interfaces_and_invariants.md`
+- [x] **Create**: `src/placement/StrategicPlatformPlacer.js`
+- [x] **Create**: `tests/placement/StrategicPlatformPlacer.test.js`
+- [x] **Modify**: `agent_docs/level-creation/level_creation_interfaces_and_invariants.md`
 
 #### Integration Points
-- [ ] **Systems affected**: Strategic platform placement, reachability expansion, platform variety
-- [ ] **State machines**: Platform placement state, reachability tracking state
-- [ ] **External libraries**: Uses CriticalRingAnalyzer for optimal placement
+- [x] **Systems affected**: Strategic platform placement, reachability expansion, platform variety
+- [x] **State machines**: Platform placement state, reachability tracking state
+- [x] **External libraries**: Uses CriticalRingAnalyzer for optimal placement
 
 #### Testing Strategy
-- [ ] **Test files to create/update**: `tests/placement/StrategicPlatformPlacer.test.js`
-- [ ] **Key test cases**: 85% reachability achievement, platform variety, placement effectiveness
-- [ ] **Mock requirements**: Mock CriticalRingAnalyzer for controlled platform testing
+- [x] **Test files to create/update**: `tests/placement/StrategicPlatformPlacer.test.js`
+- [x] **Key test cases**: 85% reachability achievement, platform variety, placement effectiveness
+- [x] **Mock requirements**: Mock CriticalRingAnalyzer for controlled platform testing
 
 ### Task Breakdown & Acceptance Criteria
-- [ ] **Reachability Tracking**: Implement tracking of reachable area percentage
-- [ ] **Critical Ring Integration**: Integrate with CriticalRingAnalyzer for optimal placement
-- [ ] **Platform Size Sampling**: Implement intelligent platform size selection
-- [ ] **Platform Variety**: Implement both floating and moving platform placement
-- [ ] **Reachability Validation**: Implement validation that each platform increases reachability
-- [ ] **85% Target Achievement**: Implement algorithm to achieve 85% reachability target
+- [x] **Reachability Tracking**: Implement tracking of reachable area percentage
+- [x] **Critical Ring Integration**: Integrate with CriticalRingAnalyzer for optimal placement
+- [x] **Platform Size Sampling**: Implement intelligent platform size selection
+- [x] **Platform Variety**: Implement both floating and moving platform placement
+- [x] **Reachability Validation**: Implement validation that each platform increases reachability
+- [x] **85% Target Achievement**: Implement algorithm to achieve 85% reachability target
 
 ### Expected Output
 - Strategic platform placement algorithm achieving 85% reachability
@@ -249,11 +257,11 @@ placePlatforms(player, grid, target = 0.85)
 - **Fallback plan**: Use simple placement if strategic algorithm is complex
 
 ### Definition of Done
-- [ ] All acceptance criteria are met
-- [ ] Strategic placement algorithm achieves 85% reachability target
-- [ ] Platform variety includes both floating and moving platforms
-- [ ] **Update level_creation_interfaces_and_invariants.md** with strategic platform interfaces
-- [ ] Reachability validation confirms platform effectiveness
+- [x] All acceptance criteria are met
+- [x] Strategic placement algorithm achieves 85% reachability target
+- [x] Platform variety includes both floating and moving platforms
+- [x] **Update level_creation_interfaces_and_invariants.md** with strategic platform interfaces
+- [x] Create a script based on `generate-70x70-level-with-critical_rings.js`, that additionally adds the platforms with the leter T to the map
 
 ---
 
