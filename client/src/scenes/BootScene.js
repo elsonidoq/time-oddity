@@ -6,14 +6,20 @@ export default class BootScene extends BaseScene {
   }
 
   preload() {
+    const GITHUB_PAGES = true;
+    if (GITHUB_PAGES) {
+      prefix = '/time-oddity/client';
+    } else {
+      prefix = '';
+    }
     // Load Kenney character spritesheet atlas with XML file
-    this.load.atlasXML('characters', '/src/assets/sprites/spritesheet-characters-default.png', '/src/assets/sprites/spritesheet-characters-default.xml');
+    this.load.atlasXML('characters', prefix + '/src/assets/sprites/spritesheet-characters-default.png', prefix + '/src/assets/sprites/spritesheet-characters-default.xml');
     // Load Kenney tile spritesheet atlas with XML file
-    this.load.atlasXML('tiles', '/src/assets/sprites/spritesheet-tiles-default.png', '/src/assets/sprites/spritesheet-tiles-default.xml');
+    this.load.atlasXML('tiles', prefix + '/src/assets/sprites/spritesheet-tiles-default.png', prefix + '/src/assets/sprites/spritesheet-tiles-default.xml');
     // Load Kenney enemy spritesheet atlas with XML file
-    this.load.atlasXML('enemies', '/src/assets/sprites/spritesheet-enemies-default.png', '/src/assets/sprites/spritesheet-enemies-default.xml');
+    this.load.atlasXML('enemies', prefix + '/src/assets/sprites/spritesheet-enemies-default.png', prefix + '/src/assets/sprites/spritesheet-enemies-default.xml');
     // Load Kenney background spritesheet atlas with XML file
-    this.load.atlasXML('backgrounds', '/src/assets/sprites/spritesheet-backgrounds-default.png', '/src/assets/sprites/spritesheet-backgrounds-default.xml');
+    this.load.atlasXML('backgrounds', prefix + '/src/assets/sprites/spritesheet-backgrounds-default.png', prefix + '/src/assets/sprites/spritesheet-backgrounds-default.xml');
   }
 
   create() {
