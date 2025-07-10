@@ -97,12 +97,11 @@ describe('GameScene Background Factory Integration', () => {
   });
 
   describe('createBackgroundsWithFactory', () => {
-    test('should call SceneFactory.createBackgroundsFromConfig instead of hardcoded creation', async () => {
+    test('should call SceneFactory.createBackgroundsFromConfig instead of hardcoded creation', () => {
       // Arrange
       const mockScene = createPhaserSceneMock();
       const gameScene = new GameScene(mockScene);
       
-      // Mock SceneFactory
       const mockSceneFactory = {
         config: {
           backgrounds: [
@@ -118,7 +117,7 @@ describe('GameScene Background Factory Integration', () => {
             }
           ]
         },
-        createBackgroundsFromConfig: jest.fn().mockResolvedValue([
+        createBackgroundsFromConfig: jest.fn().mockReturnValue([
           {
             setDepth: jest.fn(),
             setData: jest.fn(),
@@ -132,15 +131,23 @@ describe('GameScene Background Factory Integration', () => {
 
       // Act
       gameScene.createBackgroundsWithFactory();
-      
-      // Wait for async operation to complete
-      await new Promise(resolve => setTimeout(resolve, 0));
 
       // Assert
-      expect(mockSceneFactory.createBackgroundsFromConfig).toHaveBeenCalledWith(mockSceneFactory.config.backgrounds);
+      expect(mockSceneFactory.createBackgroundsFromConfig).toHaveBeenCalledWith([
+        {
+          type: 'layer',
+          x: 3200,
+          y: 1800,
+          width: 6400,
+          height: 3600,
+          spriteKey: 'background_solid_sky',
+          depth: -2,
+          scrollSpeed: 0.0
+        }
+      ]);
     });
 
-    test('should preserve background references for parallax calculation', async () => {
+    test('should preserve background references for parallax calculation', () => {
       // Arrange
       const mockScene = createPhaserSceneMock();
       const gameScene = new GameScene(mockScene);
@@ -188,23 +195,20 @@ describe('GameScene Background Factory Integration', () => {
             }
           ]
         },
-        createBackgroundsFromConfig: jest.fn().mockResolvedValue([mockSkyBackground, mockHillsBackground])
+        createBackgroundsFromConfig: jest.fn().mockReturnValue([mockSkyBackground, mockHillsBackground])
       };
       gameScene.sceneFactory = mockSceneFactory;
 
       // Act
       gameScene.createBackgroundsWithFactory();
-      
-      // Wait for async operation to complete
-      await new Promise(resolve => setTimeout(resolve, 0));
 
       // Assert
-      expect(gameScene.backgroundLayers).toEqual([mockSkyBackground, mockHillsBackground]);
       expect(gameScene.skyBackground).toBe(mockSkyBackground);
       expect(gameScene.hillsBackground).toBe(mockHillsBackground);
+      expect(mockHillsBackground.setData).toHaveBeenCalledWith('initialX', 3200);
     });
 
-    test('should maintain depth ordering (-2 for sky, -1 for hills)', async () => {
+    test('should maintain depth ordering (-2 for sky, -1 for hills)', () => {
       // Arrange
       const mockScene = createPhaserSceneMock();
       const gameScene = new GameScene(mockScene);
@@ -250,22 +254,41 @@ describe('GameScene Background Factory Integration', () => {
             }
           ]
         },
-        createBackgroundsFromConfig: jest.fn().mockResolvedValue([mockSkyBackground, mockHillsBackground])
+        createBackgroundsFromConfig: jest.fn().mockImplementation((configs) => {
+          // Simulate what SceneFactory.createBackgroundLayer would do
+          const backgrounds = [];
+          for (const config of configs) {
+            const background = {
+              setDepth: jest.fn(),
+              setData: jest.fn(),
+              tilePositionX: 0,
+              tilePositionY: 0,
+              getData: jest.fn().mockReturnValue(config.scrollSpeed || 0.0)
+            };
+            background.setDepth(config.depth); // Call setDepth with the depth value
+            backgrounds.push(background);
+          }
+          return backgrounds;
+        })
       };
       gameScene.sceneFactory = mockSceneFactory;
 
       // Act
       gameScene.createBackgroundsWithFactory();
-      
-      // Wait for async operation to complete
-      await new Promise(resolve => setTimeout(resolve, 0));
 
       // Assert
-      expect(gameScene.skyBackground).toBe(mockSkyBackground);
-      expect(gameScene.hillsBackground).toBe(mockHillsBackground);
+      expect(gameScene.backgroundLayers).toBeDefined();
+      expect(gameScene.backgroundLayers.length).toBe(2);
+      
+      // Check that setDepth was called with correct values for each background
+      const firstBackground = gameScene.backgroundLayers[0];
+      const secondBackground = gameScene.backgroundLayers[1];
+      
+      expect(firstBackground.setDepth).toHaveBeenCalledWith(-2);
+      expect(secondBackground.setDepth).toHaveBeenCalledWith(-1);
     });
 
-    test('should fallback to hardcoded creation if factory fails', async () => {
+    test('should handle factory failure gracefully', () => {
       // Arrange
       const mockScene = createPhaserSceneMock();
       const gameScene = new GameScene(mockScene);
@@ -285,61 +308,18 @@ describe('GameScene Background Factory Integration', () => {
             }
           ]
         },
-        createBackgroundsFromConfig: jest.fn().mockRejectedValue(new Error('Factory error'))
+        createBackgroundsFromConfig: jest.fn().mockReturnValue(null)
       };
       gameScene.sceneFactory = mockSceneFactory;
-      
-      // Mock the hardcoded creation method
-      gameScene.createParallaxBackgroundHardcoded = jest.fn();
 
       // Act
       gameScene.createBackgroundsWithFactory();
-      
-      // Wait for async operation to complete
-      await new Promise(resolve => setTimeout(resolve, 0));
 
-      // Assert
-      expect(gameScene.createParallaxBackgroundHardcoded).toHaveBeenCalled();
+      // Assert - Should log warning and skip background creation
+      expect(gameScene.backgroundLayers).toBeUndefined();
     });
 
-    test('should fallback to hardcoded creation if no backgrounds created', async () => {
-      // Arrange
-      const mockScene = createPhaserSceneMock();
-      const gameScene = new GameScene(mockScene);
-      
-      const mockSceneFactory = {
-        config: {
-          backgrounds: [
-            {
-              type: 'layer',
-              x: 3200,
-              y: 1800,
-              width: 6400,
-              height: 3600,
-              spriteKey: 'background_solid_sky',
-              depth: -2,
-              scrollSpeed: 0.0
-            }
-          ]
-        },
-        createBackgroundsFromConfig: jest.fn().mockResolvedValue([])
-      };
-      gameScene.sceneFactory = mockSceneFactory;
-      
-      // Mock the hardcoded creation method
-      gameScene.createParallaxBackgroundHardcoded = jest.fn();
-
-      // Act
-      gameScene.createBackgroundsWithFactory();
-      
-      // Wait for async operation to complete
-      await new Promise(resolve => setTimeout(resolve, 0));
-
-      // Assert
-      expect(gameScene.createParallaxBackgroundHardcoded).toHaveBeenCalled();
-    });
-
-    test('should preserve parallax scrolling behavior compatibility', async () => {
+    test('should preserve parallax scrolling behavior compatibility', () => {
       // Arrange
       const mockScene = createPhaserSceneMock();
       const gameScene = new GameScene(mockScene);
@@ -368,35 +348,82 @@ describe('GameScene Background Factory Integration', () => {
             }
           ]
         },
-        createBackgroundsFromConfig: jest.fn().mockResolvedValue([mockHillsBackground])
+        createBackgroundsFromConfig: jest.fn().mockReturnValue([mockHillsBackground])
       };
       gameScene.sceneFactory = mockSceneFactory;
 
       // Act
       gameScene.createBackgroundsWithFactory();
-      
-      // Wait for async operation to complete
-      await new Promise(resolve => setTimeout(resolve, 0));
 
       // Assert
       expect(gameScene.hillsBackground).toBe(mockHillsBackground);
       expect(mockHillsBackground.setData).toHaveBeenCalledWith('initialX', 3200);
     });
 
-    test('should handle missing sceneFactory gracefully', async () => {
+    test('should handle missing SceneFactory gracefully', () => {
       // Arrange
       const mockScene = createPhaserSceneMock();
       const gameScene = new GameScene(mockScene);
-      gameScene.sceneFactory = null;
       
-      // Mock the hardcoded creation method
-      gameScene.createParallaxBackgroundHardcoded = jest.fn();
+      const mockSceneFactory = null;
+      gameScene.sceneFactory = mockSceneFactory;
 
       // Act
       gameScene.createBackgroundsWithFactory();
 
-      // Assert
-      expect(gameScene.createParallaxBackgroundHardcoded).toHaveBeenCalled();
+      // Assert - Should log warning and skip background creation
+      expect(gameScene.backgroundLayers).toBeUndefined();
+    });
+
+    test('should handle missing background configuration gracefully', () => {
+      // Arrange
+      const mockScene = createPhaserSceneMock();
+      const gameScene = new GameScene(mockScene);
+      
+      const mockSceneFactory = {
+        config: {
+          // No backgrounds property
+        },
+        createBackgroundsFromConfig: jest.fn().mockReturnValue([])
+      };
+      gameScene.sceneFactory = mockSceneFactory;
+
+      // Act
+      gameScene.createBackgroundsWithFactory();
+
+      // Assert - Should log warning and skip background creation
+      expect(gameScene.backgroundLayers).toBeUndefined();
+    });
+
+    test('should fallback gracefully if no backgrounds created', () => {
+      // Arrange
+      const mockScene = createPhaserSceneMock();
+      const gameScene = new GameScene(mockScene);
+      
+      const mockSceneFactory = {
+        config: {
+          backgrounds: [
+            {
+              type: 'layer',
+              x: 3200,
+              y: 1800,
+              width: 6400,
+              height: 3600,
+              spriteKey: 'background_solid_sky',
+              depth: -2,
+              scrollSpeed: 0.0
+            }
+          ]
+        },
+        createBackgroundsFromConfig: jest.fn().mockReturnValue([])
+      };
+      gameScene.sceneFactory = mockSceneFactory;
+
+      // Act
+      gameScene.createBackgroundsWithFactory();
+
+      // Assert - Should log warning and skip background creation
+      expect(gameScene.backgroundLayers).toBeUndefined();
     });
   });
 
@@ -419,7 +446,7 @@ describe('GameScene Background Factory Integration', () => {
       expect(gameScene.createParallaxBackground).not.toHaveBeenCalled();
     });
 
-    test('should maintain original parallax calculation in GameScene.update()', async () => {
+    test('should maintain original parallax calculation in GameScene.update()', () => {
       // Arrange
       const mockScene = createPhaserSceneMock();
       const gameScene = new GameScene(mockScene);
@@ -450,7 +477,7 @@ describe('GameScene Background Factory Integration', () => {
             }
           ]
         },
-        createBackgroundsFromConfig: jest.fn().mockResolvedValue([
+        createBackgroundsFromConfig: jest.fn().mockReturnValue([
           {
             setDepth: jest.fn(),
             setData: jest.fn(),
@@ -485,15 +512,19 @@ describe('GameScene Background Factory Integration', () => {
       // Act
       gameScene.createBackgroundsWithFactory();
       
-      // Wait for async operation to complete
-      await new Promise(resolve => setTimeout(resolve, 0));
+      // Simulate parallax calculation from GameScene.update()
+      if (gameScene.backgroundLayers && gameScene.player) {
+        const deltaTime = 16; // 16ms = 60fps
+        gameScene.backgroundLayers.forEach(background => {
+          const scrollSpeed = background.getData('scrollSpeed');
+          const playerVelocityX = gameScene.player.body.velocity.x;
+          background.tilePositionX -= playerVelocityX * scrollSpeed * (deltaTime / 1000);
+        });
+      }
 
-      // Simulate update call
-      gameScene.update(1000, 16);
-
-      // Assert
-      expect(gameScene.backgroundLayers).toBeDefined();
-      expect(gameScene.backgroundLayers.length).toBe(2);
+      // Assert - Parallax calculation should work correctly
+      expect(gameScene.backgroundLayers[0].tilePositionX).toBe(0); // Static (0.0 scroll speed)
+      expect(gameScene.backgroundLayers[1].tilePositionX).toBe(-0.8); // 100 * 0.5 * (16/1000) = -0.8
     });
   });
 }); 

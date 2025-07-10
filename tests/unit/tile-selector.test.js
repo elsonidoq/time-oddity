@@ -160,4 +160,231 @@ describe('TileSelector', () => {
       expect(TileSelector.isBlockStyle('some_other_prefix')).toBe(false);
     });
   });
+
+  describe('matrixToWorldCoordinates', () => {
+    test('should convert matrix position to world coordinates', () => {
+      const result = TileSelector.matrixToWorldCoordinates(0, 0);
+      expect(result).toEqual({ x: 0, y: 0 });
+    });
+
+    test('should convert matrix position with positive indices', () => {
+      const result = TileSelector.matrixToWorldCoordinates(1, 2);
+      expect(result).toEqual({ x: 128, y: 64 });
+    });
+
+    test('should handle larger matrix positions', () => {
+      const result = TileSelector.matrixToWorldCoordinates(5, 10);
+      expect(result).toEqual({ x: 640, y: 320 });
+    });
+
+    test('should use 64x64 tile size constant', () => {
+      const result1 = TileSelector.matrixToWorldCoordinates(0, 1);
+      const result2 = TileSelector.matrixToWorldCoordinates(1, 0);
+      expect(result1).toEqual({ x: 64, y: 0 });
+      expect(result2).toEqual({ x: 0, y: 64 });
+    });
+
+    test('should handle zero indices', () => {
+      const result = TileSelector.matrixToWorldCoordinates(0, 0);
+      expect(result).toEqual({ x: 0, y: 0 });
+    });
+
+    test('should handle negative indices (edge case)', () => {
+      const result = TileSelector.matrixToWorldCoordinates(-1, -2);
+      expect(result).toEqual({ x: -128, y: -64 });
+    });
+  });
+
+  describe('getMatrixTileKey', () => {
+    test('should return tile key for single tile in matrix', () => {
+      const matrix = [
+        [{ tileKey: 'terrain_grass_block', type: 'ground' }]
+      ];
+      const result = TileSelector.getMatrixTileKey(matrix, 0, 0);
+      expect(result).toBe('terrain_grass_block');
+    });
+
+    test('should return appropriate tile key for left edge of multi-tile platform', () => {
+      const matrix = [
+        [
+          { tileKey: 'terrain_grass_block', type: 'ground' },
+          { tileKey: 'terrain_grass_block', type: 'ground' },
+          { tileKey: 'terrain_grass_block', type: 'ground' }
+        ]
+      ];
+      const result = TileSelector.getMatrixTileKey(matrix, 0, 0);
+      expect(result).toBe('terrain_grass_block_left');
+    });
+
+    test('should return appropriate tile key for center of multi-tile platform', () => {
+      const matrix = [
+        [
+          { tileKey: 'terrain_grass_block', type: 'ground' },
+          { tileKey: 'terrain_grass_block', type: 'ground' },
+          { tileKey: 'terrain_grass_block', type: 'ground' }
+        ]
+      ];
+      const result = TileSelector.getMatrixTileKey(matrix, 0, 1);
+      expect(result).toBe('terrain_grass_block_center');
+    });
+
+    test('should return appropriate tile key for right edge of multi-tile platform', () => {
+      const matrix = [
+        [
+          { tileKey: 'terrain_grass_block', type: 'ground' },
+          { tileKey: 'terrain_grass_block', type: 'ground' },
+          { tileKey: 'terrain_grass_block', type: 'ground' }
+        ]
+      ];
+      const result = TileSelector.getMatrixTileKey(matrix, 0, 2);
+      expect(result).toBe('terrain_grass_block_right');
+    });
+
+    test('should handle horizontal-style tiles correctly', () => {
+      const matrix = [
+        [
+          { tileKey: 'terrain_grass_horizontal', type: 'ground' },
+          { tileKey: 'terrain_grass_horizontal', type: 'ground' },
+          { tileKey: 'terrain_grass_horizontal', type: 'ground' }
+        ]
+      ];
+      const leftResult = TileSelector.getMatrixTileKey(matrix, 0, 0);
+      const middleResult = TileSelector.getMatrixTileKey(matrix, 0, 1);
+      const rightResult = TileSelector.getMatrixTileKey(matrix, 0, 2);
+      
+      expect(leftResult).toBe('terrain_grass_horizontal_left');
+      expect(middleResult).toBe('terrain_grass_horizontal_middle');
+      expect(rightResult).toBe('terrain_grass_horizontal_right');
+    });
+
+    test('should handle two-tile platforms correctly', () => {
+      const matrix = [
+        [
+          { tileKey: 'terrain_grass_block', type: 'ground' },
+          { tileKey: 'terrain_grass_block', type: 'ground' }
+        ]
+      ];
+      const leftResult = TileSelector.getMatrixTileKey(matrix, 0, 0);
+      const rightResult = TileSelector.getMatrixTileKey(matrix, 0, 1);
+      
+      expect(leftResult).toBe('terrain_grass_block_left');
+      expect(rightResult).toBe('terrain_grass_block_right');
+    });
+
+    test('should handle decorative tiles (no suffix)', () => {
+      const matrix = [
+        [{ tileKey: 'bush', type: 'decorative' }]
+      ];
+      const result = TileSelector.getMatrixTileKey(matrix, 0, 0);
+      expect(result).toBe('bush');
+    });
+
+    test('should throw error for invalid matrix coordinates', () => {
+      const matrix = [
+        [{ tileKey: 'terrain_grass_block', type: 'ground' }]
+      ];
+      expect(() => {
+        TileSelector.getMatrixTileKey(matrix, 1, 0);
+      }).toThrow('Invalid matrix coordinates: row 1, col 0 out of bounds');
+    });
+
+    test('should throw error for negative coordinates', () => {
+      const matrix = [
+        [{ tileKey: 'terrain_grass_block', type: 'ground' }]
+      ];
+      expect(() => {
+        TileSelector.getMatrixTileKey(matrix, -1, 0);
+      }).toThrow('Invalid matrix coordinates: row -1, col 0 out of bounds');
+    });
+
+    test('should handle empty matrix', () => {
+      const matrix = [];
+      expect(() => {
+        TileSelector.getMatrixTileKey(matrix, 0, 0);
+      }).toThrow('Invalid matrix coordinates: row 0, col 0 out of bounds');
+    });
+
+    test('should handle matrix with empty rows', () => {
+      const matrix = [[]];
+      expect(() => {
+        TileSelector.getMatrixTileKey(matrix, 0, 0);
+      }).toThrow('Invalid matrix coordinates: row 0, col 0 out of bounds');
+    });
+  });
+
+  describe('calculateGroundPlatformWidth', () => {
+    test('should calculate width for single tile platform', () => {
+      const matrix = [
+        [{ tileKey: 'terrain_grass_block', type: 'ground' }]
+      ];
+      const result = TileSelector.calculateGroundPlatformWidth(matrix, 0, 0);
+      expect(result).toBe(64);
+    });
+
+    test('should calculate width for multi-tile platform', () => {
+      const matrix = [
+        [
+          { tileKey: 'terrain_grass_block', type: 'ground' },
+          { tileKey: 'terrain_grass_block', type: 'ground' },
+          { tileKey: 'terrain_grass_block', type: 'ground' }
+        ]
+      ];
+      const result = TileSelector.calculateGroundPlatformWidth(matrix, 0, 0);
+      expect(result).toBe(192);
+    });
+
+    test('should calculate width for platform starting at middle position', () => {
+      const matrix = [
+        [
+          { tileKey: 'bush', type: 'decorative' },
+          { tileKey: 'terrain_grass_block', type: 'ground' },
+          { tileKey: 'terrain_grass_block', type: 'ground' },
+          { tileKey: 'rock', type: 'decorative' }
+        ]
+      ];
+      const result = TileSelector.calculateGroundPlatformWidth(matrix, 0, 1);
+      expect(result).toBe(128);
+    });
+
+    test('should handle platform ending at matrix edge', () => {
+      const matrix = [
+        [
+          { tileKey: 'terrain_grass_block', type: 'ground' },
+          { tileKey: 'terrain_grass_block', type: 'ground' }
+        ]
+      ];
+      const result = TileSelector.calculateGroundPlatformWidth(matrix, 0, 0);
+      expect(result).toBe(128);
+    });
+
+    test('should handle single tile platform in middle of row', () => {
+      const matrix = [
+        [
+          { tileKey: 'bush', type: 'decorative' },
+          { tileKey: 'terrain_grass_block', type: 'ground' },
+          { tileKey: 'rock', type: 'decorative' }
+        ]
+      ];
+      const result = TileSelector.calculateGroundPlatformWidth(matrix, 0, 1);
+      expect(result).toBe(64);
+    });
+
+    test('should throw error for invalid matrix coordinates', () => {
+      const matrix = [
+        [{ tileKey: 'terrain_grass_block', type: 'ground' }]
+      ];
+      expect(() => {
+        TileSelector.calculateGroundPlatformWidth(matrix, 1, 0);
+      }).toThrow('Invalid matrix coordinates: row 1, col 0 out of bounds');
+    });
+
+    test('should throw error when starting position is not ground type', () => {
+      const matrix = [
+        [{ tileKey: 'bush', type: 'decorative' }]
+      ];
+      expect(() => {
+        TileSelector.calculateGroundPlatformWidth(matrix, 0, 0);
+      }).toThrow('Cannot calculate width: position (0, 0) is not a ground tile');
+    });
+  });
 }); 

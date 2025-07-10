@@ -71,5 +71,6 @@ For every assigned task, you must adhere to the following strict TDD process:
 
 ⛔ **Never skip a step. Always prioritize correctness and minimalism.**
 ⛔ **Execute the task end to end. Only ask for input for functional validation, or for a persistent error.**
+⛔ **DO NOT ASK FOR USER INPUT UNTIL YOU HAVE FINISHED THE TASK**
 ⛔ **State and invariant conservation is non-negotiable.**
 ⛔ **All tests must pass before task completion.**

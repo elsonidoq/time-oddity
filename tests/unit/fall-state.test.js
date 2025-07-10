@@ -73,4 +73,49 @@ describe('Task 2.9: FallState Class', () => {
     expect(player.body.setVelocityX).toHaveBeenCalledWith(player.speed);
     expect(player.flipX).toBe(false);
   });
+
+  // Task 05.02: Dash from Fall Tests
+  describe('Task 05.02: Dash Input During Fall', () => {
+    test('should transition to dash state when dash is pressed and can dash', () => {
+      player.inputManager.isDashJustPressed = true;
+      player.canDash = true;
+      state.execute();
+      expect(player.stateMachine.setState).toHaveBeenCalledWith('dash');
+    });
+
+    test('should NOT transition to dash when dash is pressed but cannot dash (on cooldown)', () => {
+      player.inputManager.isDashJustPressed = true;
+      player.canDash = false;
+      player.dashTimer = 1000;
+      player.scene.time.now = 500;
+      state.execute();
+      expect(player.stateMachine.setState).not.toHaveBeenCalledWith('dash');
+    });
+
+    test('should NOT transition to dash when can dash but dash is not pressed', () => {
+      player.inputManager.isDashJustPressed = false;
+      player.canDash = true;
+      state.execute();
+      expect(player.stateMachine.setState).not.toHaveBeenCalledWith('dash');
+    });
+
+    test('should prioritize dash over other inputs when dash is available', () => {
+      player.inputManager.isDashJustPressed = true;
+      player.inputManager.left = true;
+      player.inputManager.right = true;
+      player.canDash = true;
+      state.execute();
+      expect(player.stateMachine.setState).toHaveBeenCalledWith('dash');
+      expect(player.body.setVelocityX).not.toHaveBeenCalledWith(-player.speed);
+      expect(player.body.setVelocityX).not.toHaveBeenCalledWith(player.speed);
+    });
+
+    test('should update canDash when cooldown timer expires', () => {
+      player.canDash = false;
+      player.dashTimer = 1000;
+      player.scene.time.now = 1001;
+      state.execute();
+      expect(player.canDash).toBe(true);
+    });
+  });
 }); 

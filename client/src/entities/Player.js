@@ -66,7 +66,7 @@ export default class Player extends Entity {
     this.body.setOffset(this.width * 0.25, this.height * 0.3);
     
     // Player-specific properties
-    this.speed = 200;
+    this.speed = 300;
     this.jumpPower = 800;
     this.gravity = 980; // This might be redundant if world gravity is set
     this.inputManager = null; // Will be set up later
@@ -76,7 +76,7 @@ export default class Player extends Entity {
 
     // Dash properties
     this.dashCooldown = 1000; // ms - 1 second default cooldown
-    this.dashDuration = 120; // ms
+    this.dashDuration = 240; // ms
     this.dashSpeed = 1000; // px/sec
     this.dashTimer = 0;
     this.canDash = true;

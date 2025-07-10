@@ -118,6 +118,13 @@ export default class UIScene extends BaseScene {
       if (gameSceneForMap.coins && gameSceneForMap.coins.children) {
         this.mapOverlay.renderCoins(gameSceneForMap.coins.children.entries);
       }
+      if (gameSceneForMap.goalTiles && gameSceneForMap.goalTiles.children) {
+        // Get the first active goal tile for rendering
+        const activeGoalTile = gameSceneForMap.goalTiles.children.entries.find(goal => goal.active && goal.visible);
+        if (activeGoalTile) {
+          this.mapOverlay.renderGoal({ x: activeGoalTile.x, y: activeGoalTile.y });
+        }
+      }
     }
 
     // Listen for levelCompleted event from GameScene

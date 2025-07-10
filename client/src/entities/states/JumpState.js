@@ -26,6 +26,12 @@ export default class JumpState {
       this.player.canDash = true;
     }
 
+    // PRIORITIZE DASH
+    if (inputManager && inputManager.isDashJustPressed && this.player.canDash) {
+      this.player.stateMachine.setState('dash');
+      return;
+    }
+
     // Transition to FallState when moving downwards
     if (body.velocity.y >= 0) {
       stateMachine.setState('fall');

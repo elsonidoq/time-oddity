@@ -10,6 +10,9 @@
  */
 
 export class TileSelector {
+  // Tile size constant for matrix coordinate calculations
+  static TILE_SIZE = 64;
+
   /**
    * Determines if a tile prefix uses block-style naming convention
    * @param {string} tilePrefix - The tile prefix to check
@@ -20,6 +23,128 @@ export class TileSelector {
       return false;
     }
     return tilePrefix.includes('_block');
+  }
+
+  /**
+   * Converts matrix coordinates to world coordinates
+   * @param {number} row - Matrix row index
+   * @param {number} col - Matrix column index
+   * @returns {Object} - World coordinates {x, y}
+   */
+  static matrixToWorldCoordinates(row, col) {
+    return {
+      x: col * this.TILE_SIZE,
+      y: row * this.TILE_SIZE
+    };
+  }
+
+  /**
+   * Validates matrix coordinates and throws error if invalid
+   * @param {Array} matrix - The 2D matrix array
+   * @param {number} row - Matrix row index
+   * @param {number} col - Matrix column index
+   * @throws {Error} - If coordinates are out of bounds
+   */
+  static validateMatrixCoordinates(matrix, row, col) {
+    if (!Array.isArray(matrix) || matrix.length === 0) {
+      throw new Error(`Invalid matrix coordinates: row ${row}, col ${col} out of bounds`);
+    }
+
+    if (row < 0 || col < 0 || row >= matrix.length || col >= matrix[row].length) {
+      throw new Error(`Invalid matrix coordinates: row ${row}, col ${col} out of bounds`);
+    }
+  }
+
+  /**
+   * Gets the appropriate tile key for a matrix position
+   * @param {Array} matrix - The 2D matrix array
+   * @param {number} row - Matrix row index
+   * @param {number} col - Matrix column index
+   * @returns {string} - The complete tile key
+   * @throws {Error} - If coordinates are invalid
+   */
+  static getMatrixTileKey(matrix, row, col) {
+    this.validateMatrixCoordinates(matrix, row, col);
+    
+    const tileData = matrix[row][col];
+    const tileKey = tileData.tileKey;
+    const type = tileData.type;
+
+    // For decorative tiles, return the base tileKey without suffix
+    if (type === 'decorative') {
+      return tileKey;
+    }
+
+    // For ground tiles, determine if this is part of a multi-tile platform
+    const isBlock = this.isBlockStyle(tileKey);
+    
+    // Find the start and end of the platform in this row
+    let platformStart = col;
+    let platformEnd = col;
+    
+    // Find start of platform (first consecutive ground tile with same tileKey)
+    while (platformStart > 0 && 
+           matrix[row][platformStart - 1] && 
+           matrix[row][platformStart - 1].type === 'ground' && 
+           matrix[row][platformStart - 1].tileKey === tileKey) {
+      platformStart--;
+    }
+    
+    // Find end of platform (last consecutive ground tile with same tileKey)
+    while (platformEnd < matrix[row].length - 1 && 
+           matrix[row][platformEnd + 1] && 
+           matrix[row][platformEnd + 1].type === 'ground' && 
+           matrix[row][platformEnd + 1].tileKey === tileKey) {
+      platformEnd++;
+    }
+    
+    const totalTiles = platformEnd - platformStart + 1;
+    const tileIndex = col - platformStart;
+    
+    // Use existing getTileKey method for tile selection logic
+    return this.getTileKey(tileKey, 0, totalTiles, tileIndex);
+  }
+
+  /**
+   * Calculates the width of a ground platform starting at the specified position
+   * @param {Array} matrix - The 2D matrix array
+   * @param {number} row - Matrix row index
+   * @param {number} col - Matrix column index
+   * @returns {number} - Platform width in pixels
+   * @throws {Error} - If coordinates are invalid or position is not a ground tile
+   */
+  static calculateGroundPlatformWidth(matrix, row, col) {
+    this.validateMatrixCoordinates(matrix, row, col);
+    
+    const tileData = matrix[row][col];
+    if (tileData.type !== 'ground') {
+      throw new Error(`Cannot calculate width: position (${row}, ${col}) is not a ground tile`);
+    }
+    
+    const tileKey = tileData.tileKey;
+    
+    // Find the start and end of the platform in this row
+    let platformStart = col;
+    let platformEnd = col;
+    
+    // Find start of platform (first consecutive ground tile with same tileKey)
+    while (platformStart > 0 && 
+           matrix[row][platformStart - 1] && 
+           matrix[row][platformStart - 1].type === 'ground' && 
+           matrix[row][platformStart - 1].tileKey === tileKey) {
+      platformStart--;
+    }
+    
+    // Find end of platform (last consecutive ground tile with same tileKey)
+    while (platformEnd < matrix[row].length - 1 && 
+           matrix[row][platformEnd + 1] && 
+           matrix[row][platformEnd + 1].type === 'ground' && 
+           matrix[row][platformEnd + 1].tileKey === tileKey) {
+      platformEnd++;
+    }
+    
+    const totalTiles = platformEnd - platformStart + 1;
+    return totalTiles * this.TILE_SIZE;
   }
 
   /**

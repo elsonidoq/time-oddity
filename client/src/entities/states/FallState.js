@@ -15,6 +15,12 @@ export default class FallState {
     const { inputManager, body, speed, stateMachine, dashTimer } = this.player;
     const now = this.player.scene.time.now;
 
+    // PRIORITIZE DASH
+    if (inputManager && inputManager.isDashJustPressed && this.player.canDash) {
+      this.player.stateMachine.setState('dash');
+      return;
+    }
+
     // Transition to IdleState when on the ground
     // Use enhanced floor detection for moving platform stability
     const isOnFloor = this.player.isOnFloorEnhanced ? this.player.isOnFloorEnhanced() : body.onFloor();

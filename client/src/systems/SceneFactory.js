@@ -98,6 +98,18 @@ export class SceneFactory {
       }
     }
 
+    // Validate map_matrix section if present
+    if (config.map_matrix !== undefined) {
+      if (!this.validateMapMatrixConfiguration(config.map_matrix)) {
+        // Remove invalid map_matrix and warn, but do not set config to null
+        console.warn('[SceneFactory] map_matrix is invalid, falling back to platforms array');
+        delete config.map_matrix;
+        // Return false to indicate validation failure
+        this.config = null;
+        return false;
+      }
+    }
+
     this.config = config;
     return true;
   }
@@ -465,37 +477,54 @@ export class SceneFactory {
   /**
    * Creates all platforms from the loaded configuration
    * @param {Phaser.Physics.Arcade.Group} platformsGroup - The physics group to add platforms to
+   * @param {Phaser.Physics.Arcade.Group} [decorativeGroup] - The decorative group to add decorative tiles to
    * @returns {Array} - Array of all created platform sprites
    */
-  createPlatformsFromConfig(platformsGroup) {
-    if (!this.config || !this.config.platforms || !platformsGroup) {
+  createPlatformsFromConfig(platformsGroup, decorativeGroup = null) {
+    if (!this.config || !platformsGroup) {
       return [];
     }
 
     const allPlatforms = [];
 
-    for (const platformConfig of this.config.platforms) {
-      let platforms = null;
-
-      switch (platformConfig.type) {
-        case 'ground':
-          platforms = this.createGroundPlatform(platformConfig, platformsGroup);
-          break;
-        case 'floating':
-          const floatingResult = this.createFloatingPlatform(platformConfig, platformsGroup);
-          platforms = floatingResult ? (Array.isArray(floatingResult) ? floatingResult : [floatingResult]) : [];
-          break;
-        case 'moving':
-          const movingPlatform = this.createMovingPlatform(platformConfig, platformsGroup);
-          platforms = movingPlatform ? [movingPlatform] : [];
-          break;
-        default:
-          // Skip invalid platform types
-          continue;
+    // Precedence: If map_matrix is present and valid, use only map_matrix
+    if (this.config.map_matrix && Array.isArray(this.config.map_matrix) && this.config.map_matrix.length > 0) {
+      const mapMatrixResult = this.createMapMatrixFromConfig(platformsGroup, decorativeGroup);
+      if (mapMatrixResult && mapMatrixResult.groundPlatforms && Array.isArray(mapMatrixResult.groundPlatforms) && mapMatrixResult.groundPlatforms.length > 0) {
+        allPlatforms.push(...mapMatrixResult.groundPlatforms);
+        // Note: Decorative platforms are handled separately
+        return allPlatforms;
+      } else {
+        // If map_matrix is present but empty or failed to create platforms, fallback to platforms
+        console.warn('[SceneFactory] map_matrix present but produced no platforms, falling back to platforms array');
       }
+    }
 
-      if (platforms) {
-        allPlatforms.push(...platforms);
+    // Fallback: Use platforms array if present
+    if (this.config.platforms && Array.isArray(this.config.platforms)) {
+      for (const platformConfig of this.config.platforms) {
+        let platforms = null;
+
+        switch (platformConfig.type) {
+          case 'ground':
+            platforms = this.createGroundPlatform(platformConfig, platformsGroup);
+            break;
+          case 'floating':
+            const floatingResult = this.createFloatingPlatform(platformConfig, platformsGroup);
+            platforms = floatingResult ? (Array.isArray(floatingResult) ? floatingResult : [floatingResult]) : [];
+            break;
+          case 'moving':
+            const movingPlatform = this.createMovingPlatform(platformConfig, platformsGroup);
+            platforms = movingPlatform ? [movingPlatform] : [];
+            break;
+          default:
+            // Skip invalid platform types
+            continue;
+        }
+
+        if (platforms) {
+          allPlatforms.push(...platforms);
+        }
       }
     }
 
@@ -762,31 +791,36 @@ export class SceneFactory {
   /**
    * Creates decorative platforms from configuration array
    * @param {Array} decorativeConfigs - Array of decorative platform configurations
+   * @param {Phaser.Physics.Arcade.Group} [decorativeGroup] - The decorative group to add decorative tiles to
    * @returns {Array} - Array of created decorative platform sprites
    */
-  createDecorativePlatformsFromConfig(decorativeConfigs) {
-    if (!decorativeConfigs || !Array.isArray(decorativeConfigs)) {
-      return [];
-    }
-
-    if (decorativeConfigs.length === 0) {
-      return [];
-    }
-
-    if (!this.scene || !this.scene.add || !this.scene.add.image) {
-      return [];
-    }
-
+  createDecorativePlatformsFromConfig(decorativeConfigs, decorativeGroup = null) {
     const createdDecoratives = [];
 
-    for (const decorativeConfig of decorativeConfigs) {
-      const decoratives = this.createDecorativePlatform(decorativeConfig);
-      if (decoratives) {
-        if (Array.isArray(decoratives)) {
-          createdDecoratives.push(...decoratives);
-        } else {
-          createdDecoratives.push(decoratives);
+    // Handle traditional decorativePlatforms array
+    if (decorativeConfigs && Array.isArray(decorativeConfigs)) {
+      if (decorativeConfigs.length > 0) {
+        if (!this.scene || !this.scene.add || !this.scene.add.image) {
+          return [];
         }
+        for (const decorativeConfig of decorativeConfigs) {
+          const decoratives = this.createDecorativePlatform(decorativeConfig);
+          if (decoratives) {
+            if (Array.isArray(decoratives)) {
+              createdDecoratives.push(...decoratives);
+            } else {
+              createdDecoratives.push(decoratives);
+            }
+          }
+        }
+      }
+    }
+
+    // Handle map_matrix decorative platforms if present
+    if (this.config && this.config.map_matrix) {
+      const mapMatrixResult = this.createMapMatrixFromConfig(null, decorativeGroup); // Pass decorativeGroup for proper separation
+      if (mapMatrixResult && mapMatrixResult.decorativePlatforms && Array.isArray(mapMatrixResult.decorativePlatforms)) {
+        createdDecoratives.push(...mapMatrixResult.decorativePlatforms);
       }
     }
 
@@ -899,6 +933,262 @@ export class SceneFactory {
     }
 
     return true;
+  }
+
+  /**
+   * Validates a map_matrix configuration
+   * @param {Array} mapMatrix - 2D array of tile dictionaries
+   * @returns {boolean} - True if configuration is valid, false otherwise
+   */
+  validateMapMatrixConfiguration(mapMatrix) {
+    // Basic structure check - must be an array
+    if (!Array.isArray(mapMatrix)) {
+      return false;
+    }
+
+    // Handle empty matrix
+    if (mapMatrix.length === 0) {
+      return true;
+    }
+
+    // Validate matrix dimensions (maximum 100x100 for performance)
+    if (mapMatrix.length > 100) {
+      return false;
+    }
+
+    // Validate each row is an array and check for consistent column count
+    let expectedColumnCount = null;
+    for (let rowIndex = 0; rowIndex < mapMatrix.length; rowIndex++) {
+      const row = mapMatrix[rowIndex];
+      if (!Array.isArray(row)) {
+        return false;
+      }
+
+      // Check column count consistency
+      if (expectedColumnCount === null) {
+        expectedColumnCount = row.length;
+      } else if (row.length !== expectedColumnCount) {
+        return false;
+      }
+
+      // Validate column count limit
+      if (row.length > 1000) {
+        return false;
+      }
+
+      // Validate each tile dictionary in the row
+      for (let colIndex = 0; colIndex < row.length; colIndex++) {
+        const tileDict = row[colIndex];
+        if (!tileDict) {
+          continue;
+        }
+        
+        // Validate tile dictionary structure
+        if (!tileDict || typeof tileDict !== 'object') {
+          return false;
+        }
+
+        // Validate required fields
+        if (tileDict.tileKey === undefined || tileDict.tileKey === null) {
+          return false;
+        }
+        if (tileDict.type === undefined || tileDict.type === null) {
+          return false;
+        }
+
+        // Validate tileKey is a string
+        if (typeof tileDict.tileKey !== 'string') {
+          return false;
+        }
+
+        // Validate type is a string
+        if (typeof tileDict.type !== 'string') {
+          return false;
+        }
+
+        // Validate tileKey against available tiles
+        if (!this.isValidTileKey(tileDict.tileKey)) {
+          return false;
+        }
+
+        // Validate type is either "ground" or "decorative"
+        if (tileDict.type !== 'ground' && tileDict.type !== 'decorative') {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Validates if a tileKey is in the list of available tiles
+   * @param {string} tileKey - The tile key to validate
+   * @returns {boolean} - True if tileKey is valid, false otherwise
+   */
+  isValidTileKey(tileKey) {
+    // List of all available tiles from available_tiles.md
+    const availableTiles = [
+      'block_blue', 'block_coin', 'block_coin_active', 'block_empty', 'block_empty_warning',
+      'block_exclamation', 'block_exclamation_active', 'block_green', 'block_plank', 'block_planks',
+      'block_red', 'block_spikes', 'block_strong_coin', 'block_strong_coin_active', 'block_strong_danger',
+      'block_strong_danger_active', 'block_strong_empty', 'block_strong_empty_active', 'block_strong_exclamation',
+      'block_strong_exclamation_active', 'block_yellow', 'bomb', 'bomb_active', 'brick_brown',
+      'brick_brown_diagonal', 'brick_grey', 'brick_grey_diagonal', 'bricks_brown', 'bricks_grey',
+      'bridge', 'bridge_logs', 'bush', 'cactus', 'chain', 'coin_bronze', 'coin_bronze_side',
+      'coin_gold', 'coin_gold_side', 'coin_silver', 'coin_silver_side', 'conveyor', 'door_closed',
+      'door_closed_top', 'door_open', 'door_open_top', 'fence', 'fence_broken', 'fireball',
+      'flag_blue_a', 'flag_blue_b', 'flag_green_a', 'flag_green_b', 'flag_off', 'flag_red_a',
+      'flag_red_b', 'flag_yellow_a', 'flag_yellow_b', 'gem_blue', 'gem_green', 'gem_red', 'gem_yellow',
+      'grass', 'grass_purple', 'heart', 'hill', 'hill_top', 'hill_top_smile', 'hud_character_0',
+      'hud_character_1', 'hud_character_2', 'hud_character_3', 'hud_character_4', 'hud_character_5',
+      'hud_character_6', 'hud_character_7', 'hud_character_8', 'hud_character_9', 'hud_character_multiply',
+      'hud_character_percent', 'hud_coin', 'hud_heart', 'hud_heart_empty', 'hud_heart_half',
+      'hud_key_blue', 'hud_key_green', 'hud_key_red', 'hud_key_yellow', 'hud_player_beige',
+      'hud_player_green', 'hud_player_helmet_beige', 'hud_player_helmet_green', 'hud_player_helmet_pink',
+      'hud_player_helmet_purple', 'hud_player_helmet_yellow', 'hud_player_pink', 'hud_player_purple',
+      'hud_player_yellow', 'key_blue', 'key_green', 'key_red', 'key_yellow', 'ladder_bottom',
+      'ladder_middle', 'ladder_top', 'lava', 'lava_top', 'lava_top_low', 'lever', 'lever_left',
+      'lever_right', 'lock_blue', 'lock_green', 'lock_red', 'lock_yellow', 'mushroom_brown',
+      'mushroom_red', 'ramp', 'rock', 'rop_attached', 'rope', 'saw', 'sign', 'sign_exit',
+      'sign_left', 'sign_right', 'snow', 'spikes', 'spring', 'spring_out', 'star', 'switch_blue',
+      'switch_blue_pressed', 'switch_green', 'switch_green_pressed', 'switch_red', 'switch_red_pressed',
+      'switch_yellow', 'switch_yellow_pressed', 'terrain_dirt_block', 'terrain_dirt_block_bottom',
+      'terrain_dirt_block_bottom_left', 'terrain_dirt_block_bottom_right', 'terrain_dirt_block_center',
+      'terrain_dirt_block_left', 'terrain_dirt_block_right', 'terrain_dirt_block_top',
+      'terrain_dirt_block_top_left', 'terrain_dirt_block_top_right', 'terrain_dirt_cloud',
+      'terrain_dirt_cloud_background', 'terrain_dirt_cloud_left', 'terrain_dirt_cloud_middle',
+      'terrain_dirt_cloud_right', 'terrain_dirt_horizontal_left', 'terrain_dirt_horizontal_middle',
+      'terrain_dirt_horizontal_overhang_left', 'terrain_dirt_horizontal_overhang_right',
+      'terrain_dirt_horizontal_right', 'terrain_dirt_ramp_long_a', 'terrain_dirt_ramp_long_b',
+      'terrain_dirt_ramp_long_c', 'terrain_dirt_ramp_short_a', 'terrain_dirt_ramp_short_b',
+      'terrain_dirt_vertical_bottom', 'terrain_dirt_vertical_middle', 'terrain_dirt_vertical_top',
+      'terrain_grass_block', 'terrain_grass_block_bottom', 'terrain_grass_block_bottom_left',
+      'terrain_grass_block_bottom_right', 'terrain_grass_block_center', 'terrain_grass_block_left',
+      'terrain_grass_block_right', 'terrain_grass_block_top', 'terrain_grass_block_top_left',
+      'terrain_grass_block_top_right', 'terrain_grass_cloud', 'terrain_grass_cloud_background',
+      'terrain_grass_cloud_left', 'terrain_grass_cloud_middle', 'terrain_grass_cloud_right',
+      'terrain_grass_horizontal_left', 'terrain_grass_horizontal_middle', 'terrain_grass_horizontal_overhang_left',
+      'terrain_grass_horizontal_overhang_right', 'terrain_grass_horizontal_right', 'terrain_grass_ramp_long_a',
+      'terrain_grass_ramp_long_b', 'terrain_grass_ramp_long_c', 'terrain_grass_ramp_short_a',
+      'terrain_grass_ramp_short_b', 'terrain_grass_vertical_bottom', 'terrain_grass_vertical_middle',
+      'terrain_grass_vertical_top', 'terrain_purple_block', 'terrain_purple_block_bottom',
+      'terrain_purple_block_bottom_left', 'terrain_purple_block_bottom_right', 'terrain_purple_block_center',
+      'terrain_purple_block_left', 'terrain_purple_block_right', 'terrain_purple_block_top',
+      'terrain_purple_block_top_left', 'terrain_purple_block_top_right', 'terrain_purple_cloud',
+      'terrain_purple_cloud_background', 'terrain_purple_cloud_left', 'terrain_purple_cloud_middle',
+      'terrain_purple_cloud_right', 'terrain_purple_horizontal_left', 'terrain_purple_horizontal_middle',
+      'terrain_purple_horizontal_overhang_left', 'terrain_purple_horizontal_overhang_right',
+      'terrain_purple_horizontal_right', 'terrain_purple_ramp_long_a', 'terrain_purple_ramp_long_b',
+      'terrain_purple_ramp_long_c', 'terrain_purple_ramp_short_a', 'terrain_purple_ramp_short_b',
+      'terrain_purple_vertical_bottom', 'terrain_purple_vertical_middle', 'terrain_purple_vertical_top',
+      'terrain_sand_block', 'terrain_sand_block_bottom', 'terrain_sand_block_bottom_left',
+      'terrain_sand_block_bottom_right', 'terrain_sand_block_center', 'terrain_sand_block_left',
+      'terrain_sand_block_right', 'terrain_sand_block_top', 'terrain_sand_block_top_left',
+      'terrain_sand_block_top_right', 'terrain_sand_cloud', 'terrain_sand_cloud_background',
+      'terrain_sand_cloud_left', 'terrain_sand_cloud_middle', 'terrain_sand_cloud_right',
+      'terrain_sand_horizontal_left', 'terrain_sand_horizontal_middle', 'terrain_sand_horizontal_overhang_left',
+      'terrain_sand_horizontal_overhang_right', 'terrain_sand_horizontal_right', 'terrain_sand_ramp_long_a',
+      'terrain_sand_ramp_long_b', 'terrain_sand_ramp_long_c', 'terrain_sand_ramp_short_a',
+      'terrain_sand_ramp_short_b', 'terrain_sand_vertical_bottom', 'terrain_sand_vertical_middle',
+      'terrain_sand_vertical_top', 'terrain_snow_block', 'terrain_snow_block_bottom',
+      'terrain_snow_block_bottom_left', 'terrain_snow_block_bottom_right', 'terrain_snow_block_center',
+      'terrain_snow_block_left', 'terrain_snow_block_right', 'terrain_snow_block_top',
+      'terrain_snow_block_top_left', 'terrain_snow_block_top_right', 'terrain_snow_cloud',
+      'terrain_snow_cloud_background', 'terrain_snow_cloud_left', 'terrain_snow_cloud_middle',
+      'terrain_snow_cloud_right', 'terrain_snow_horizontal_left', 'terrain_snow_horizontal_middle',
+      'terrain_snow_horizontal_overhang_left', 'terrain_snow_horizontal_overhang_right',
+      'terrain_snow_horizontal_right', 'terrain_snow_ramp_long_a', 'terrain_snow_ramp_long_b',
+      'terrain_snow_ramp_long_c', 'terrain_snow_ramp_short_a', 'terrain_snow_ramp_short_b',
+      'terrain_snow_vertical_bottom', 'terrain_snow_vertical_middle', 'terrain_snow_vertical_top',
+      'terrain_stone_block', 'terrain_stone_block_bottom', 'terrain_stone_block_bottom_left',
+      'terrain_stone_block_bottom_right', 'terrain_stone_block_center', 'terrain_stone_block_left',
+      'terrain_stone_block_right', 'terrain_stone_block_top', 'terrain_stone_block_top_left',
+      'terrain_stone_block_top_right', 'terrain_stone_cloud', 'terrain_stone_cloud_background',
+      'terrain_stone_cloud_left', 'terrain_stone_cloud_middle', 'terrain_stone_cloud_right',
+      'terrain_stone_horizontal_left', 'terrain_stone_horizontal_middle', 'terrain_stone_horizontal_overhang_left',
+      'terrain_stone_horizontal_overhang_right', 'terrain_stone_horizontal_right', 'terrain_stone_ramp_long_a',
+      'terrain_stone_ramp_long_b', 'terrain_stone_ramp_long_c', 'terrain_stone_ramp_short_a',
+      'terrain_stone_ramp_short_b', 'terrain_stone_vertical_bottom', 'terrain_stone_vertical_middle',
+      'terrain_stone_vertical_top', 'torch_off', 'torch_on_a', 'torch_on_b', 'water', 'water_top',
+      'water_top_low', 'weight', 'window'
+    ];
+
+    return availableTiles.includes(tileKey);
+  }
+
+  // ========================================
+  // Map Matrix Parsing Methods
+  // ========================================
+
+  /**
+   * Creates platforms from map_matrix configuration
+   * @param {Phaser.GameObjects.Group} platformsGroup - The platforms group to add ground platforms to
+   * @param {Phaser.GameObjects.Group} [decorativeGroup] - The decorative group to add decorative tiles to
+   * @returns {Object|null} - Object with groundPlatforms and decorativePlatforms arrays, or null if no map_matrix or empty
+   */
+  createMapMatrixFromConfig(platformsGroup, decorativeGroup = null) {
+    if (!this.config || !this.config.map_matrix) {
+      return null;
+    }
+
+    const mapMatrix = this.config.map_matrix;
+    if (!Array.isArray(mapMatrix) || mapMatrix.length === 0) {
+      return null;
+    }
+    if (!platformsGroup) {
+      return null;
+    }
+
+    const groundPlatforms = [];
+    const decorativePlatforms = [];
+
+    // Iterate over each cell in the map matrix
+    for (let rowIndex = 0; rowIndex < mapMatrix.length; rowIndex++) {
+      const row = mapMatrix[rowIndex];
+      for (let colIndex = 0; colIndex < row.length; colIndex++) {
+        const tileDict = row[colIndex];
+        if (!tileDict) {
+          continue;
+        }
+
+        const worldX = colIndex * 64;
+        const worldY = rowIndex * 64;
+        if (tileDict.type === 'ground') {
+          // Create ground tile sprite in platforms group (collision-enabled)
+          if (!platformsGroup) {
+            console.warn('[SceneFactory] No valid platforms group provided for ground tile creation');
+            continue;
+          }
+          const sprite = platformsGroup.create(worldX, worldY, 'tiles', tileDict.tileKey);
+          sprite.setOrigin(0, 0);
+          if (sprite.body) {
+            sprite.body.setImmovable(true);
+            sprite.body.setAllowGravity(false);
+          }
+          groundPlatforms.push(sprite);
+        } else if (tileDict.type === 'decorative') {
+          // Create decorative tile sprite in decorative group (no collision)
+          const targetGroup = decorativeGroup || platformsGroup; // Fallback to platformsGroup if no decorativeGroup
+          if (!targetGroup) {
+            console.warn('[SceneFactory] No valid group provided for decorative tile creation');
+            continue;
+          }
+          const sprite = targetGroup.create(worldX, worldY, 'tiles', tileDict.tileKey);
+          sprite.setOrigin(0, 0);
+          if (sprite.body) {
+            sprite.body.setAllowGravity(false);
+            // Do not setImmovable or enable collision for decorative
+          }
+          decorativePlatforms.push(sprite);
+        }
+      }
+    }
+
+    return {
+      groundPlatforms,
+      decorativePlatforms
+    };
   }
 
   // ========================================

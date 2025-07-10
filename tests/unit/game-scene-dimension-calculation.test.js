@@ -48,6 +48,98 @@ describe('GameScene Dimension Calculation and Player Spawn', () => {
       expect(gameScene.levelHeight).toBe(1500);
       expect(gameScene.levelHeight).not.toBe(1564);
     });
+
+    // New tests for map_matrix dimension calculation
+    it('should calculate level width from map_matrix when platforms are not present', () => {
+      const testConfig = {
+        map_matrix: [
+          [{ tileKey: "terrain_grass_block", type: "ground" }, { tileKey: "bush", type: "decorative" }],
+          [{ tileKey: "terrain_grass_block", type: "ground" }, { tileKey: "rock", type: "decorative" }]
+        ]
+      };
+      const mockScene = createPhaserSceneMock('GameScene');
+      const gameScene = new GameScene(mockScene, testConfig);
+      gameScene.create();
+      // 2 columns * 64 pixels = 128 pixels width
+      expect(gameScene.levelWidth).toBe(128);
+    });
+
+    it('should calculate level height from map_matrix when platforms are not present', () => {
+      const testConfig = {
+        map_matrix: [
+          [{ tileKey: "terrain_grass_block", type: "ground" }, { tileKey: "bush", type: "decorative" }],
+          [{ tileKey: "terrain_grass_block", type: "ground" }, { tileKey: "rock", type: "decorative" }],
+          [{ tileKey: "terrain_grass_block", type: "ground" }, { tileKey: "cactus", type: "decorative" }]
+        ]
+      };
+      const mockScene = createPhaserSceneMock('GameScene');
+      const gameScene = new GameScene(mockScene, testConfig);
+      gameScene.create();
+      // 3 rows * 64 pixels = 192 pixels height
+      expect(gameScene.levelHeight).toBe(192);
+    });
+
+    it('should use maximum width between platforms and map_matrix', () => {
+      const testConfig = {
+        platforms: [
+          { x: 0, y: 100, width: 500 } // Max platform width: 500
+        ],
+        map_matrix: [
+          [{ tileKey: "terrain_grass_block", type: "ground" }, { tileKey: "bush", type: "decorative" }, { tileKey: "rock", type: "decorative" }]
+        ]
+      };
+      const mockScene = createPhaserSceneMock('GameScene');
+      const gameScene = new GameScene(mockScene, testConfig);
+      gameScene.create();
+      // Platform max: 500, map_matrix: 3 columns * 64 = 192, so should use 500
+      expect(gameScene.levelWidth).toBe(500);
+    });
+
+    it('should use maximum height between platforms and map_matrix', () => {
+      const testConfig = {
+        platforms: [
+          { x: 0, y: 100, width: 500 } // Max platform y: 100
+        ],
+        map_matrix: [
+          [{ tileKey: "terrain_grass_block", type: "ground" }],
+          [{ tileKey: "terrain_grass_block", type: "ground" }],
+          [{ tileKey: "terrain_grass_block", type: "ground" }]
+        ]
+      };
+      const mockScene = createPhaserSceneMock('GameScene');
+      const gameScene = new GameScene(mockScene, testConfig);
+      gameScene.create();
+      // Platform max y: 100, map_matrix: 3 rows * 64 = 192, so should use 192
+      expect(gameScene.levelHeight).toBe(192);
+    });
+
+    it('should handle empty map_matrix gracefully', () => {
+      const testConfig = {
+        platforms: [
+          { x: 0, y: 100, width: 500 }
+        ],
+        map_matrix: []
+      };
+      const mockScene = createPhaserSceneMock('GameScene');
+      const gameScene = new GameScene(mockScene, testConfig);
+      gameScene.create();
+      expect(gameScene.levelWidth).toBe(500);
+      expect(gameScene.levelHeight).toBe(100);
+    });
+
+    it('should handle map_matrix with empty rows gracefully', () => {
+      const testConfig = {
+        platforms: [
+          { x: 0, y: 100, width: 500 }
+        ],
+        map_matrix: [[]]
+      };
+      const mockScene = createPhaserSceneMock('GameScene');
+      const gameScene = new GameScene(mockScene, testConfig);
+      gameScene.create();
+      expect(gameScene.levelWidth).toBe(500);
+      expect(gameScene.levelHeight).toBe(100);
+    });
   });
 
   describe('Player Spawn Configuration', () => {
