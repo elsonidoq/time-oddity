@@ -7,7 +7,7 @@ This document defines all interfaces, invariants, and contracts for the Time Odd
 1. [Core System Interfaces](01_core_system_interfaces.md) - RandomGenerator and GridUtilities interfaces for foundational operations
 2. [Generation Pipeline Interfaces](02_generation_pipeline_interfaces.md) - GridSeeder and CellularAutomata for cave generation algorithms
 3. [Analysis and Validation Interfaces](03_analysis_and_validation_interfaces.md) - Region detection, corridor carving, quality validation, physics-aware reachability analysis, comprehensive solvability testing systems, and critical ring analysis
-4. [Placement and Pathfinding Interfaces](04_placement_and_pathfinding_interfaces.md) - Player spawn, goal placement, A* pathfinding integration, and platform placement system
+4. [Placement and Pathfinding Interfaces](04_placement_and_pathfinding_interfaces.md) - Player spawn, goal placement, A* pathfinding integration, platform placement system, and spatially distributed enemy placement (zone-based, round-robin)
 5. [Visualization and Monitoring Interfaces](05_visualization_and_monitoring_interfaces.md) - ASCII visualization, performance monitoring, and logging systems
 6. [CLI and Integration Interfaces](06_cli_and_integration_interfaces.md) - Command-line interface and integration contracts
 7. [System Invariants](07_system_invariants.md) - Data flow, state management, thread safety, memory management, and coordinate system invariants

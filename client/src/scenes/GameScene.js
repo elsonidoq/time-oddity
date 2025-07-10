@@ -69,20 +69,42 @@ export default class GameScene extends BaseScene {
     }
 
     // === Determine level dimensions from configuration (width/height) ===
-    let configLevelWidth = this.sys.game.config.width;
-    let configLevelHeight = this.sys.game.config.height;
+    let configLevelWidth = 0;
+    let configLevelHeight = 0;
 
+    // Calculate dimensions from platforms
     if (levelConfig && Array.isArray(levelConfig.platforms) && levelConfig.platforms.length > 0) {
       for (const p of levelConfig.platforms) {
         const tileWidth = 64;
-        const tileHeight = 64;
         const platWidth = p.width ? p.width : tileWidth;
         const maxX = p.x + platWidth;
         if (maxX > configLevelWidth) configLevelWidth = maxX;
       }
-      // FIX: Level height should be max of (platform.y + tileHeight)
-      configLevelHeight = Math.max(...levelConfig.platforms.map(p => (p.y + 64)));
+      // Level height should be max of platform y-coordinates (not y + height)
+      const maxPlatformY = Math.max(...levelConfig.platforms.map(p => p.y));
+      if (maxPlatformY > configLevelHeight) configLevelHeight = maxPlatformY;
     }
+
+    // Calculate dimensions from map_matrix
+    if (levelConfig && Array.isArray(levelConfig.map_matrix) && levelConfig.map_matrix.length > 0) {
+      const mapMatrix = levelConfig.map_matrix;
+      const tileSize = 64;
+      
+      // Calculate width from map_matrix columns
+      const maxColumns = Math.max(...mapMatrix.map(row => row ? row.length : 0));
+      const mapMatrixWidth = maxColumns * tileSize;
+      if (mapMatrixWidth > configLevelWidth) configLevelWidth = mapMatrixWidth;
+      
+      // Calculate height from map_matrix rows
+      const mapMatrixHeight = mapMatrix.length * tileSize;
+      if (mapMatrixHeight > configLevelHeight) configLevelHeight = mapMatrixHeight;
+      
+      console.log(`[GameScene] Map matrix dimensions: ${mapMatrix.length} rows x ${maxColumns} columns = ${mapMatrixWidth}x${mapMatrixHeight}`);
+    }
+
+    // Fallback to game config dimensions if no platforms or map_matrix provided
+    if (configLevelWidth === 0) configLevelWidth = this.sys.game.config.width;
+    if (configLevelHeight === 0) configLevelHeight = this.sys.game.config.height;
 
     this.levelWidth = configLevelWidth;
     this.levelHeight = configLevelHeight;

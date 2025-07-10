@@ -16,6 +16,8 @@ const PhysicsAwareReachabilityAnalyzer = require('./src/analysis/PhysicsAwareRea
 const ReachableFrontierAnalyzer = require('./src/analysis/ReachableFrontierAnalyzer');
 const CriticalRingAnalyzer = require('./src/analysis/CriticalRingAnalyzer');
 const StrategicPlatformPlacer = require('./src/placement/StrategicPlatformPlacer');
+const EnemyPlacementAnalyzer = require('./src/placement/EnemyPlacementAnalyzer');
+const StrategicEnemyPlacer = require('./src/placement/StrategicEnemyPlacer');
 const LevelJSONExporter = require('./src/export/LevelJSONExporter');
 const fs = require('fs');
 
@@ -30,7 +32,7 @@ console.log('=== Time Oddity Cave Generation with JSON Export ===\n');
 try {
   // 1. Seed the grid
   const seeder = new GridSeeder();
-  const seedConfig = { width, height, initialWallRatio: 0.45 };
+  const seedConfig = { width, height, initialWallRatio: 0.42 };
   const seededGrid = seeder.seedGrid(seedConfig, rng);
 
   // 2. Run cellular automata
@@ -46,13 +48,25 @@ try {
   const connectedGrid = CorridorCarver.carveCorridors(caGrid, labelGrid, regionData, corridorRng);
   
 
-  // 5. Player spawn placement
-  const spawnPlacer = new PlayerSpawnPlacer({ maxAttempts: 100, safetyRadius: 2 });
+  // 5. Player spawn placement with left-side constraint
+  const spawnPlacer = new PlayerSpawnPlacer({ 
+    maxAttempts: 100, 
+    safetyRadius: 2,
+    leftSideBoundary: 0.25 // Player spawn in left 25% of map
+  });
   const spawnResult = spawnPlacer.placeSpawn(connectedGrid, rng);
   let playerPos = null;
   if (spawnResult.success) {
     playerPos = spawnResult.position;
     console.log(`✅ Player spawn placed at (${playerPos.x}, ${playerPos.y})`);
+    
+    // Log constraint validation
+    const leftSideBoundaryX = Math.floor(width * 0.25);
+    if (playerPos.x < leftSideBoundaryX) {
+      console.log(`✅ Spawn constraint validated: position in left ${Math.round(0.25 * 100)}% of map`);
+    } else if (spawnResult.fallbackUsed) {
+      console.log(`⚠️  Spawn constraint fallback used: ${spawnResult.warning}`);
+    }
   } else {
     throw new Error(`Failed to place player spawn: ${spawnResult.error}`);
   }
@@ -64,9 +78,9 @@ try {
   // 7. Platform placement (before goal placement)
   const platformPlacer = new StrategicPlatformPlacer({
     targetReachability: 0.85,
-    floatingPlatformProbability: 0.4,
-    movingPlatformProbability: 0.6,
-    minPlatformSize: 2,
+    floatingPlatformProbability: 1.0,
+    movingPlatformProbability: 0.0,
+    minPlatformSize: 1,
     maxPlatformSize: 6
   });
   const platformRng = new RandomGenerator('platform-seed');
@@ -76,8 +90,9 @@ try {
   // 8. Goal placement after platforms
   if (playerPos) {
     try {
-      goalPos = goalPlacer.placeGoalAfterPlatforms(connectedGrid, playerPos, 10, () => rng.random());
-      console.log(`✅ Goal placed at (${goalPos.x}, ${goalPos.y}) [after platforms]`);
+      const rightGoalPlacer = new GoalPlacer({ rightSideBoundary: 0.75 });
+      goalPos = rightGoalPlacer.placeGoalAfterPlatforms(connectedGrid, playerPos, 10, () => rng.random());
+      console.log(`✅ Goal placed at (${goalPos.x}, ${goalPos.y}) [after platforms, right-side constraint]`);
     } catch (e) {
       throw new Error(`Failed to place goal after platforms: ${e.message}`);
     }
@@ -87,27 +102,38 @@ try {
   const ReachableCoinPlacer = require('./src/placement/ReachableCoinPlacer');
   const coinPlacer = new ReachableCoinPlacer({
     coinCount: 100,
-    deadEndWeight: 0.4,
+    deadEndWeight: 0.6,
     explorationWeight: 0.3,
-    unreachableWeight: 0.3,
-    minDistance: 3
+    unreachableWeight: 0.1,
+    minDistance: 1
   });
   const coinRng = new RandomGenerator('coin-seed');
   const coins = coinPlacer.placeCoins(connectedGrid, playerPos, platforms, () => coinRng.random());
   console.log(`✅ Placed ${coins.length} coins (reachable only)`);
 
-  // 10. Assemble level data for export
+  // 10. Enemy placement
+  const enemyPlacer = new StrategicEnemyPlacer({
+    maxEnemies: 100,
+    enemyDensity: 0.05,
+    minDistanceFromSpawn: 8,
+    minDistanceFromGoal: 5,
+    preserveSolvability: true
+  });
+  const enemyRng = new RandomGenerator('enemy-seed');
+  const enemies = enemyPlacer.placeEnemies(connectedGrid, playerPos, coins, goalPos, platforms, () => enemyRng.random());
+
+  // 11. Assemble level data for export
   const levelData = {
     grid: connectedGrid,
     startPos: playerPos,
     goalPos: goalPos,
     coins: coins,
-    enemies: [], // Add enemy placement if available
+    enemies: enemies,
     platforms: platforms,
     config: { width, height, seed }
   };
 
-  // 11. Export to JSON
+  // 12. Export to JSON
   const exportedLevel = LevelJSONExporter.exportLevel(levelData);
   const outputPath = './test-cave.json';
   fs.writeFileSync(outputPath, JSON.stringify(exportedLevel, null, 2));

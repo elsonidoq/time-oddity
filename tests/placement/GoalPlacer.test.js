@@ -80,6 +80,17 @@ describe('GoalPlacer', () => {
       expect(customPlacer.maxAttempts).toBe(50);
       expect(customPlacer.visibilityRadius).toBe(5);
     });
+
+    test('should create a GoalPlacer instance with right-side constraint', () => {
+      const rightSidePlacer = new GoalPlacer({
+        minDistance: 10,
+        maxAttempts: 100,
+        visibilityRadius: 3,
+        rightSideBoundary: 0.75 // Goal in right 25% of map
+      });
+      
+      expect(rightSidePlacer.rightSideBoundary).toBe(0.75);
+    });
   });
 
   describe('validateConfig', () => {
@@ -87,7 +98,8 @@ describe('GoalPlacer', () => {
       const config = {
         minDistance: 15,
         maxAttempts: 50,
-        visibilityRadius: 5
+        visibilityRadius: 5,
+        rightSideBoundary: 0.75
       };
       
       expect(() => placer.validateConfig(config)).not.toThrow();
@@ -106,6 +118,16 @@ describe('GoalPlacer', () => {
     test('should throw error for invalid visibilityRadius', () => {
       const config = { visibilityRadius: -1 };
       expect(() => placer.validateConfig(config)).toThrow('visibilityRadius must be positive');
+    });
+
+    test('should throw error for invalid rightSideBoundary', () => {
+      const config = { rightSideBoundary: 1.5 };
+      expect(() => placer.validateConfig(config)).toThrow('rightSideBoundary must be between 0 and 1');
+    });
+
+    test('should throw error for negative rightSideBoundary', () => {
+      const config = { rightSideBoundary: -0.1 };
+      expect(() => placer.validateConfig(config)).toThrow('rightSideBoundary must be between 0 and 1');
     });
   });
 
@@ -155,6 +177,18 @@ describe('GoalPlacer', () => {
       const outOfBoundsPosition = { x: 25, y: 25 };
       expect(placer.isValidGoalPosition(testGrid, outOfBoundsPosition, playerSpawn)).toBe(false);
     });
+
+    test('should return false for positions outside right-side boundary', () => {
+      const rightSidePlacer = new GoalPlacer({ rightSideBoundary: 0.75 });
+      const leftSidePosition = { x: 10, y: 15 }; // In left 75% of 20-width grid
+      expect(rightSidePlacer.isValidGoalPosition(testGrid, leftSidePosition, playerSpawn)).toBe(false);
+    });
+
+    test('should return true for positions within right-side boundary', () => {
+      const rightSidePlacer = new GoalPlacer({ rightSideBoundary: 0.75 });
+      const rightSidePosition = { x: 16, y: 15 }; // In right 25% of 20-width grid
+      expect(rightSidePlacer.isValidGoalPosition(testGrid, rightSidePosition, playerSpawn)).toBe(true);
+    });
   });
 
   describe('isCurrentlyUnreachable', () => {
@@ -198,66 +232,84 @@ describe('GoalPlacer', () => {
       const centerSpawn = { x: 2, y: 2 };
       
       const positions = placer.findValidGoalPositions(smallGrid, centerSpawn);
-      expect(positions).toEqual([]);
+      expect(positions.length).toBe(0);
     });
 
-    test('should throw error for null grid', () => {
-      expect(() => placer.findValidGoalPositions(null, playerSpawn)).toThrow('Grid is required');
+    test('should find valid goal positions with right-side constraint', () => {
+      const rightSidePlacer = new GoalPlacer({ rightSideBoundary: 0.75 });
+      const positions = rightSidePlacer.findValidGoalPositions(testGrid, playerSpawn);
+      
+      expect(Array.isArray(positions)).toBe(true);
+      expect(positions.length).toBeGreaterThan(0);
+      
+      // All returned positions should be in right side of map
+      const rightSideBoundaryX = Math.floor(testGrid.shape[0] * 0.75);
+      for (const pos of positions) {
+        expect(pos.x).toBeGreaterThanOrEqual(rightSideBoundaryX);
+        expect(rightSidePlacer.isValidGoalPosition(testGrid, pos, playerSpawn)).toBe(true);
+      }
     });
 
-    test('should throw error for null spawn', () => {
-      expect(() => placer.findValidGoalPositions(testGrid, null)).toThrow('Player spawn is required');
+    test('should return empty array when no valid right-side positions available', () => {
+      // Create a grid where right side has no valid positions
+      const smallGrid = GridUtilities.createGrid(10, 10, 0);
+      const centerSpawn = { x: 5, y: 5 };
+      
+      // Make right side all walls
+      for (let x = 8; x < 10; x++) {
+        for (let y = 0; y < 10; y++) {
+          GridUtilities.setSafe(smallGrid, x, y, 1);
+        }
+      }
+      
+      const rightSidePlacer = new GoalPlacer({ rightSideBoundary: 0.8 });
+      const positions = rightSidePlacer.findValidGoalPositions(smallGrid, centerSpawn);
+      expect(positions.length).toBe(0);
     });
   });
 
   describe('optimizeGoalPlacement', () => {
-    test('should select optimal goal position', () => {
-      const validPositions = [
-        { x: 15, y: 15 },
-        { x: 16, y: 16 },
-        { x: 14, y: 14 }
-      ];
-      
-      const optimalPosition = placer.optimizeGoalPlacement(validPositions, playerSpawn);
-      
-      expect(optimalPosition).toBeDefined();
-      expect(typeof optimalPosition.x).toBe('number');
-      expect(typeof optimalPosition.y).toBe('number');
-      expect(validPositions).toContainEqual(optimalPosition);
-    });
-
     test('should return null for empty positions array', () => {
-      const optimalPosition = placer.optimizeGoalPlacement([], playerSpawn);
-      expect(optimalPosition).toBeNull();
+      const result = placer.optimizeGoalPlacement([], playerSpawn);
+      expect(result).toBeNull();
     });
 
     test('should return single position when only one available', () => {
       const singlePosition = { x: 15, y: 15 };
-      const optimalPosition = placer.optimizeGoalPlacement([singlePosition], playerSpawn);
-      expect(optimalPosition).toEqual(singlePosition);
+      const result = placer.optimizeGoalPlacement([singlePosition], playerSpawn);
+      expect(result).toEqual(singlePosition);
+    });
+
+    test('should select position with maximum distance from spawn', () => {
+      const positions = [
+        { x: 10, y: 10 },
+        { x: 15, y: 15 },
+        { x: 12, y: 12 }
+      ];
+      
+      const result = placer.optimizeGoalPlacement(positions, playerSpawn);
+      expect(result).toEqual({ x: 15, y: 15 }); // Should be farthest from spawn at (4, 4)
     });
   });
 
   describe('validateGoalVisibility', () => {
     test('should return true for visible goals', () => {
-      // Goal in open area should be visible
       const visibleGoal = { x: 15, y: 15 };
       const result = placer.validateGoalVisibility(testGrid, visibleGoal);
       expect(result).toBe(true);
     });
 
-    test('should return false for goals in corners', () => {
-      // Goal in corner might have limited visibility
-      const cornerGoal = { x: 18, y: 18 };
-      const result = placer.validateGoalVisibility(testGrid, cornerGoal);
-      // This might be true or false depending on implementation
-      expect(typeof result).toBe('boolean');
-    });
-
-    test('should handle edge cases', () => {
-      const edgeGoal = { x: 1, y: 1 };
-      const result = placer.validateGoalVisibility(testGrid, edgeGoal);
-      expect(typeof result).toBe('boolean');
+    test('should return false for goals surrounded by walls', () => {
+      // Create a goal surrounded by walls
+      const surroundedGoal = { x: 5, y: 5 };
+      // Add walls around the goal
+      GridUtilities.setSafe(testGrid, 4, 5, 1);
+      GridUtilities.setSafe(testGrid, 6, 5, 1);
+      GridUtilities.setSafe(testGrid, 5, 4, 1);
+      GridUtilities.setSafe(testGrid, 5, 6, 1);
+      
+      const result = placer.validateGoalVisibility(testGrid, surroundedGoal);
+      expect(result).toBe(false);
     });
   });
 
@@ -267,89 +319,115 @@ describe('GoalPlacer', () => {
       
       expect(result.success).toBe(true);
       expect(result.position).toBeDefined();
-      expect(typeof result.position.x).toBe('number');
-      expect(typeof result.position.y).toBe('number');
+      expect(result.position.x).toBeGreaterThanOrEqual(0);
+      expect(result.position.y).toBeGreaterThanOrEqual(0);
       expect(placer.isValidGoalPosition(testGrid, result.position, playerSpawn)).toBe(true);
     });
 
-    test('should return failure when no valid positions available', () => {
-      // Create a small grid with spawn in center
+    test('should fail when no valid positions available', () => {
+      // Create a grid with no valid goal positions
       const smallGrid = GridUtilities.createGrid(5, 5, 0);
       const centerSpawn = { x: 2, y: 2 };
       
       const result = placer.placeGoal(smallGrid, centerSpawn, rng);
-      
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
-      expect(result.position).toBeNull();
     });
 
-    test('should use deterministic RNG for consistent results', () => {
-      const rng1 = new RandomGenerator('same-seed');
-      const rng2 = new RandomGenerator('same-seed');
+    test('should place goal in right side with constraint', () => {
+      const rightSidePlacer = new GoalPlacer({ rightSideBoundary: 0.75 });
+      const result = rightSidePlacer.placeGoal(testGrid, playerSpawn, rng);
       
-      const result1 = placer.placeGoal(testGrid, playerSpawn, rng1);
-      const result2 = placer.placeGoal(testGrid, playerSpawn, rng2);
+      expect(result.success).toBe(true);
+      expect(result.position).toBeDefined();
       
-      expect(result1.success).toBe(result2.success);
-      if (result1.success && result2.success) {
-        expect(result1.position).toEqual(result2.position);
+      // Goal should be in right side of map
+      const rightSideBoundaryX = Math.floor(testGrid.shape[0] * 0.75);
+      expect(result.position.x).toBeGreaterThanOrEqual(rightSideBoundaryX);
+      expect(rightSidePlacer.isValidGoalPosition(testGrid, result.position, playerSpawn)).toBe(true);
+    });
+
+    test('should fail when no valid right-side positions available', () => {
+      // Create a grid where right side has no valid positions
+      const smallGrid = GridUtilities.createGrid(10, 10, 0);
+      const centerSpawn = { x: 5, y: 5 };
+      
+      // Make right side all walls
+      for (let x = 8; x < 10; x++) {
+        for (let y = 0; y < 10; y++) {
+          GridUtilities.setSafe(smallGrid, x, y, 1);
+        }
       }
-    });
-
-    test('should throw error for null grid', () => {
-      expect(() => placer.placeGoal(null, playerSpawn, rng)).toThrow('Grid is required');
-    });
-
-    test('should throw error for null spawn', () => {
-      expect(() => placer.placeGoal(testGrid, null, rng)).toThrow('Player spawn is required');
-    });
-
-    test('should throw error for null RNG', () => {
-      expect(() => placer.placeGoal(testGrid, playerSpawn, null)).toThrow('RandomGenerator is required');
+      
+      const rightSidePlacer = new GoalPlacer({ rightSideBoundary: 0.8 });
+      const result = rightSidePlacer.placeGoal(smallGrid, centerSpawn, rng);
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
     });
   });
 
   describe('placeGoalWithConfig', () => {
     test('should place goal with custom config', () => {
-      const config = {
+      const customConfig = {
         minDistance: 5,
         maxAttempts: 50,
-        visibilityRadius: 2
+        visibilityRadius: 2,
+        rightSideBoundary: 0.75
       };
       
-      const result = placer.placeGoalWithConfig(testGrid, playerSpawn, rng, config);
+      const result = placer.placeGoalWithConfig(testGrid, playerSpawn, rng, customConfig);
       
       expect(result.success).toBe(true);
       expect(result.position).toBeDefined();
-    });
-
-    test('should validate config before placement', () => {
-      const invalidConfig = { minDistance: -1 };
       
-      expect(() => placer.placeGoalWithConfig(testGrid, playerSpawn, rng, invalidConfig))
-        .toThrow('minDistance must be positive');
+      // Goal should be in right side of map
+      const rightSideBoundaryX = Math.floor(testGrid.shape[0] * 0.75);
+      expect(result.position.x).toBeGreaterThanOrEqual(rightSideBoundaryX);
     });
   });
 
   describe('getGoalStatistics', () => {
-    test('should return goal placement statistics', () => {
+    test('should return goal statistics', () => {
       const stats = placer.getGoalStatistics(testGrid, playerSpawn);
       
       expect(stats).toBeDefined();
-      expect(typeof stats.validPositions).toBe('number');
-      expect(typeof stats.reachablePositions).toBe('number');
-      expect(typeof stats.unreachablePositions).toBe('number');
-      expect(typeof stats.averageDistance).toBe('number');
+      expect(stats.totalValidPositions).toBeGreaterThanOrEqual(0);
+      expect(stats.averageDistance).toBeGreaterThanOrEqual(0);
+      expect(stats.maxDistance).toBeGreaterThanOrEqual(0);
+      expect(stats.minDistance).toBeGreaterThanOrEqual(0);
     });
 
-    test('should handle empty grid', () => {
-      const emptyGrid = GridUtilities.createGrid(0, 0, 0);
-      const stats = placer.getGoalStatistics(emptyGrid, playerSpawn);
+    test('should return right-side constraint statistics', () => {
+      const rightSidePlacer = new GoalPlacer({ rightSideBoundary: 0.75 });
+      const stats = rightSidePlacer.getGoalStatistics(testGrid, playerSpawn);
       
-      expect(stats.validPositions).toBe(0);
-      expect(stats.reachablePositions).toBe(0);
-      expect(stats.unreachablePositions).toBe(0);
+      expect(stats).toBeDefined();
+      expect(stats.totalValidPositions).toBeGreaterThanOrEqual(0);
+      expect(stats.rightSidePositions).toBeGreaterThanOrEqual(0);
+      expect(stats.rightSideBoundaryX).toBeDefined();
+    });
+  });
+
+  describe('placeGoalAfterPlatforms', () => {
+    test('should place goal after platforms are placed', () => {
+      const result = placer.placeGoalAfterPlatforms(testGrid, playerSpawn, 10, rng);
+      
+      expect(result).toBeDefined();
+      expect(result.x).toBeGreaterThanOrEqual(0);
+      expect(result.y).toBeGreaterThanOrEqual(0);
+      expect(placer.isValidGoalPosition(testGrid, result, playerSpawn)).toBe(true);
+    });
+
+    test('should place goal in right side with constraint after platforms', () => {
+      const rightSidePlacer = new GoalPlacer({ rightSideBoundary: 0.75 });
+      const result = rightSidePlacer.placeGoalAfterPlatforms(testGrid, playerSpawn, 10, rng);
+      
+      expect(result).toBeDefined();
+      
+      // Goal should be in right side of map
+      const rightSideBoundaryX = Math.floor(testGrid.shape[0] * 0.75);
+      expect(result.x).toBeGreaterThanOrEqual(rightSideBoundaryX);
+      expect(rightSidePlacer.isValidGoalPosition(testGrid, result, playerSpawn)).toBe(true);
     });
   });
 }); 

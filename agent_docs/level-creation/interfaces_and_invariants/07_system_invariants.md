@@ -42,6 +42,8 @@
 - **COORD-6**: Physics-aware reachability analysis MUST be used for platform placement decisions
 - **COORD-7**: Platform placement MUST follow the sequence: coins → reachability analysis → platform placement → validation
 
+- Enemy placement must be spatially distributed across the level (left, middle, right zones) to avoid clustering and ensure fair challenge. The placer must use a zone-based, round-robin selection after priority sorting. Distance-from-player sorting is deprecated and must not be used for spatial distribution.
+
 **LESSONS LEARNED**:
 - **L-1**: Grid visualization can be misleading - always verify coordinate interpretation
 - **L-2**: Dead-end detection logic must distinguish between floor tiles (0) and wall tiles (1)

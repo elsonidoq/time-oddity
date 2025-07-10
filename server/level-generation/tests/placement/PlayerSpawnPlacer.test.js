@@ -227,4 +227,124 @@ describe('PlayerSpawnPlacer', () => {
       expect(() => new PlayerSpawnPlacer({ safetyRadius: 0 })).toThrow('safetyRadius must be positive');
     });
   });
+
+  // NEW TESTS FOR LEFT-SIDE CONSTRAINT FUNCTIONALITY
+  describe('left-side constraint functionality', () => {
+    test('should use default leftSideBoundary of 25%', () => {
+      const placer = new PlayerSpawnPlacer();
+      expect(placer.leftSideBoundary).toBe(0.25);
+    });
+
+    test('should accept custom leftSideBoundary configuration', () => {
+      const placer = new PlayerSpawnPlacer({ leftSideBoundary: 0.3 });
+      expect(placer.leftSideBoundary).toBe(0.3);
+    });
+
+    test('should throw error for invalid leftSideBoundary', () => {
+      expect(() => new PlayerSpawnPlacer({ leftSideBoundary: -0.1 })).toThrow('leftSideBoundary must be between 0 and 1');
+      expect(() => new PlayerSpawnPlacer({ leftSideBoundary: 1.1 })).toThrow('leftSideBoundary must be between 0 and 1');
+    });
+
+    test('should find valid spawn positions only in left side of grid', () => {
+      // Create a larger grid (20x10) to test left-side constraint
+      const largeGrid = GridUtilities.createGrid(20, 10);
+      
+      // Create floor tiles in top 8 rows
+      for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 20; x++) {
+          GridUtilities.setSafe(largeGrid, x, y, 0); // Floor
+        }
+      }
+      // Create wall tiles in bottom 2 rows
+      for (let y = 8; y < 10; y++) {
+        for (let x = 0; x < 20; x++) {
+          GridUtilities.setSafe(largeGrid, x, y, 1); // Wall
+        }
+      }
+
+      const placer = new PlayerSpawnPlacer({ leftSideBoundary: 0.25 });
+      const validPositions = placer.findValidSpawnPositions(largeGrid);
+      
+      // All positions should be in the left 25% of the grid (x < 5)
+      for (const pos of validPositions) {
+        expect(pos.x).toBeLessThan(5); // 25% of 20 = 5
+      }
+    });
+
+    test('should fallback to full grid search when no left-side positions found', () => {
+      // Create a grid where only the right side has valid spawn positions
+      const grid = GridUtilities.createGrid(10, 10);
+      
+      // Create floor tiles in top 8 rows, but only in right half
+      for (let y = 0; y < 8; y++) {
+        for (let x = 5; x < 10; x++) { // Only right half
+          GridUtilities.setSafe(grid, x, y, 0); // Floor
+        }
+      }
+      // Create wall tiles in bottom 2 rows, but only in right half
+      for (let y = 8; y < 10; y++) {
+        for (let x = 5; x < 10; x++) { // Only right half
+          GridUtilities.setSafe(grid, x, y, 1); // Wall
+        }
+      }
+
+      const placer = new PlayerSpawnPlacer({ leftSideBoundary: 0.25 });
+      const validPositions = placer.findValidSpawnPositions(grid);
+      
+      // Should find positions in the right half (fallback behavior)
+      expect(validPositions.length).toBeGreaterThan(0);
+      for (const pos of validPositions) {
+        expect(pos.x).toBeGreaterThanOrEqual(5); // Right half
+      }
+    });
+
+    test('should place spawn in left side when valid positions exist', () => {
+      // Create a grid with valid positions in both left and right sides
+      const grid = GridUtilities.createGrid(20, 10);
+      
+      // Create floor tiles in top 8 rows
+      for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 20; x++) {
+          GridUtilities.setSafe(grid, x, y, 0); // Floor
+        }
+      }
+      // Create wall tiles in bottom 2 rows
+      for (let y = 8; y < 10; y++) {
+        for (let x = 0; x < 20; x++) {
+          GridUtilities.setSafe(grid, x, y, 1); // Wall
+        }
+      }
+
+      const placer = new PlayerSpawnPlacer({ leftSideBoundary: 0.25 });
+      const result = placer.placeSpawn(grid, rng);
+      
+      expect(result.success).toBe(true);
+      expect(result.position.x).toBeLessThan(5); // Should be in left 25%
+    });
+
+    test('should include fallback warning in result when using fallback', () => {
+      // Create a grid where only the right side has valid spawn positions
+      const grid = GridUtilities.createGrid(10, 10);
+      
+      // Create floor tiles in top 8 rows, but only in right half
+      for (let y = 0; y < 8; y++) {
+        for (let x = 5; x < 10; x++) { // Only right half
+          GridUtilities.setSafe(grid, x, y, 0); // Floor
+        }
+      }
+      // Create wall tiles in bottom 2 rows, but only in right half
+      for (let y = 8; y < 10; y++) {
+        for (let x = 5; x < 10; x++) { // Only right half
+          GridUtilities.setSafe(grid, x, y, 1); // Wall
+        }
+      }
+
+      const placer = new PlayerSpawnPlacer({ leftSideBoundary: 0.25 });
+      const result = placer.placeSpawn(grid, rng);
+      
+      expect(result.success).toBe(true);
+      expect(result.fallbackUsed).toBe(true);
+      expect(result.warning).toContain('No valid left-side spawn positions found');
+    });
+  });
 }); 

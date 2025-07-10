@@ -14,6 +14,7 @@ const GridUtilities = require('../core/GridUtilities');
  * - Safe landing zone validation around spawn points
  * - Collision detection to prevent spawn inside walls
  * - Multiple placement attempts with intelligent fallback
+ * - Left-side constraint for strategic spawn positioning
  * 
  * @class PlayerSpawnPlacer
  */
@@ -24,10 +25,12 @@ class PlayerSpawnPlacer {
    * @param {Object} config - Configuration options
    * @param {number} config.maxAttempts - Maximum placement attempts (default: 100)
    * @param {number} config.safetyRadius - Safety radius for landing zone (default: 2)
+   * @param {number} config.leftSideBoundary - Left-side boundary as fraction of grid width (default: 0.25)
    */
   constructor(config = {}) {
     this.maxAttempts = config.maxAttempts || 100;
     this.safetyRadius = config.safetyRadius || 2;
+    this.leftSideBoundary = config.leftSideBoundary || 0.25;
     
     // Validate configuration
     this.validateConfig(config);
@@ -46,6 +49,12 @@ class PlayerSpawnPlacer {
     
     if (config.safetyRadius !== undefined && config.safetyRadius <= 0) {
       throw new Error('safetyRadius must be positive');
+    }
+
+    if (config.leftSideBoundary !== undefined) {
+      if (config.leftSideBoundary < 0 || config.leftSideBoundary > 1) {
+        throw new Error('leftSideBoundary must be between 0 and 1');
+      }
     }
   }
 
@@ -151,7 +160,7 @@ class PlayerSpawnPlacer {
   }
 
   /**
-   * Finds all valid spawn positions in the grid
+   * Finds all valid spawn positions in the grid with left-side constraint
    * 
    * @param {ndarray} grid - The grid to search
    * @returns {Array<Object>} Array of valid spawn positions {x, y}
@@ -165,11 +174,25 @@ class PlayerSpawnPlacer {
     const [width, height] = grid.shape;
     const validPositions = [];
     
-    // Scan the entire grid for valid spawn positions
+    // Calculate left-side boundary in pixels
+    const leftSideBoundaryX = Math.floor(width * this.leftSideBoundary);
+    
+    // First, try to find positions in the left side only
     for (let y = 0; y < height; y++) {
-      for (let x = 0; x < Math.floor(width / 5); x++) {
+      for (let x = 0; x < leftSideBoundaryX; x++) {
         if (this.isValidSpawnPosition(grid, x, y)) {
           validPositions.push({ x, y });
+        }
+      }
+    }
+    
+    // If no valid positions found in left side, fallback to full grid search
+    if (validPositions.length === 0) {
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          if (this.isValidSpawnPosition(grid, x, y)) {
+            validPositions.push({ x, y });
+          }
         }
       }
     }
@@ -208,11 +231,24 @@ class PlayerSpawnPlacer {
     // Randomly select a valid position
     const selectedPosition = rng.randomChoice(validPositions);
     
-    return {
+    // Check if fallback was used (positions outside left-side boundary)
+    const [width] = grid.shape;
+    const leftSideBoundaryX = Math.floor(width * this.leftSideBoundary);
+    const fallbackUsed = selectedPosition.x >= leftSideBoundaryX;
+    
+    const result = {
       success: true,
       position: selectedPosition,
       error: null
     };
+    
+    // Add fallback information if fallback was used
+    if (fallbackUsed) {
+      result.fallbackUsed = true;
+      result.warning = 'No valid left-side spawn positions found, using fallback to full grid search';
+    }
+    
+    return result;
   }
 
   /**

@@ -20,6 +20,7 @@ export default class MapOverlay {
     // erasing the platforms/coins.
     this._platformData = null;
     this._coinData = null;
+    this._goalData = null;
     this.isVisible = false;
     this.mapScale = null;
     this.mapWidth = 200; // Default map display width
@@ -164,6 +165,24 @@ export default class MapOverlay {
   }
 
   /**
+   * Render goal position as a red circle on the map overlay
+   * @param {Object} goalData - Goal object with x, y coordinates
+   */
+  renderGoal(goalData) {
+    if (!this.graphics || !goalData) return;
+
+    // Cache for future redraws
+    this._goalData = goalData;
+
+    if (typeof this.graphics.fillStyle === 'function' && typeof this.graphics.fillCircle === 'function') {
+      this.graphics.fillStyle(0xff0000, 1); // red
+      const [mapX, mapY] = this.worldToMapCoords(goalData.x, goalData.y);
+      const radius = Math.max(6, 12 * this.mapScale); // Minimum 6px radius, scaled appropriately
+      this.graphics.fillCircle(mapX, mapY, radius);
+    }
+  }
+
+  /**
    * Render player position marker on the map overlay
    * @param {number} playerX - Player world X coordinate
    * @param {number} playerY - Player world Y coordinate
@@ -228,6 +247,9 @@ export default class MapOverlay {
     }
     if (this._coinData) {
       this.renderCoins(this._coinData);
+    }
+    if (this._goalData) {
+      this.renderGoal(this._goalData);
     }
 
     // Draw the player marker on top

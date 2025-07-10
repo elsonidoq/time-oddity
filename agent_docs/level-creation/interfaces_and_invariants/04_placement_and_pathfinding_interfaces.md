@@ -44,7 +44,7 @@ validatePath(grid: ndarray, path: Array<Array<number>>, start: {x: number, y: nu
 
 **File**: `src/placement/PlayerSpawnPlacer.js`
 
-**Purpose**: Implements player spawn placement with safety validation.
+**Purpose**: Implements player spawn placement with safety validation and left-side constraint.
 
 **Constructor**:
 ```javascript
@@ -54,8 +54,9 @@ constructor(config?: Object)
 **Configuration Interface**:
 ```javascript
 {
-  maxAttempts?: number,     // Maximum placement attempts
-  safetyRadius?: number      // Safety radius for landing zone
+  maxAttempts?: number,         // Maximum placement attempts
+  safetyRadius?: number,         // Safety radius for landing zone
+  leftSideBoundary?: number      // Left-side boundary as fraction of grid width (0.0-1.0)
 }
 ```
 
@@ -66,8 +67,8 @@ isWallTile(grid: ndarray, x: number, y: number): boolean
 hasSafeLandingZone(grid: ndarray, x: number, y: number, safetyRadius: number): boolean
 isValidSpawnPosition(grid: ndarray, x: number, y: number): boolean
 findValidSpawnPositions(grid: ndarray): Array<{x: number, y: number}>
-placeSpawn(grid: ndarray, rng: RandomGenerator): {success: boolean, position?: {x: number, y: number}, error?: string}
-placeSpawnWithConfig(grid: ndarray, rng: RandomGenerator, config: Object): {success: boolean, position?: {x: number, y: number}, error?: string}
+placeSpawn(grid: ndarray, rng: RandomGenerator): {success: boolean, position?: {x: number, y: number}, error?: string, fallbackUsed?: boolean, warning?: string}
+placeSpawnWithConfig(grid: ndarray, rng: RandomGenerator, config: Object): {success: boolean, position?: {x: number, y: number}, error?: string, fallbackUsed?: boolean, warning?: string}
 getSpawnStatistics(grid: ndarray): Object
 ```
 
@@ -78,12 +79,15 @@ getSpawnStatistics(grid: ndarray): Object
 - **SPAWN-4**: Multiple attempts handle edge cases
 - **SPAWN-5**: Spawn positions are reachable
 - **SPAWN-6**: This placement rule is a non-negotiable architectural invariant per functional requirements
+- **SPAWN-7**: Player spawn is constrained to left side of map by default (leftSideBoundary: 0.25)
+- **SPAWN-8**: Fallback mechanism ensures spawn placement even when left-side constraint fails
 
 **Error Conditions**:
 - No valid spawn positions
 - Invalid grid input
 - Invalid RNG instance
 - Configuration errors
+- Invalid leftSideBoundary values (must be between 0 and 1)
 
 ### 4.3 GoalPlacer Interface
 
@@ -101,7 +105,8 @@ constructor(config?: Object)
 {
   minDistance?: number,      // Minimum distance from player spawn (default: 10)
   maxAttempts?: number,      // Maximum placement attempts (default: 100)
-  visibilityRadius?: number  // Visibility radius for goal validation (default: 3)
+  visibilityRadius?: number, // Visibility radius for goal validation (default: 3)
+  rightSideBoundary?: number // Right-side boundary as fraction of grid width (0.0-1.0, default: undefined; if set, goal is placed in rightmost fraction)
 }
 ```
 
@@ -127,6 +132,7 @@ getGoalStatistics(grid: ndarray, playerSpawn: {x: number, y: number}): Object
 - **GOAL-5**: Goal placement optimizes for challenging but fair positioning
 - **GOAL-6**: Goal placement validates goal visibility and accessibility
 - **GOAL-7**: This placement rule is a non-negotiable architectural invariant per functional requirements
+- **GOAL-8**: If rightSideBoundary is set, goal is always placed in the rightmost fraction of the map (e.g., right 25% if rightSideBoundary: 0.75)
 
 **Error Conditions**:
 - Invalid configuration parameters (non-positive values)
@@ -171,5 +177,35 @@ validateAllCoinsReachable(grid: ndarray, coins: Array<{x: number, y: number}>, p
 - No valid platform positions found for unreachable coins
 - Platform placement fails to make all coins reachable
 - Goal remains unreachable after platform placement
+
+## StrategicEnemyPlacer Interface (UPDATED)
+
+### Overview
+The `StrategicEnemyPlacer` is responsible for placing enemies in the level in a way that is both challenging and guarantees level solvability. It uses a combination of strategic analysis and spatial distribution to ensure fair and interesting enemy placement.
+
+### Key Methods
+
+- `placeEnemies(grid, playerPos, coins, goalPos, platforms, rng)`
+  - **Description:** Places enemies using a two-step process:
+    1. **Priority Sorting:** Candidates are first sorted by strategic type (chokePoint > strategic > patrol > platform).
+    2. **Zone-Based Distribution:** After sorting, candidates are partitioned into three spatial zones (left, middle, right) based on their x-position relative to the level width. Enemies are then selected in a round-robin fashion from these zones, ensuring even coverage across the level. This replaces the previous approach, which sorted by distance from the player and could lead to clustering on one side.
+    3. **Solvability and Distance Constraints:** Each candidate is checked for minimum distance from spawn/goal and for not breaking level solvability.
+  - **Guarantees:**
+    - Enemies are distributed across the entire level, not clustered on one side.
+    - All placements respect minimum distance and solvability constraints.
+
+- `sortCandidatesByPriority(candidates, playerPos, goalPos)`
+  - **Description:** Sorts candidates by type priority, then by spatial zone (not by distance from player).
+
+- `getLevelPosition(candidate, playerPos, goalPos)`
+  - **Description:** Computes the candidate's zone for distribution (0 = left, 1 = middle, 2 = right).
+
+### Invariants
+- Enemy placement must never make the level unsolvable.
+- Enemy distribution must be spatially even (across left, middle, right zones) for fairness and challenge.
+
+### Implementation Notes
+- The round-robin, zone-based selection is robust to candidate list order and guarantees coverage even if the candidate generator is biased.
+- The number of enemies is capped by both density and maxEnemies config.
 
 ---
