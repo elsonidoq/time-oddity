@@ -13,6 +13,7 @@ export default class BootScene extends BaseScene {
     } else {
       prefix = '';
     }
+    console.log('prefix', prefix);
     // Load Kenney character spritesheet atlas with XML file
     this.load.atlasXML('characters', prefix + '/src/assets/sprites/spritesheet-characters-default.png', prefix + '/src/assets/sprites/spritesheet-characters-default.xml');
     // Load Kenney tile spritesheet atlas with XML file
