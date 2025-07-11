@@ -6,7 +6,7 @@ export default class BootScene extends BaseScene {
   }
 
   preload() {
-    const GITHUB_PAGES = true;
+    const GITHUB_PAGES = false;
     let prefix;
     if (GITHUB_PAGES) {
       prefix = '/time-oddity/client';
