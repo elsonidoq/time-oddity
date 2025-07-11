@@ -16,7 +16,7 @@ export default class AudioManager {
     // --- Time reversal sound effects ---
     try {
       this._rewindStartSound = new Howl({
-        src: ['/src/assets/audio/sfx_rewind_start.ogg'],
+        src: ['/time-oddity/client/src/assets/audio/sfx_rewind_start.ogg'],
         volume: 0.7
       });
     } catch (e) {
@@ -24,7 +24,7 @@ export default class AudioManager {
     }
     try {
       this._rewindEndSound = new Howl({
-        src: ['/src/assets/audio/sfx_rewind_end.ogg'],
+        src: ['/time-oddity/client/src/assets/audio/sfx_rewind_end.ogg'],
         volume: 0.7
       });
     } catch (e) {
@@ -40,7 +40,7 @@ export default class AudioManager {
   playMusic(key) {
     // Create Howl instance with correct parameters for background music
     this._backgroundMusic = new Howl({
-      src: ['/src/assets/audio/cancion.ogg'],
+      src: ['/time-oddity/client/src/assets/audio/cancion.ogg'],
       loop: true,
       volume: 0.8
     });
@@ -65,15 +65,15 @@ export default class AudioManager {
   playSfx(key) {
     const sfxConfig = {
       jump: {
-        src: ['/src/assets/audio/sfx_jump.ogg'],
+        src: ['/time-oddity/client/src/assets/audio/sfx_jump.ogg'],
         volume: 0.6
       },
       coin: {
-        src: ['/src/assets/audio/sfx_coin.ogg'],
+        src: ['/time-oddity/client/src/assets/audio/sfx_coin.ogg'],
         volume: 0.7
       },
       playerHurt: {
-        src: ['/src/assets/audio/sfx_hurt.ogg'],
+        src: ['/time-oddity/client/src/assets/audio/sfx_hurt.ogg'],
         volume: 0.4
       }
     };
