@@ -8,6 +8,7 @@ import DashState from './states/DashState.js';
 import ObjectPool from '../systems/ObjectPool.js';
 import ChronoPulse from './ChronoPulse.js';
 import gsap from 'gsap';
+import { LEVEL_SCALE } from '../config/GameConfig.js';
 
 /**
  * Player entity.
@@ -57,6 +58,9 @@ export default class Player extends Entity {
   constructor(scene, x, y, texture, frame, health = 100, mockScene = null) {
     super(scene, x, y, texture, frame, health, mockScene);
     
+    // Apply centralized scaling
+    this.setScale(LEVEL_SCALE, LEVEL_SCALE);
+    
     // Set origin to bottom-center for accurate positioning on platforms
     this.setOrigin(0.5, 1);
     
@@ -66,8 +70,8 @@ export default class Player extends Entity {
     this.body.setOffset(this.width * 0.25, this.height * 0.3);
     
     // Player-specific properties
-    this.speed = 300;
-    this.jumpPower = 800;
+    this.speed = 300 * LEVEL_SCALE ;
+    this.jumpPower = 800 * LEVEL_SCALE;
     this.gravity = 980; // This might be redundant if world gravity is set
     this.inputManager = null; // Will be set up later
 
@@ -77,7 +81,7 @@ export default class Player extends Entity {
     // Dash properties
     this.dashCooldown = 1000; // ms - 1 second default cooldown
     this.dashDuration = 240; // ms
-    this.dashSpeed = 1000; // px/sec
+    this.dashSpeed = 1000 * LEVEL_SCALE; // px/sec
     this.dashTimer = 0;
     this.canDash = true;
     this.isDashing = false;
@@ -87,7 +91,7 @@ export default class Player extends Entity {
     this.setupGhostPool();
 
     // Create ChronoPulse ability with expanded range for testing
-    this.chronoPulse = new ChronoPulse(scene, x, y, { cooldown: 3000, range: 300, duration: 2000 }, gsap);
+    this.chronoPulse = new ChronoPulse(scene, x, y, { cooldown: 3000, range: 300 * LEVEL_SCALE, duration: 2000 }, gsap);
 
     // State Machine Setup
     this.stateMachine = new StateMachine();
@@ -102,6 +106,16 @@ export default class Player extends Entity {
 
     // Track previous rewind state
     this._wasRewinding = false;
+
+    // Invulnerability properties
+    this.isInvulnerable = false;
+    this.invulnerabilityTimer = 0;
+    this.invulnerabilityDuration = 1000; // 1 seconds
+
+    // Blinking visual effect properties
+    this.blinkingTimeline = null;
+    this.isBlinking = false;
+    this._deathEventEmitted = false;
   }
 
   /**
@@ -132,6 +146,64 @@ export default class Player extends Entity {
   }
 
   /**
+   * Starts the blinking visual effect using GSAP timeline.
+   */
+  startBlinkingEffect() {
+    if (this.isBlinking) return;
+    if (!this.scene || typeof gsap === 'undefined' || !gsap.timeline) return;
+    // Clean up any existing timeline
+    if (this.blinkingTimeline && this.blinkingTimeline.kill) {
+      this.blinkingTimeline.kill();
+    }
+    this.blinkingTimeline = gsap.timeline();
+    this.blinkingTimeline.to(this, {
+      alpha: 0.3,
+      duration: 0.2,
+      ease: 'power2.inOut',
+    });
+    this.blinkingTimeline.repeat(-1);
+    this.blinkingTimeline.yoyo(true);
+    this.blinkingTimeline.play();
+    this.isBlinking = true;
+  }
+
+  /**
+   * Stops the blinking visual effect and restores visibility.
+   */
+  stopBlinkingEffect() {
+    if (this.blinkingTimeline && this.blinkingTimeline.kill) {
+      this.blinkingTimeline.kill();
+    }
+    // Defensive: ensure property is set on the instance
+    if (Object.prototype.hasOwnProperty.call(this, 'blinkingTimeline')) {
+      this.blinkingTimeline = null;
+    } else {
+      Object.defineProperty(this, 'blinkingTimeline', {
+        value: null,
+        writable: true,
+        configurable: true,
+        enumerable: true
+      });
+    }
+    if (Object.prototype.hasOwnProperty.call(this, 'isBlinking')) {
+      this.isBlinking = false;
+    } else {
+      Object.defineProperty(this, 'isBlinking', {
+        value: false,
+        writable: true,
+        configurable: true,
+        enumerable: true
+      });
+    }
+    if (typeof this.alpha !== 'undefined') this.alpha = 1;
+    // Assertion for debugging
+    if (this.blinkingTimeline !== null) {
+      // eslint-disable-next-line no-console
+      console.error('[Player] stopBlinkingEffect: blinkingTimeline not null after cleanup!', this.blinkingTimeline);
+    }
+  }
+
+  /**
    * The update loop for the player, called by the scene.
    * @param {number} time - The current time.
    * @param {number} delta - The delta time in ms since the last frame.
@@ -151,6 +223,12 @@ export default class Player extends Entity {
         }
       }
     }
+    // Handle blinking effect during rewind
+    if (isRewinding && this.isBlinking && this.blinkingTimeline && this.blinkingTimeline.pause) {
+      this.blinkingTimeline.pause();
+    } else if (!isRewinding && this.isBlinking && this.blinkingTimeline && this.blinkingTimeline.play) {
+      this.blinkingTimeline.play();
+    }
     this._wasRewinding = isRewinding;
     if (isRewinding) {
       return;
@@ -159,6 +237,13 @@ export default class Player extends Entity {
       // Skip normal update this frame to avoid overriding forced state
       return;
     }
+
+    // Update invulnerability timer
+    if (this.isInvulnerable && this.scene.time && this.scene.time.now >= this.invulnerabilityTimer) {
+      this.isInvulnerable = false;
+      this.stopBlinkingEffect();
+    }
+
     if (this.inputManager) {
       this.stateMachine.update(time, delta);
       
@@ -220,8 +305,35 @@ export default class Player extends Entity {
    * @returns {boolean} - True if the player died, false otherwise.
    */
   takeDamage(amount) {
+    // Check if player is invulnerable
+    if (this.isInvulnerable) {
+      // Reset invulnerability timer even when damage is ignored
+      this.invulnerabilityTimer = (this.scene.time?.now || 0) + this.invulnerabilityDuration;
+      // Restart blinking effect
+      this.stopBlinkingEffect();
+      this.startBlinkingEffect();
+      return false; // No damage taken during invulnerability
+    }
+
+    // Handle negative damage (healing)
+    if (amount < 0) {
+      this.heal(-amount);
+      // Still set invulnerability even for healing
+      this.isInvulnerable = true;
+      this.invulnerabilityTimer = (this.scene.time?.now || 0) + this.invulnerabilityDuration;
+      this.stopBlinkingEffect();
+      this.startBlinkingEffect();
+      return false;
+    }
+
     const previousHealth = this.health;
     const isDead = super.takeDamage(amount);
+
+    // Set invulnerability state
+    this.isInvulnerable = true;
+    this.invulnerabilityTimer = (this.scene.time?.now || 0) + this.invulnerabilityDuration;
+    this.stopBlinkingEffect();
+    this.startBlinkingEffect();
 
     // Task 02.06: Emit playerHealthChanged event for UI updates
     if (this.scene && this.scene.events && this.scene.events.emit) {
@@ -232,9 +344,13 @@ export default class Player extends Entity {
       });
     }
 
-    // Task 02.06: Emit playerDied event when player dies
+    // Task 02.06: Emit playerDied event when player dies (but not during rewind)
     if (isDead && this.scene && this.scene.events && this.scene.events.emit) {
-      this.scene.events.emit('playerDied', { player: this });
+      const isRewinding = this.scene.timeManager?.isRewinding || false;
+      if (!isRewinding && !this._deathEventEmitted) {
+        this.scene.events.emit('playerDied', { player: this });
+        this._deathEventEmitted = true;
+      }
     }
 
     // Task 06.02.4: Play hurt sound effect
@@ -256,5 +372,55 @@ export default class Player extends Entity {
     }
 
     return isDead;
+  }
+
+  /**
+   * Custom state recording for TimeManager (invulnerability compatibility)
+   */
+  getStateForRecording() {
+    return {
+      x: this.x,
+      y: this.y,
+      velocityX: this.body?.velocity?.x || 0,
+      velocityY: this.body?.velocity?.y || 0,
+      animation: this.anims?.currentAnim?.key || null,
+      isAlive: this.active !== false,
+      isVisible: this.visible !== false,
+      health: this.health,
+      isInvulnerable: this.isInvulnerable,
+      invulnerabilityTimer: this.invulnerabilityTimer,
+      _deathEventEmitted: this._deathEventEmitted
+    };
+  }
+
+  setStateFromRecording(state) {
+    this.x = state.x;
+    this.y = state.y;
+    if (this.body) {
+      this.body.velocity.x = state.velocityX;
+      this.body.velocity.y = state.velocityY;
+    }
+    if (this.anims && state.animation) {
+      this.anims.play(state.animation, true);
+    }
+    this.active = state.isAlive;
+    this.visible = state.isVisible;
+    if (state.health !== undefined) {
+      // If health is restored above 0, reset death event emission flag
+      if (this.health <= 0 && state.health > 0) {
+        this._deathEventEmitted = false;
+      }
+      this.health = Math.max(0, state.health);
+    }
+    this.isInvulnerable = state.isInvulnerable;
+    this.invulnerabilityTimer = state.invulnerabilityTimer;
+    if (typeof state._deathEventEmitted !== 'undefined') {
+      this._deathEventEmitted = state._deathEventEmitted;
+    }
+  }
+
+  destroy() {
+    if (super.destroy) super.destroy();
+    this.stopBlinkingEffect();
   }
 } 

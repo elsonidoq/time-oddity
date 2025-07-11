@@ -22,6 +22,7 @@ import Coin from '../entities/Coin.js';
 import GoalTile from '../entities/GoalTile.js';
 import { LoopHound } from '../entities/enemies/LoopHound.js';
 import { TileSelector } from './TileSelector.js';
+import { LEVEL_SCALE } from '../config/GameConfig.js';
 
 export class SceneFactory {
   /**
@@ -339,12 +340,15 @@ export class SceneFactory {
     const tileCount = Math.ceil(groundConfig.width / tileWidth);
 
     for (let i = 0; i < tileCount; i++) {
-      const x = groundConfig.x + (i * tileWidth);
+      const x = groundConfig.x * LEVEL_SCALE + (i * tileWidth * LEVEL_SCALE);
       const tileKey = TileSelector.getTileKey(groundConfig.tilePrefix, x, tileCount, i);
-      const platform = platformsGroup.create(x, groundConfig.y, 'tiles', tileKey);
+      const platform = platformsGroup.create(x, groundConfig.y * LEVEL_SCALE, 'tiles', tileKey);
       
       platform.setOrigin(0, 0);
       this.configurePlatform(platform, groundConfig.isFullBlock);
+      
+      // Apply centralized scaling
+      platform.setScale(LEVEL_SCALE, LEVEL_SCALE);
       
       platforms.push(platform);
     }
@@ -383,12 +387,15 @@ export class SceneFactory {
       const tileCount = Math.ceil(platformConfig.width / tileWidth);
 
       for (let i = 0; i < tileCount; i++) {
-        const x = platformConfig.x + (i * tileWidth);
+        const x = platformConfig.x * LEVEL_SCALE + (i * tileWidth * LEVEL_SCALE);
         const tileKey = TileSelector.getTileKey(platformConfig.tilePrefix, x, tileCount, i);
-        const platform = platformsGroup.create(x, platformConfig.y, 'tiles', tileKey);
+        const platform = platformsGroup.create(x, platformConfig.y * LEVEL_SCALE, 'tiles', tileKey);
         
         platform.setOrigin(0, 0);
         this.configurePlatform(platform, platformConfig.isFullBlock);
+        
+        // Apply centralized scaling
+        platform.setScale(LEVEL_SCALE, LEVEL_SCALE);
         
         platforms.push(platform);
       }
@@ -399,13 +406,17 @@ export class SceneFactory {
     // Default behavior: create single tile
     const tileKey = TileSelector.getTileKey(platformConfig.tilePrefix, platformConfig.x, 1, 0);
     const platform = platformsGroup.create(
-      platformConfig.x,
-      platformConfig.y,
+      platformConfig.x * LEVEL_SCALE,
+      platformConfig.y * LEVEL_SCALE,
       'tiles',
       tileKey
     );
 
     this.configurePlatform(platform, platformConfig.isFullBlock);
+    
+    // Apply centralized scaling
+    platform.setScale(LEVEL_SCALE, LEVEL_SCALE);
+    
     return platform;
   }
 
@@ -446,8 +457,8 @@ export class SceneFactory {
     // Create MovingPlatform instance with width support
     const platform = new MovingPlatform(
       this.scene,
-      movingConfig.x,
-      movingConfig.y,
+      movingConfig.x * LEVEL_SCALE,
+      movingConfig.y * LEVEL_SCALE,
       'tiles',
       movingConfig.movement,
       null, // frame parameter should be null for new tilePrefix system
@@ -559,8 +570,8 @@ export class SceneFactory {
     this.scene.coins = coinsGroup;
     const coin = new Coin(
       this.scene,
-      coinConfig.x,
-      coinConfig.y,
+      coinConfig.x * LEVEL_SCALE,
+      coinConfig.y * LEVEL_SCALE,
       'coin_spin',
       this.scene._mockScene // Pass mock scene for testing
     );
@@ -632,6 +643,9 @@ export class SceneFactory {
       // Configure physics AFTER adding to group to prevent configuration loss
       this.configurePlatform(goalTile, isFullBlock);
       
+      // Apply centralized scaling
+      goalTile.setScale(LEVEL_SCALE, LEVEL_SCALE);
+      
       console.log(`[SceneFactory] Created GoalTile at (${x}, ${y}) with tileKey: ${tileKey}`);
       return goalTile;
     } catch (error) {
@@ -668,7 +682,7 @@ export class SceneFactory {
     // Handle isFullBlock configuration (defaults to true for goal tiles)
     const isFullBlock = goalConfig.isFullBlock !== undefined ? goalConfig.isFullBlock : true;
 
-    return this.createGoalTile(goalConfig.x, goalConfig.y, tileKey, goalTilesGroup, isFullBlock);
+    return this.createGoalTile(goalConfig.x * LEVEL_SCALE, goalConfig.y * LEVEL_SCALE, tileKey, goalTilesGroup, isFullBlock);
   }
 
   // ========================================
@@ -855,12 +869,15 @@ export class SceneFactory {
       const tileCount = Math.ceil(decorativeConfig.width / tileWidth);
 
       for (let i = 0; i < tileCount; i++) {
-        const x = decorativeConfig.x + (i * tileWidth);
+        const x = decorativeConfig.x * LEVEL_SCALE + (i * tileWidth * LEVEL_SCALE);
         const tileKey = TileSelector.getTileKey(decorativeConfig.tilePrefix, x, tileCount, i);
-        const decorative = this.scene.add.image(x, decorativeConfig.y, 'tiles', tileKey);
+        const decorative = this.scene.add.image(x, decorativeConfig.y * LEVEL_SCALE, 'tiles', tileKey);
         
         decorative.setOrigin(0, 0);
         decorative.setDepth(decorativeConfig.depth);
+        
+        // Apply centralized scaling
+        decorative.setScale(LEVEL_SCALE, LEVEL_SCALE);
         
         decoratives.push(decorative);
       }
@@ -871,14 +888,17 @@ export class SceneFactory {
     // Default behavior: create single tile
     const tileKey = TileSelector.getTileKey(decorativeConfig.tilePrefix, decorativeConfig.x, 1, 0);
     const decorative = this.scene.add.image(
-      decorativeConfig.x,
-      decorativeConfig.y,
+      decorativeConfig.x * LEVEL_SCALE,
+      decorativeConfig.y * LEVEL_SCALE,
       'tiles',
       tileKey
     );
 
     decorative.setOrigin(0, 0);
     decorative.setDepth(decorativeConfig.depth);
+    
+    // Apply centralized scaling
+    decorative.setScale(LEVEL_SCALE, LEVEL_SCALE);
 
     return decorative;
   }
@@ -1152,8 +1172,8 @@ export class SceneFactory {
           continue;
         }
 
-        const worldX = colIndex * 64;
-        const worldY = rowIndex * 64;
+        const worldX = colIndex * 64 * LEVEL_SCALE;
+        const worldY = rowIndex * 64 * LEVEL_SCALE;
         if (tileDict.type === 'ground') {
           // Create ground tile sprite in platforms group (collision-enabled)
           if (!platformsGroup) {
@@ -1166,6 +1186,10 @@ export class SceneFactory {
             sprite.body.setImmovable(true);
             sprite.body.setAllowGravity(false);
           }
+          
+          // Apply centralized scaling
+          sprite.setScale(LEVEL_SCALE, LEVEL_SCALE);
+          
           groundPlatforms.push(sprite);
         } else if (tileDict.type === 'decorative') {
           // Create decorative tile sprite in decorative group (no collision)
@@ -1180,6 +1204,10 @@ export class SceneFactory {
             sprite.body.setAllowGravity(false);
             // Do not setImmovable or enable collision for decorative
           }
+          
+          // Apply centralized scaling
+          sprite.setScale(LEVEL_SCALE, LEVEL_SCALE);
+          
           decorativePlatforms.push(sprite);
         }
       }
@@ -1218,16 +1246,16 @@ export class SceneFactory {
         // Create LoopHound with configurable parameters
         const enemy = new LoopHound(
           this.scene, 
-          enemyConfig.x, 
-          enemyConfig.y,
+          enemyConfig.x * LEVEL_SCALE, 
+          enemyConfig.y * LEVEL_SCALE,
           enemyConfig.texture || 'enemies',
           enemyConfig.frame || 'barnacle_attack_rest'
         );
         
         // Configure patrol parameters if provided
         if (typeof enemyConfig.patrolDistance === 'number') {
-          enemy.patrolDistance = enemyConfig.patrolDistance;
-          enemy.patrolEndX = enemyConfig.x + enemyConfig.patrolDistance;
+          enemy.patrolDistance = enemyConfig.patrolDistance * LEVEL_SCALE;
+          enemy.patrolEndX = enemyConfig.x * LEVEL_SCALE + enemyConfig.patrolDistance * LEVEL_SCALE;
         }
         
         if (typeof enemyConfig.direction === 'number') {
@@ -1235,7 +1263,7 @@ export class SceneFactory {
         }
         
         if (typeof enemyConfig.speed === 'number') {
-          enemy.speed = enemyConfig.speed;
+          enemy.speed = enemyConfig.speed * LEVEL_SCALE;
         }
         
         // CRITICAL: Add to group BEFORE configuration (§13)

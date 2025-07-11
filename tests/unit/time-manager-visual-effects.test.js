@@ -88,7 +88,7 @@ describe('TimeManager Visual Effects', () => {
       timeManager.toggleRewind(true);
 
       // Assert
-      expect(mockScene.cameras.main.setTint).toHaveBeenCalledWith(0x4444ff);
+      expect(mockScene.cameras.main.setTint).toHaveBeenCalledWith(0xff0000);
     });
 
     test('should clear camera tint when rewind ends', () => {

@@ -1,5 +1,6 @@
 import Entity from './Entity.js';
 import StateMachine from '../systems/StateMachine.js';
+import { LEVEL_SCALE } from '../config/GameConfig.js';
 
 /**
  * Base class for all enemy entities in the game.
@@ -65,6 +66,9 @@ export class Enemy extends Entity {
   constructor(scene, x, y, texture, config = {}) {
     // Call parent constructor
     super(scene, x, y, texture);
+    
+    // Apply centralized scaling
+    this.setScale(LEVEL_SCALE, LEVEL_SCALE);
     
     // Initialize enemy-specific properties with defaults
     this.maxHealth = config.health || 100;

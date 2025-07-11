@@ -1,3 +1,5 @@
+import { LEVEL_SCALE } from '../config/GameConfig.js';
+
 /**
  * Represents a collectible coin in the game.
  * See Section 1.3 "Creating Game Objects" in the comprehensive documentation for collectible patterns.
@@ -42,6 +44,9 @@ export default class Coin {
     if (this.scene.coins && this.scene.coins.add) {
       this.scene.coins.add(this.sprite);
     }
+    
+    // Apply centralized scaling to coin sprite
+    this.sprite.setScale(LEVEL_SCALE, LEVEL_SCALE);
     
     // THEN configure physics properties (after adding to group)
     // Coins should not be affected by gravity

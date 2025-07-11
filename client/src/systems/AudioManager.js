@@ -12,6 +12,25 @@ export default class AudioManager {
   constructor() {
     this.isMuted = false;
     this._backgroundMusic = null;
+
+    // --- Time reversal sound effects ---
+    try {
+      this._rewindStartSound = new Howl({
+        src: ['/time-oddity/client/src/assets/audio/sfx_rewind_start.ogg'],
+        volume: 0.7
+      });
+    } catch (e) {
+      this._rewindStartSound = null;
+    }
+    try {
+      this._rewindEndSound = new Howl({
+        src: ['/time-oddity/client/src/assets/audio/sfx_rewind_end.ogg'],
+        volume: 0.7
+      });
+    } catch (e) {
+      this._rewindEndSound = null;
+    }
+    this._isRewindAudioPlaying = false;
   }
 
   /**
@@ -21,7 +40,7 @@ export default class AudioManager {
   playMusic(key) {
     // Create Howl instance with correct parameters for background music
     this._backgroundMusic = new Howl({
-      src: ['src/assets/audio/cancion.ogg'],
+      src: ['/time-oddity/client/src/assets/audio/cancion.ogg'],
       loop: true,
       volume: 0.8
     });
@@ -55,7 +74,7 @@ export default class AudioManager {
       },
       playerHurt: {
         src: ['/time-oddity/client/src/assets/audio/sfx_hurt.ogg'],
-        volume: 0.5
+        volume: 0.4
       }
     };
 
@@ -63,6 +82,50 @@ export default class AudioManager {
     if (config) {
       const sound = new Howl(config);
       sound.play();
+    }
+  }
+
+  /**
+   * Play the time reversal start sound effect (if not already playing)
+   */
+  playRewindStart() {
+    console.log('[AudioManager] playRewindStart');
+    if (this._isRewindAudioPlaying) return;
+    try {
+      if (this._rewindStartSound) {
+        this._rewindStartSound.play();
+        this._isRewindAudioPlaying = true;
+      }
+    } catch (e) {
+      // Fail silently
+    }
+  }
+
+  /**
+   * Play the time reversal end sound effect and stop rewind audio
+   */
+  playRewindEnd() {
+    try {
+      if (this._rewindEndSound) {
+        this._rewindEndSound.play();
+      }
+      this.stopRewindAudio();
+    } catch (e) {
+      // Fail silently
+    }
+  }
+
+  /**
+   * Stop any currently playing rewind audio
+   */
+  stopRewindAudio() {
+    try {
+      if (this._rewindStartSound) {
+        this._rewindStartSound.stop();
+      }
+      this._isRewindAudioPlaying = false;
+    } catch (e) {
+      // Fail silently
     }
   }
 

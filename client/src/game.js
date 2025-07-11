@@ -3,6 +3,8 @@ import BootScene from './scenes/BootScene.js';
 import MenuScene from './scenes/MenuScene.js';
 import GameScene from './scenes/GameScene.js';
 import UIScene from './scenes/UIScene.js';
+import GameOverScene from './scenes/GameOverScene.js';
+import { LEVEL_SCALE } from './config/GameConfig.js';
 
 /**
  * Phaser.Game configuration for Time Oddity.
@@ -19,7 +21,7 @@ const config = {
   height: 720,
   parent: 'game-container',
   backgroundColor: '#000000',
-  scene: [BootScene, MenuScene, GameScene, UIScene],
+  scene: [BootScene, MenuScene, GameScene, UIScene, GameOverScene],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
@@ -27,7 +29,7 @@ const config = {
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 980 },
+      gravity: { y: 980  },
       debug: false
     }
   },

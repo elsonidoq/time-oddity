@@ -8,6 +8,7 @@ import { LoopHound } from '../entities/enemies/LoopHound.js';
 import { SceneFactory } from '../systems/SceneFactory.js';
 import AudioManager from '../systems/AudioManager.js';
 import testLevelConfig from '../config/test-cave.json';
+import { LEVEL_SCALE } from '../config/GameConfig.js';
 
 export default class GameScene extends BaseScene {
   // Camera follow constants for easy tuning
@@ -30,7 +31,7 @@ export default class GameScene extends BaseScene {
   preload() {
     // Preload assets for the game scene if needed
     // Task 06.01.2: Pre-load placeholder music for background audio
-    this.load.audio('background', ['/src/assets/audio/cancion.ogg']);
+    this.load.audio('background', ['/time-oddity/client/src/assets/audio/cancion.ogg']);
   }
 
   create(data) {
@@ -39,7 +40,7 @@ export default class GameScene extends BaseScene {
     this.levelConfig = levelConfig;
     // Enable and configure Arcade Physics with proper error handling
     if (this.physics && this.physics.world) {
-      this.physics.world.gravity.y = 980;
+      this.physics.world.gravity.y = 980 * LEVEL_SCALE;
       this.physics.world.tileBias = 32; // Add tileBias to prevent tunneling
       this.physics.config.debug = this.sys.game.config.physics.arcade.debug;
 
@@ -53,7 +54,8 @@ export default class GameScene extends BaseScene {
     if (this.cameras && this.cameras.main) {
       this.cameras.main.setBounds(0, 0, this.sys.game.config.width, this.sys.game.config.height);
       // Zoom out to make scene 2 times bigger
-      this.cameras.main.setZoom(0.5);
+      // this.cameras.main.setZoom(0.25); // REMOVE for centralized scaling
+      // Camera zoom is now always 1.0 (handled by centralized scaling)
     }
 
     // Initialize physics groups with proper error handling
@@ -147,21 +149,21 @@ export default class GameScene extends BaseScene {
     }
 
     // --- Player Integration ---
-    let spawnX = 100;
-    let spawnY = 400;
+    let spawnX = 100 * LEVEL_SCALE;
+    let spawnY = 400 * LEVEL_SCALE;
     if (levelConfig.playerSpawn && typeof levelConfig.playerSpawn.x === 'number' && typeof levelConfig.playerSpawn.y === 'number') {
-      spawnX = levelConfig.playerSpawn.x;
-      spawnY = levelConfig.playerSpawn.y;
+      spawnX = levelConfig.playerSpawn.x * LEVEL_SCALE;
+      spawnY = levelConfig.playerSpawn.y * LEVEL_SCALE;
     } else if (levelConfig.platforms && levelConfig.platforms.length > 0) {
       // Find lowest ground platform
       const groundPlatforms = levelConfig.platforms.filter(p => p.type === 'ground');
       if (groundPlatforms.length > 0) {
-        const lowestGroundY = Math.min(...groundPlatforms.map(p => p.y));
-        spawnY = lowestGroundY - 2; // Small offset above ground
+        const lowestGroundY = Math.min(...groundPlatforms.map(p => p.y * LEVEL_SCALE));
+        spawnY = lowestGroundY - 2 * LEVEL_SCALE; // Small offset above ground
       } else {
         // If no ground platforms, use the minimum y of any platform
-        const minY = Math.min(...levelConfig.platforms.map(p => p.y));
-        spawnY = minY - 2;
+        const minY = Math.min(...levelConfig.platforms.map(p => p.y * LEVEL_SCALE));
+        spawnY = minY - 2 * LEVEL_SCALE;
       }
     }
     this.player = new Player(this, spawnX, spawnY, 'characters', 'character_beige_idle', 100, this._mockScene);
@@ -264,6 +266,24 @@ export default class GameScene extends BaseScene {
     this.events.on('toggleMuteRequest', () => {
       if (this.audioManager) {
         this.audioManager.toggleMute();
+      }
+    });
+
+    // Listen for player death event and transition to GameOverScene
+    this._gameOverTriggered = false;
+    this._deathTimestamp = null;
+    this.events.on('playerDied', () => {
+      // Always track death timestamp, but only launch GameOverScene if not rewinding and not already triggered
+      this._deathTimestamp = this.time?.now || 0;
+      if (!this._gameOverTriggered) {
+        this._gameOverTriggered = true;
+        if (!this.timeManager?.isRewinding && this.scene && typeof this.scene.launch === 'function') {
+          // Only launch if GameOverScene is not already active
+          const gameOverSceneInstance = this.scene.get && this.scene.get('GameOverScene');
+          if (!gameOverSceneInstance || !gameOverSceneInstance.gameOverActive) {
+            this.scene.launch('GameOverScene');
+          }
+        }
       }
     });
   }
@@ -551,6 +571,38 @@ export default class GameScene extends BaseScene {
     }
   }
 
+  /**
+   * Handle death state during rewind
+   * Dismisses GameOverScene and resets death state when rewinding past death
+   */
+  handleRewindDeath() {
+    // Check if we're rewinding and have a death timestamp
+    if (!this.timeManager?.isRewinding || !this._deathTimestamp) {
+      return;
+    }
+
+    // Check if we've rewound past the death timestamp
+    const currentRewindTime = this.timeManager.playbackTimestamp;
+    if (currentRewindTime < this._deathTimestamp) {
+      // We've rewound past death, dismiss GameOverScene and reset state
+      this._gameOverTriggered = false;
+      this._deathTimestamp = null;
+      // Reset player's _deathEventEmitted flag if player exists
+      if (this.player && typeof this.player._deathEventEmitted !== 'undefined') {
+        this.player._deathEventEmitted = false;
+      }
+      // Dismiss GameOverScene if it's active
+      if (this.scene) {
+        const gameOverSceneInstance = this.scene.get && this.scene.get('GameOverScene');
+        if (gameOverSceneInstance && typeof gameOverSceneInstance.handleRewindDismissal === 'function') {
+          gameOverSceneInstance.handleRewindDismissal();
+        } else if (typeof this.scene.stop === 'function') {
+          this.scene.stop('GameOverScene');
+        }
+      }
+    }
+  }
+
   update(time, delta) {
     // Handle pause input
     if (this.player && this.player.inputManager && this.player.inputManager.isPauseJustPressed) {
@@ -637,6 +689,11 @@ export default class GameScene extends BaseScene {
         const isRewindActive = this.player.inputManager.isRewindPressed;
         if (isRewindActive !== this.timeManager.isRewinding) {
             this.timeManager.toggleRewind(isRewindActive);
+        }
+        
+        // Handle death state during rewind
+        if (this.timeManager.isRewinding) {
+            this.handleRewindDeath();
         }
     }
     

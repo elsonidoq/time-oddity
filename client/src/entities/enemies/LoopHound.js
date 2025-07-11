@@ -1,5 +1,6 @@
 import { Enemy } from '../Enemy.js';
 import StateMachine from '../../systems/StateMachine.js';
+import { LEVEL_SCALE } from '../../config/GameConfig.js';
 
 /**
  * LoopHound - A patrolling enemy that moves back and forth along a fixed path.
@@ -65,7 +66,7 @@ export class LoopHound extends Enemy {
     this.patrolDistance = 200;
     this.patrolStartX = x;
     this.patrolEndX = x + this.patrolDistance;
-    this.speed = 80; // Slightly slower than base enemy
+    this.speed = 80 * LEVEL_SCALE; // Slightly slower than base enemy
     this.direction = 1; // 1 for right, -1 for left
     this.spawnX = x; // Ensure spawnX is set
     this.spawnY = y; // Ensure spawnY is set

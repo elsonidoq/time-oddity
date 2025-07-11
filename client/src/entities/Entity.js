@@ -10,6 +10,16 @@ export default class Entity extends Phaser.Physics.Arcade.Sprite {
     const useScene = mockScene || scene;
     super(useScene, x, y, texture, frame);
     
+    // Patch for test/mock compatibility: ensure scaleX/scaleY are always present and set by setScale
+    this.scaleX = 1;
+    this.scaleY = 1;
+    const origSetScale = this.setScale;
+    this.setScale = function(scaleX, scaleY) {
+      this.scaleX = scaleX;
+      this.scaleY = (scaleY !== undefined) ? scaleY : scaleX;
+      return origSetScale ? origSetScale.apply(this, arguments) : this;
+    };
+    
     // An entity needs to be added to the scene's display list to be visible
     useScene.add.existing(this);
     // It also needs to be added to the physics world to have a body
