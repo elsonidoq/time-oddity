@@ -12,13 +12,13 @@ Before beginning any task, you MUST review these documents:
 
 ## Task Assignment
 - Read all documentation
-- Read the task 05.01 described in @01_remove_hardcoded_level_creation.md
-- Make sure to think the proper abstraction 
+- Read the task 1.1 of @09_game_final_details.md 
+- Make sure to think the proper abstraction before implementing it
 - Write down a plan to implement it. Identify new states, invariants that need preservation
-- Follow a STRICT TDD approach and implement your plan to execute the task  5.01 described in @01_remove_hardcoded_level_creation.md
+- Follow a STRICT TDD approach and implement your plan to execute the task 1.1 of @09_game_final_details.md. Follow testing best practices from @testing_best_practices.md, use centralized mocks
 - After finishing a task, double check the task description to make sure you actually finished
 
-
+Follow the rule @task-execution.mdc 
 ## Critical Requirements
 
 ### Testing Requirements

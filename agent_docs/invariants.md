@@ -61,6 +61,7 @@ If you change key bindings ensure **all getters** in `InputManager` continue to 
    * `dashTimer` stores _absolute_ time when the next dash becomes legal.  
 3. While dashing **gravity is disabled** (`body.setAllowGravity(false)`) and horizontal velocity follows a quadratic easing curve – do **NOT** clamp or overwrite `body.velocity.x` elsewhere during dash.
 4. Body size/offset: width × 0.5, height × 0.7; origin is always (0.5, 1). Many collision expectations use these proportions.
+5. **Invulnerability contract:** After taking damage, the player becomes invulnerable for `invulnerabilityDuration` ms (default 2000ms). During this period, further damage is ignored and the timer is reset on each new damage attempt. Invulnerability state (`isInvulnerable`, `invulnerabilityTimer`) is recorded/restored by TimeManager for rewind compatibility.
 
 ---
 
@@ -227,6 +228,11 @@ this.dashTimer = 0                // Absolute time when dash becomes available
 this.canDash = true               // Whether dash is currently allowed
 this.isDashing = false            // Whether currently dashing
 
+// Invulnerability System
+this.isInvulnerable = false       // Whether player is currently invulnerable
+this.invulnerabilityTimer = 0     // Timestamp when invulnerability expires
+this.invulnerabilityDuration = 2000 // Duration of invulnerability in ms
+
 // State Machine
 this.stateMachine                 // Current state: 'idle'|'run'|'jump'|'fall'|'dash'
 this._wasRewinding = false        // Previous rewind state for transition handling
@@ -236,7 +242,7 @@ this.chronoPulse                  // ChronoPulse instance
 this.ghostPool                    // ObjectPool for dash trail effects
 ```
 
-**Time Reversal**: Dash timing variables (`dashTimer`, `canDash`) are **not** recorded by TimeManager – they are recalculated from `scene.time.now` during state restoration.
+**Time Reversal**: Dash timing variables (`dashTimer`, `canDash`) are **not** recorded by TimeManager – they are recalculated from `scene.time.now` during state restoration. Invulnerability state (`isInvulnerable`, `invulnerabilityTimer`) **is** recorded/restored by TimeManager for rewind compatibility.
 
 ### 18.4 Enemy State (entities/Enemy.js)
 Extends Entity with AI behavior state:

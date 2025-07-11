@@ -53,7 +53,7 @@ export default class GameScene extends BaseScene {
     if (this.cameras && this.cameras.main) {
       this.cameras.main.setBounds(0, 0, this.sys.game.config.width, this.sys.game.config.height);
       // Zoom out to make scene 2 times bigger
-      this.cameras.main.setZoom(0.5);
+      this.cameras.main.setZoom(1);
     }
 
     // Initialize physics groups with proper error handling

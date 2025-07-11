@@ -1,18 +1,26 @@
 import { jest } from '@jest/globals';
 
-// Centralized GSAP mock for all tests
-const mockTimeline = {
-  to: jest.fn().mockReturnThis(),
-  from: jest.fn().mockReturnThis(),
-  add: jest.fn().mockReturnThis(),
-  play: jest.fn().mockReturnThis(),
-  kill: jest.fn(),
-  eventCallback: jest.fn((type, callback, params) => {
-    if (type === 'onComplete' && callback) {
-      callback(...(params || []));
-    }
-  }),
-};
+// Factory for a new timeline mock with all required chainable methods
+function createMockTimeline() {
+  const timeline = {
+    to: jest.fn().mockReturnThis(),
+    from: jest.fn().mockReturnThis(),
+    add: jest.fn().mockReturnThis(),
+    play: jest.fn().mockReturnThis(),
+    pause: jest.fn().mockReturnThis(),
+    kill: jest.fn(),
+    repeat: jest.fn().mockReturnThis(),
+    yoyo: jest.fn().mockReturnThis(),
+    duration: jest.fn().mockReturnThis(),
+    ease: jest.fn().mockReturnThis(),
+    eventCallback: jest.fn((type, callback, params) => {
+      if (type === 'onComplete' && callback) {
+        callback(...(params || []));
+      }
+    })
+  };
+  return timeline;
+}
 
 const killTweensOf = jest.fn();
 
@@ -88,7 +96,7 @@ const mockGsap = {
   to: jest.fn((target, vars) => createMockTween(target, vars)),
   from: jest.fn((target, vars) => createMockTween(target, vars)),
   fromTo: jest.fn((target, fromVars, toVars) => createMockTween(target, toVars)),
-  timeline: jest.fn(() => mockTimeline),
+  timeline: jest.fn(() => createMockTimeline()),
   killTweensOf,
   set: jest.fn((target, vars) => {
     // Apply properties immediately for set
@@ -107,7 +115,7 @@ const mockGsap = {
 // Provide both default and named exports for compatibility
 export default mockGsap;
 export const gsap = mockGsap;
-export { mockTimeline, killTweensOf };
+export { createMockTimeline, killTweensOf };
 
 export const from = jest.fn((target, vars) => createMockTween(target, vars));
 export const fromTo = jest.fn((target, fromVars, toVars) => createMockTween(target, toVars));
