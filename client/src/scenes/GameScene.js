@@ -30,7 +30,7 @@ export default class GameScene extends BaseScene {
   preload() {
     // Preload assets for the game scene if needed
     // Task 06.01.2: Pre-load placeholder music for background audio
-    this.load.audio('background', ['time-oddity/client/src/assets/audio/cancion.ogg']);
+    this.load.audio('background', ['/time-oddity/client/assets/audio/cancion.ogg']);
   }
 
   create(data) {

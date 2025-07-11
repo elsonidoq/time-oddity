@@ -46,15 +46,15 @@ export default class AudioManager {
   playSfx(key) {
     const sfxConfig = {
       jump: {
-        src: ['/src/assets/audio/sfx_jump.ogg'],
+        src: ['/time-oddity/client/src/assets/audio/sfx_jump.ogg'],
         volume: 0.6
       },
       coin: {
-        src: ['/src/assets/audio/sfx_coin.ogg'],
+        src: ['/time-oddity/client/src/assets/audio/sfx_coin.ogg'],
         volume: 0.7
       },
       playerHurt: {
-        src: ['/src/assets/audio/sfx_hurt.ogg'],
+        src: ['/time-oddity/client/src/assets/audio/sfx_hurt.ogg'],
         volume: 0.5
       }
     };
