@@ -25,6 +25,21 @@ export default class MenuScene extends BaseScene {
     });
     if (title.setOrigin) title.setOrigin(0.5, 0.5);
 
+    // Create keymap/instructions text
+    const keymapText = 
+      'Arrows: Move    Shift: Dash    E: Chrono Pulse\n' +
+      'Hold R: Time Reversal (once)    T: Toggle Map';
+    const keymap = this.add.text(640, 300, keymapText, {
+      fontFamily: 'Arial',
+      fontSize: '24px',
+      color: '#cccccc',
+      align: 'center',
+      stroke: '#000',
+      strokeThickness: 3,
+      lineSpacing: 8
+    });
+    if (keymap.setOrigin) keymap.setOrigin(0.5, 0.5);
+
     // Create start button
     const startButton = this.add.text(640, 400, 'Start', {
       fontFamily: 'Arial',
