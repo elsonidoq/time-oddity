@@ -1,3 +1,4 @@
+import { GITHUB_PAGES } from '../config/GameConfig.js';
 import BaseScene from './BaseScene.js';
 
 export default class BootScene extends BaseScene {
@@ -6,7 +7,6 @@ export default class BootScene extends BaseScene {
   }
 
   preload() {
-    const GITHUB_PAGES = true;
     let prefix;
     if (GITHUB_PAGES) {
       prefix = '/time-oddity/client';

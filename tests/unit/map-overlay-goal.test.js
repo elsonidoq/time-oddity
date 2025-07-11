@@ -50,23 +50,27 @@ describe('MapOverlay Goal Rendering', () => {
   describe('Goal Integration in Update Cycle', () => {
     test('should render goal in updatePlayerPosition cycle', () => {
       // Arrange: Set up goal data and platform data within bounds
-      const goalData = { x: 1500, y: 850 }; // within 2000x1500
-      const platformData = [{ x: 0, y: 656, width: 1000, height: 64 }];
+      // Use unscaled coordinates to match real game behavior
+      const goalData = { x: 3000, y: 1700 }; // within 2000x1500 (scaled by LEVEL_SCALE)
+      const platformData = [{ x: 0, y: 1312, width: 2000, height: 128 }];
       
       mapOverlay.renderGoal(goalData);
       mapOverlay.renderPlatforms(platformData);
       
       // Act: Call updatePlayerPosition which should re-render everything
-      mapOverlay.updatePlayerPosition(200, 870);
+      mapOverlay.updatePlayerPosition(400, 1740);
       
       // Assert: Goal should be rendered as red circle
       expect(mockGraphics.fillStyle).toHaveBeenCalledWith(0xff0000, 1);
       expect(mockGraphics.fillCircle).toHaveBeenCalled();
       
       // Verify the goal circle was drawn with appropriate coordinates
-      // The coordinates should be scaled by mapScale (0.1 in this case)
-      const expectedX = 1500 * 0.1; // 150
-      const expectedY = 850 * 0.1;  // 85
+      // Input coordinates are already scaled by LEVEL_SCALE (0.5)
+      // So 3000,1700 becomes 6000,3400 after dividing by LEVEL_SCALE
+      // Then with mapScale 0.1: 6000*0.1=600, 3400*0.1=340
+      const expectedX = 600; // 3000 / 0.5 * 0.1
+      const expectedY = 340; // 1700 / 0.5 * 0.1
+      
       const goalCall = mockGraphics.fillCircle.mock.calls.find(call => {
         return Math.abs(call[0] - expectedX) < 1 && Math.abs(call[1] - expectedY) < 1;
       });

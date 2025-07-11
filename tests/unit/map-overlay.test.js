@@ -296,9 +296,11 @@ describe('Task 04.02: MapOverlay Core Structure', () => {
     test('should convert world coordinates to map coordinates', () => {
       const [mapX, mapY] = mapOverlay.worldToMapCoords(200, 150);
       
-      // With scale 0.5 (200/400), world(200,150) should become map(100,75)
-      expect(mapX).toBe(100);
-      expect(mapY).toBe(75);
+      // Input coordinates are already scaled by LEVEL_SCALE (0.5)
+      // So 200,150 becomes 400,300 after dividing by LEVEL_SCALE
+      // Then with mapScale 0.5: 400*0.5=200, 300*0.5=150
+      expect(mapX).toBe(200);
+      expect(mapY).toBe(150);
     });
 
     test('should handle zero coordinates', () => {
@@ -311,8 +313,11 @@ describe('Task 04.02: MapOverlay Core Structure', () => {
     test('should handle negative world coordinates', () => {
       const [mapX, mapY] = mapOverlay.worldToMapCoords(-100, -50);
       
-      expect(mapX).toBe(-50); // -100 * 0.5
-      expect(mapY).toBe(-25); // -50 * 0.5
+      // Input coordinates are already scaled by LEVEL_SCALE (0.5)
+      // So -100,-50 becomes -200,-100 after dividing by LEVEL_SCALE
+      // Then with mapScale 0.5: -200*0.5=-100, -100*0.5=-50
+      expect(mapX).toBe(-100);
+      expect(mapY).toBe(-50);
     });
 
     test('should throw error if scale not calculated', () => {

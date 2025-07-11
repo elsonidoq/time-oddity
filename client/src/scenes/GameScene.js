@@ -8,7 +8,7 @@ import { LoopHound } from '../entities/enemies/LoopHound.js';
 import { SceneFactory } from '../systems/SceneFactory.js';
 import AudioManager from '../systems/AudioManager.js';
 import testLevelConfig from '../config/test-cave.json';
-import { LEVEL_SCALE } from '../config/GameConfig.js';
+import { GITHUB_PAGES, LEVEL_SCALE } from '../config/GameConfig.js';
 
 export default class GameScene extends BaseScene {
   // Camera follow constants for easy tuning
@@ -31,7 +31,13 @@ export default class GameScene extends BaseScene {
   preload() {
     // Preload assets for the game scene if needed
     // Task 06.01.2: Pre-load placeholder music for background audio
-    this.load.audio('background', ['/time-oddity/client/src/assets/audio/cancion.ogg']);
+    let prefix;
+    if (GITHUB_PAGES) {
+      prefix = '/time-oddity/client';
+    } else {
+      prefix = '';
+    }
+    this.load.audio('background', [`${prefix}/src/assets/audio/cancion.ogg`]);
   }
 
   create(data) {

@@ -1,4 +1,5 @@
 import { Howl, Howler } from 'howler';
+import { GITHUB_PAGES } from '../config/GameConfig';
 
 /**
  * AudioManager - Centralized audio management using Howler.js
@@ -12,11 +13,15 @@ export default class AudioManager {
   constructor() {
     this.isMuted = false;
     this._backgroundMusic = null;
-
-    // --- Time reversal sound effects ---
+    let prefix;
+    if (GITHUB_PAGES) {
+      prefix = '/time-oddity/client';
+    } else {
+      prefix = '';
+    }
     try {
       this._rewindStartSound = new Howl({
-        src: ['/time-oddity/client/src/assets/audio/sfx_rewind_start.ogg'],
+        src: [`${prefix}/src/assets/audio/sfx_rewind_start.ogg`],
         volume: 0.7
       });
     } catch (e) {
@@ -24,7 +29,7 @@ export default class AudioManager {
     }
     try {
       this._rewindEndSound = new Howl({
-        src: ['/time-oddity/client/src/assets/audio/sfx_rewind_end.ogg'],
+        src: [`${prefix}/src/assets/audio/sfx_rewind_end.ogg`],
         volume: 0.7
       });
     } catch (e) {
@@ -39,8 +44,14 @@ export default class AudioManager {
    */
   playMusic(key) {
     // Create Howl instance with correct parameters for background music
+    let prefix;
+    if (GITHUB_PAGES) {
+      prefix = '/time-oddity/client';
+    } else {
+      prefix = '';
+    }
     this._backgroundMusic = new Howl({
-      src: ['/time-oddity/client/src/assets/audio/cancion.ogg'],
+      src: [`${prefix}/src/assets/audio/cancion.ogg`],
       loop: true,
       volume: 0.8
     });
@@ -63,17 +74,23 @@ export default class AudioManager {
    * @param {string} key - The sound effect key to play
    */
   playSfx(key) {
+    let prefix;
+    if (GITHUB_PAGES) {
+      prefix = '/time-oddity/client';
+    } else {
+      prefix = '';
+    }
     const sfxConfig = {
       jump: {
-        src: ['/time-oddity/client/src/assets/audio/sfx_jump.ogg'],
+        src: [`${prefix}/src/assets/audio/sfx_jump.ogg`],
         volume: 0.6
       },
       coin: {
-        src: ['/time-oddity/client/src/assets/audio/sfx_coin.ogg'],
+        src: [`${prefix}/src/assets/audio/sfx_coin.ogg`],
         volume: 0.7
       },
       playerHurt: {
-        src: ['/time-oddity/client/src/assets/audio/sfx_hurt.ogg'],
+        src: [`${prefix}/src/assets/audio/sfx_hurt.ogg`],
         volume: 0.4
       }
     };

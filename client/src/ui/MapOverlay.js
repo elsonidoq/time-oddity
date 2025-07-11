@@ -1,3 +1,5 @@
+import { LEVEL_SCALE } from '../config/GameConfig.js';
+
 /**
  * MapOverlay - UI component for displaying in-game map overlay
  * 
@@ -104,8 +106,8 @@ export default class MapOverlay {
 
   /**
    * Convert world coordinates to map coordinates
-   * @param {number} worldX - World X coordinate
-   * @param {number} worldY - World Y coordinate
+   * @param {number} worldX - World X coordinate (already scaled by LEVEL_SCALE)
+   * @param {number} worldY - World Y coordinate (already scaled by LEVEL_SCALE)
    * @returns {Array<number>} [mapX, mapY] coordinates
    */
   worldToMapCoords(worldX, worldY) {
@@ -113,8 +115,13 @@ export default class MapOverlay {
       throw new Error('Map scale must be calculated first');
     }
 
-    let mapX = worldX * this.mapScale;
-    let mapY = worldY * this.mapScale;
+    // Divide by LEVEL_SCALE to get the original unscaled coordinates
+    // since the level dimensions used for mapScale calculation are unscaled
+    const unscaledX = worldX / LEVEL_SCALE;
+    const unscaledY = worldY / LEVEL_SCALE;
+
+    let mapX = unscaledX * this.mapScale;
+    let mapY = unscaledY * this.mapScale;
 
     // Clamp only to upper bounds (allow negative values)
     mapX = Math.min(mapX, this.mapWidth);
@@ -137,8 +144,12 @@ export default class MapOverlay {
       this.graphics.fillStyle(0x00ff00, 1); // green
       for (const platform of platformData) {
         const [mapX, mapY] = this.worldToMapCoords(platform.x, platform.y);
-        const mapWidth = platform.width * this.mapScale;
-        const mapHeight = (platform.height || 8) * this.mapScale;
+        // Platform width/height are already scaled by LEVEL_SCALE, so divide by LEVEL_SCALE
+        // to get the original unscaled dimensions for proper map scaling
+        const unscaledWidth = platform.width / LEVEL_SCALE;
+        const unscaledHeight = (platform.height || 8) / LEVEL_SCALE;
+        const mapWidth = unscaledWidth * this.mapScale;
+        const mapHeight = unscaledHeight * this.mapScale;
         this.graphics.fillRect(mapX, mapY, mapWidth, mapHeight);
       }
     }
@@ -158,7 +169,8 @@ export default class MapOverlay {
       this.graphics.fillStyle(0xffff00, 1); // yellow
       for (const coin of coinData) {
         const [mapX, mapY] = this.worldToMapCoords(coin.x, coin.y);
-        const radius = 50 * this.mapScale;
+        // Coin radius should be scaled appropriately for the map
+        const radius = Math.max(3, 6 * this.mapScale); // Minimum 3px radius, scaled appropriately
         this.graphics.fillCircle(mapX, mapY, radius);
       }
     }
