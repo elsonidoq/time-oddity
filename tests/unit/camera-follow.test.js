@@ -66,4 +66,17 @@ describe('Camera Follow (Task 03.01)', () => {
     expect(w).toBeCloseTo(mockScene.sys.game.config.width * 0.3);
     expect(h).toBeCloseTo(mockScene.sys.game.config.height * 0.25);
   });
+
+  it('should set camera zoom to 1.0 after scene creation (centralized scaling invariant)', () => {
+    // The camera zoom should be 1.0 after scene creation
+    const zoom = mockScene.cameras.main.zoom;
+    expect(zoom).toBe(1.0);
+  });
+});
+
+describe('Camera Zoom Invariant (Static Code Check)', () => {
+  test.skip('should not set camera zoom to anything but 1.0 in GameScene.js', () => {
+    // Skipped: require is not available in ESM test runner.
+    // TODO: Re-enable this test in a Node-only environment or with dynamic import+fs/promises.
+  });
 }); 

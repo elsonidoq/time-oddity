@@ -108,8 +108,9 @@ class GameObjectMock {
       this.alpha = alpha;
       return this;
     });
-    this.setScale = createMockFn((scale) => {
-      this.scale = scale;
+    this.setScale = createMockFn((scaleX, scaleY) => {
+      this.scaleX = scaleX;
+      this.scaleY = scaleY || scaleX; // If only one value provided, use it for both
       return this;
     });
     this.setActive = createMockFn((active) => {
@@ -152,6 +153,24 @@ class GraphicsMock {
 }
 
 /**
+ * Mock for Container objects
+ */
+class ContainerMock {
+  constructor(x = 0, y = 0) {
+    this.x = x;
+    this.y = y;
+    this.children = [];
+    this.setDepth = createMockFn(() => this);
+    this.setVisible = createMockFn(() => this);
+    this.add = createMockFn((child) => {
+      this.children.push(child);
+      return this;
+    });
+    this.destroy = createMockFn();
+  }
+}
+
+/**
  * Mock for Text objects
  */
 class TextMock {
@@ -165,6 +184,8 @@ class TextMock {
     this.on = createMockFn(() => this);
     this.setVisible = createMockFn(() => this);
     this.setText = createMockFn(() => this);
+    this.setDepth = createMockFn(() => this);
+    this.destroy = createMockFn();
   }
 }
 
@@ -302,11 +323,13 @@ export class PhaserSceneMock {
     // Graphics/UI system
     this.add = {
       sprite: createMockFn((x, y, texture) => new GameObjectMock(x, y, texture)),
+      image: createMockFn((x, y, texture, frame) => new GameObjectMock(x, y, texture)),
       tileSprite: createMockFn((x, y, width, height, texture, frame) => new GameObjectMock(x, y, texture)),
       graphics: createMockFn(() => new GraphicsMock()),
       text: createMockFn((x, y, text, style) => new TextMock(x, y, text, style)),
       bitmapText: createMockFn((x, y, font, text) => new TextMock(x, y, text)),
       group: createMockFn(() => new GroupMock()),
+      container: createMockFn((x, y) => new ContainerMock(x, y)),
       existing: createMockFn(),
       particles: createMockFn(() => new ParticlesMock())
     };
@@ -338,7 +361,8 @@ export class PhaserSceneMock {
         clearTint: createMockFn(),
         followOffset: { x: 0, y: 0 },
         scrollX: 0,
-        scrollY: 0
+        scrollY: 0,
+        zoom: 1.0 // Default camera zoom for centralized scaling
       }
     };
     

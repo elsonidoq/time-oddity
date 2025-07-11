@@ -8,6 +8,7 @@ import DashState from './states/DashState.js';
 import ObjectPool from '../systems/ObjectPool.js';
 import ChronoPulse from './ChronoPulse.js';
 import gsap from 'gsap';
+import { LEVEL_SCALE } from '../config/GameConfig.js';
 
 /**
  * Player entity.
@@ -57,6 +58,9 @@ export default class Player extends Entity {
   constructor(scene, x, y, texture, frame, health = 100, mockScene = null) {
     super(scene, x, y, texture, frame, health, mockScene);
     
+    // Apply centralized scaling
+    this.setScale(LEVEL_SCALE, LEVEL_SCALE);
+    
     // Set origin to bottom-center for accurate positioning on platforms
     this.setOrigin(0.5, 1);
     
@@ -66,8 +70,8 @@ export default class Player extends Entity {
     this.body.setOffset(this.width * 0.25, this.height * 0.3);
     
     // Player-specific properties
-    this.speed = 300;
-    this.jumpPower = 800;
+    this.speed = 300 * LEVEL_SCALE ;
+    this.jumpPower = 800 * LEVEL_SCALE;
     this.gravity = 980; // This might be redundant if world gravity is set
     this.inputManager = null; // Will be set up later
 
@@ -77,7 +81,7 @@ export default class Player extends Entity {
     // Dash properties
     this.dashCooldown = 1000; // ms - 1 second default cooldown
     this.dashDuration = 240; // ms
-    this.dashSpeed = 1000; // px/sec
+    this.dashSpeed = 1000 * LEVEL_SCALE; // px/sec
     this.dashTimer = 0;
     this.canDash = true;
     this.isDashing = false;
@@ -87,7 +91,7 @@ export default class Player extends Entity {
     this.setupGhostPool();
 
     // Create ChronoPulse ability with expanded range for testing
-    this.chronoPulse = new ChronoPulse(scene, x, y, { cooldown: 3000, range: 300, duration: 2000 }, gsap);
+    this.chronoPulse = new ChronoPulse(scene, x, y, { cooldown: 3000, range: 300 * LEVEL_SCALE, duration: 2000 }, gsap);
 
     // State Machine Setup
     this.stateMachine = new StateMachine();
@@ -111,6 +115,7 @@ export default class Player extends Entity {
     // Blinking visual effect properties
     this.blinkingTimeline = null;
     this.isBlinking = false;
+    this._deathEventEmitted = false;
   }
 
   /**
@@ -339,9 +344,13 @@ export default class Player extends Entity {
       });
     }
 
-    // Task 02.06: Emit playerDied event when player dies
+    // Task 02.06: Emit playerDied event when player dies (but not during rewind)
     if (isDead && this.scene && this.scene.events && this.scene.events.emit) {
-      this.scene.events.emit('playerDied', { player: this });
+      const isRewinding = this.scene.timeManager?.isRewinding || false;
+      if (!isRewinding && !this._deathEventEmitted) {
+        this.scene.events.emit('playerDied', { player: this });
+        this._deathEventEmitted = true;
+      }
     }
 
     // Task 06.02.4: Play hurt sound effect
@@ -379,7 +388,8 @@ export default class Player extends Entity {
       isVisible: this.visible !== false,
       health: this.health,
       isInvulnerable: this.isInvulnerable,
-      invulnerabilityTimer: this.invulnerabilityTimer
+      invulnerabilityTimer: this.invulnerabilityTimer,
+      _deathEventEmitted: this._deathEventEmitted
     };
   }
 
@@ -395,9 +405,18 @@ export default class Player extends Entity {
     }
     this.active = state.isAlive;
     this.visible = state.isVisible;
-    this.health = state.health;
+    if (state.health !== undefined) {
+      // If health is restored above 0, reset death event emission flag
+      if (this.health <= 0 && state.health > 0) {
+        this._deathEventEmitted = false;
+      }
+      this.health = Math.max(0, state.health);
+    }
     this.isInvulnerable = state.isInvulnerable;
     this.invulnerabilityTimer = state.invulnerabilityTimer;
+    if (typeof state._deathEventEmitted !== 'undefined') {
+      this._deathEventEmitted = state._deathEventEmitted;
+    }
   }
 
   destroy() {

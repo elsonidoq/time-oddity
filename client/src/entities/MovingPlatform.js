@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import Entity from './Entity.js';
 import { gsap } from 'gsap';
 import { TileSelector } from '../systems/TileSelector.js';
+import { LEVEL_SCALE } from '../config/GameConfig.js';
 
 /**
  * MovingPlatform - A platform entity that moves along configurable paths
@@ -84,6 +85,9 @@ export default class MovingPlatform extends Entity {
     // Initialize with Entity base constructor (this creates the master sprite)
     super(scene, x, y, texture, masterFrame, 100, mockScene);
     
+    // Apply centralized scaling to master sprite
+    this.setScale(LEVEL_SCALE, LEVEL_SCALE);
+    
     // Store configuration
     this.width = width;
     this.tileWidth = tileWidth;
@@ -111,6 +115,9 @@ export default class MovingPlatform extends Entity {
         
         // Use physics sprite to ensure body is created
         const sprite = scene.physics.add.sprite(spriteX, y, texture, spriteFrame);
+        
+        // Apply centralized scaling to additional sprite
+        sprite.setScale(LEVEL_SCALE, LEVEL_SCALE);
         
         // Configure physics body for additional sprites
         if (sprite.body) {

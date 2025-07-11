@@ -1,4 +1,5 @@
 import { gsap } from 'gsap';
+import { LEVEL_SCALE } from '../../config/GameConfig.js';
 
 export default class DashState {
   constructor(player) {
@@ -51,7 +52,7 @@ export default class DashState {
         .setFlipX(this.player.flipX)
         .setOrigin(0.5, 1) // Match player origin
         .setAlpha(0.7 - (i * 0.15)) // Fade each ghost slightly more
-        .setScale(1.0 - (i * 0.05)); // Slightly scale down each ghost
+        .setScale(LEVEL_SCALE * (1.0 - (i * 0.05))); // Scale with LEVEL_SCALE
       
       // Animate the ghost with staggered timing
       gsap.to(ghost, {

@@ -85,7 +85,14 @@ export default class TimeManager {
     
     this.isRewinding = isRewinding;
     
+    // Always use the latest audioManager from the scene
+    const audioManager = this.scene && this.scene.audioManager;
+
     if (isRewinding) {
+      // --- Play rewind start sound ---
+      if (audioManager && typeof audioManager.playRewindStart === 'function') {
+        try { audioManager.playRewindStart(); } catch (e) {}
+      }
       this.playbackTimestamp = this.stateBuffer.length > 0 ? this.stateBuffer[this.stateBuffer.length - 1].timestamp : 0;
       for (const object of this.managedObjects) {
         if (object.body && typeof object.body.setAllowGravity === 'function') {
@@ -94,6 +101,10 @@ export default class TimeManager {
       }
       this._activateRewindVisuals();
     } else {
+      // --- Play rewind end sound ---
+      if (audioManager && typeof audioManager.playRewindEnd === 'function') {
+        try { audioManager.playRewindEnd(); } catch (e) {}
+      }
       // Truncate buffer to current position
       if (this.stateBuffer.length > 0) {
         const currentIndex = this.stateBuffer.findIndex(record => record.timestamp >= this.playbackTimestamp);
@@ -185,6 +196,10 @@ export default class TimeManager {
         let state;
         if (typeof object.getStateForRecording === 'function') {
           state = object.getStateForRecording();
+          // Patch isAlive for Player: if health is 0, isAlive should be false
+          if (object.constructor && object.constructor.name === 'Player') {
+            state.isAlive = (state.health > 0);
+          }
         } else {
           // Default state recording
           state = new TemporalState({
@@ -250,12 +265,32 @@ export default class TimeManager {
       const velocityX = this.lerp(stateB.velocityX, stateA.velocityX, t);
       const velocityY = this.lerp(stateB.velocityY, stateA.velocityY, t);
       
-      return { ...stateA, x, y, velocityX, velocityY };
+      // Interpolate health if present in both states
+      let health = stateA.health;
+      if (stateA.health !== undefined && stateB.health !== undefined) {
+        health = this.lerp(stateB.health, stateA.health, t);
+      }
+      
+      // Interpolate invulnerability timer if present in both states
+      let invulnerabilityTimer = stateA.invulnerabilityTimer;
+      if (stateA.invulnerabilityTimer !== undefined && stateB.invulnerabilityTimer !== undefined) {
+        invulnerabilityTimer = this.lerp(stateB.invulnerabilityTimer, stateA.invulnerabilityTimer, t);
+      }
+      
+      return { 
+        ...stateA, 
+        x, 
+        y, 
+        velocityX, 
+        velocityY,
+        health,
+        invulnerabilityTimer
+      };
   }
 
   applyState(target, state) {
     const inManaged = this.managedObjects.has(target);
-    console.log('[TimeManager] applyState: Restoring target:', target, 'State:', state, 'In managedObjects:', inManaged);
+    // console.log('[TimeManager] applyState: Restoring target:', target, 'State:', state, 'In managedObjects:', inManaged);
     if (typeof target.setStateFromRecording === 'function') {
       target.setStateFromRecording(state);
       return;
@@ -291,13 +326,13 @@ export default class TimeManager {
     this._rewindActive = true;
     // Camera tint
     if (this.scene.cameras && this.scene.cameras.main && this.scene.cameras.main.setTint) {
-      this.scene.cameras.main.setTint(0x4444ff);
+      this.scene.cameras.main.setTint(0xff0000);
     }
     // Overlay
     if (!this._rewindOverlay && this.scene.add && this.scene.add.graphics) {
       const overlay = this.scene.add.graphics();
       if (overlay.fillStyle) {
-        overlay.fillStyle(0x4444ff, 1);
+        overlay.fillStyle(0xff0000, 1);
         // Handle missing game config gracefully
         const width = this.scene.sys?.game?.config?.width ?? 1280;
         const height = this.scene.sys?.game?.config?.height ?? 720;

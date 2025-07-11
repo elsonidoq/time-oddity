@@ -43,6 +43,9 @@ export default class InputManager {
 
     // T key for map toggle
     this.t = scene.input.keyboard.addKey('T');
+
+    // Flag to disable inputs (used during game over)
+    this.inputsDisabled = false;
   }
 
   /**
@@ -57,6 +60,7 @@ export default class InputManager {
    * Check if left movement is active (LEFT arrow or A key)
    */
   get isLeftPressed() {
+    if (this.inputsDisabled) return false;
     return this.left.isDown || this.a.isDown;
   }
 
@@ -64,6 +68,7 @@ export default class InputManager {
    * Check if right movement is active (RIGHT arrow or D key)
    */
   get isRightPressed() {
+    if (this.inputsDisabled) return false;
     return this.right.isDown || this.d.isDown;
   }
 
@@ -71,6 +76,7 @@ export default class InputManager {
    * Check if up/jump is active (UP arrow, W key, or SPACE)
    */
   get isUpPressed() {
+    if (this.inputsDisabled) return false;
     return this.up.isDown || this.w.isDown || this.space.isDown;
   }
 
@@ -78,6 +84,7 @@ export default class InputManager {
    * Check if down is active (DOWN arrow or S key)
    */
   get isDownPressed() {
+    if (this.inputsDisabled) return false;
     return this.down.isDown || this.s.isDown;
   }
 
@@ -85,6 +92,7 @@ export default class InputManager {
    * Check if the jump key was just released.
    */
   get isJumpJustReleased() {
+    if (this.inputsDisabled) return false;
     return PhaserLib.Input.Keyboard.JustUp(this.up) || 
            PhaserLib.Input.Keyboard.JustUp(this.w) || 
            PhaserLib.Input.Keyboard.JustUp(this.space);
@@ -94,6 +102,7 @@ export default class InputManager {
    * Check if the jump key was just pressed (SPACE, UP, or W)
    */
   get isJumpJustPressed() {
+    if (this.inputsDisabled) return false;
     return PhaserLib.Input.Keyboard.JustDown(this.up) || 
            PhaserLib.Input.Keyboard.JustDown(this.w) || 
            PhaserLib.Input.Keyboard.JustDown(this.space);
@@ -103,6 +112,7 @@ export default class InputManager {
    * Check if the rewind key is pressed.
    */
   get isRewindPressed() {
+    // Time reversal is always enabled, even when other inputs are disabled
     return this.r.isDown;
   }
 
@@ -110,6 +120,7 @@ export default class InputManager {
    * Check if the dash key is pressed (SHIFT)
    */
   get isDashPressed() {
+    if (this.inputsDisabled) return false;
     const pressed = this.shift.isDown;
     if (pressed) console.log('[InputManager] Dash key pressed');
     return pressed;
@@ -119,6 +130,7 @@ export default class InputManager {
    * Check if the dash key was just pressed (SHIFT)
    */
   get isDashJustPressed() {
+    if (this.inputsDisabled) return false;
     return PhaserLib.Input.Keyboard.JustDown(this.shift);
   }
 
@@ -126,6 +138,7 @@ export default class InputManager {
    * Check if the Chrono Pulse key is pressed (E)
    */
   get isChronoPulsePressed() {
+    if (this.inputsDisabled) return false;
     const pressed = this.e.isDown;
     if (pressed) console.log('[InputManager] Chrono Pulse key pressed');
     return pressed;
@@ -135,6 +148,7 @@ export default class InputManager {
    * Check if the Chrono Pulse key was just pressed (E)
    */
   get isChronoPulseJustPressed() {
+    if (this.inputsDisabled) return false;
     const justPressed = PhaserLib.Input.Keyboard.JustDown(this.e);
     if (justPressed) {
       console.log('[InputManager] Chrono Pulse key just pressed (E)');

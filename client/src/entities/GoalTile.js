@@ -1,4 +1,5 @@
 import Entity from './Entity.js';
+import { LEVEL_SCALE } from '../config/GameConfig.js';
 
 /**
  * GoalTile - Static physics-enabled entity representing level exit points
@@ -23,6 +24,9 @@ export default class GoalTile extends Entity {
   constructor(scene, x, y, tileKey = 'block_coin', mockScene = null) {
     // Use the 'tiles' atlas with the specified frame
     super(scene, x, y, 'tiles', tileKey, 100, mockScene);
+    
+    // Apply centralized scaling
+    this.setScale(LEVEL_SCALE, LEVEL_SCALE);
     
     // Store the tileKey for reference
     this.tileKey = tileKey;
