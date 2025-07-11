@@ -21,7 +21,7 @@ export default class AudioManager {
   playMusic(key) {
     // Create Howl instance with correct parameters for background music
     this._backgroundMusic = new Howl({
-      src: ['/src/assets/audio/cancion.ogg'],
+      src: ['time-oddity/client/src/assets/audio/cancion.ogg'],
       loop: true,
       volume: 0.8
     });
