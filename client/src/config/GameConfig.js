@@ -12,7 +12,7 @@
  * - Scale value must maintain visual consistency with previous camera zoom
  */
 
-export const GITHUB_PAGES = false;
+export const GITHUB_PAGES = true;
 /**
  * Single source of truth for level scaling
  * 
