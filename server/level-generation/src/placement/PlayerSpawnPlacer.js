@@ -29,7 +29,7 @@ class PlayerSpawnPlacer {
    */
   constructor(config = {}) {
     this.maxAttempts = config.maxAttempts || 100;
-    this.safetyRadius = config.safetyRadius || 2;
+    this.safetyRadius = config.safetyRadius || 4;
     this.leftSideBoundary = config.leftSideBoundary || 0.25;
     
     // Validate configuration
@@ -148,9 +148,19 @@ class PlayerSpawnPlacer {
     if (grid.get(x, y) !== 0) {
       return false;
     }
+
+    // Ensure there is enough vertical space for the player (height = 2 tiles)
+    // The player occupies (x, y) and (x, y-1)
+    const [width, height] = grid.shape;
+    if (y - 1 < 0) {
+      return false; // Not enough space above for player height
+    }
+    if (grid.get(x, y - 1) !== 0) {
+      return false; // The tile above is not empty
+    }
+
     
     // Must have a wall tile directly below (x,y+1) - preventing player from falling
-    const [width, height] = grid.shape;
     if (y + 1 >= height || grid.get(x, y + 1) !== 1) {
       return false;
     }

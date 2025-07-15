@@ -24,6 +24,8 @@ import { LoopHound } from '../entities/enemies/LoopHound.js';
 import { TileSelector } from './TileSelector.js';
 import { LEVEL_SCALE } from '../config/GameConfig.js';
 
+export { LEVEL_SCALE };
+
 export class SceneFactory {
   /**
    * Creates a new SceneFactory instance
@@ -1160,6 +1162,156 @@ export class SceneFactory {
       return null;
     }
 
+    // Check if culling is enabled in configuration and tilemap is available
+    const useTilemapCulling = this.config.culling?.tilemap?.enabled !== false && 
+                              this.scene.make && 
+                              this.scene.make.tilemap;
+    
+    if (useTilemapCulling) {
+      // Try tilemap creation first
+      const tilemapResult = this.createMapMatrixWithTilemap(mapMatrix, platformsGroup, decorativeGroup);
+      
+      // If tilemap creation failed (returned empty arrays), fall back to sprite-based creation
+      if (tilemapResult && 
+          tilemapResult.groundPlatforms && 
+          tilemapResult.groundPlatforms.length === 0 && 
+          tilemapResult.decorativePlatforms && 
+          tilemapResult.decorativePlatforms.length === 0) {
+        console.warn('[SceneFactory] Tilemap creation failed, falling back to sprite-based creation');
+        return this.createMapMatrixWithSprites(mapMatrix, platformsGroup, decorativeGroup);
+      }
+      
+      return tilemapResult;
+    } else {
+      return this.createMapMatrixWithSprites(mapMatrix, platformsGroup, decorativeGroup);
+    }
+  }
+
+  /**
+   * Creates map matrix using tilemap layers for optimized culling
+   * @param {Array} mapMatrix - The map matrix array
+   * @param {Phaser.GameObjects.Group} platformsGroup - The platforms group
+   * @param {Phaser.GameObjects.Group} decorativeGroup - The decorative group
+   * @returns {Object} Object with groundPlatforms and decorativePlatforms arrays
+   */
+  createMapMatrixWithTilemap(mapMatrix, platformsGroup, decorativeGroup = null) {
+    const groundPlatforms = [];
+    const decorativePlatforms = [];
+
+    // Defensive: Validate config and culling
+    const cullingConfig = (this.config && this.config.culling && this.config.culling.tilemap) ? this.config.culling.tilemap : {};
+
+    // Defensive: Validate mapMatrix dimensions (Phaser/WebGL max texture size is usually 4096 or 8192, but let's be conservative)
+    if (!Array.isArray(mapMatrix) || mapMatrix.length === 0 || mapMatrix[0].length === 0) {
+      return { groundPlatforms, decorativePlatforms };
+    }
+    if (mapMatrix.length > 1000 || mapMatrix[0].length > 1000) {
+      // Too large, would cause WebGL errors
+      return { groundPlatforms, decorativePlatforms };
+    }
+
+    // Create tilemap for ground tiles
+    const groundTilemap = this.scene.make && this.scene.make.tilemap
+      ? this.scene.make.tilemap({
+          tileWidth: 64,
+          tileHeight: 64,
+          width: mapMatrix[0].length,
+          height: mapMatrix.length
+        })
+      : null;
+    if (!groundTilemap) {
+      // Defensive: fallback or fail gracefully
+      return { groundPlatforms, decorativePlatforms };
+    }
+
+    const tileset = groundTilemap.addTilesetImage ? groundTilemap.addTilesetImage('tiles') : null;
+    if (!tileset) {
+      // Defensive: tileset missing
+      return { groundPlatforms, decorativePlatforms };
+    }
+    const groundLayer = groundTilemap.createLayer ? groundTilemap.createLayer(0, tileset, 0, 0) : null;
+    if (!groundLayer) {
+      // Defensive: layer creation failed
+      return { groundPlatforms, decorativePlatforms };
+    }
+
+    // Configure culling for optimal performance
+    if (groundLayer.setCullPaddingX) groundLayer.setCullPaddingX(cullingConfig.cullPaddingX || 2);
+    if (groundLayer.setCullPaddingY) groundLayer.setCullPaddingY(cullingConfig.cullPaddingY || 2);
+    groundLayer.skipCull = cullingConfig.skipCull || false;
+    if (groundLayer.setScale) groundLayer.setScale(LEVEL_SCALE, LEVEL_SCALE);
+
+    // Add to platforms group for physics
+    if (platformsGroup && platformsGroup.add) platformsGroup.add(groundLayer);
+    groundPlatforms.push(groundLayer);
+
+    // Create tilemap for decorative tiles if any exist
+    let decorativeLayer = null;
+    const hasDecorativeTiles = mapMatrix.some(row =>
+      row.some(tile => tile && tile.type === 'decorative')
+    );
+
+    if (hasDecorativeTiles) {
+      const decorativeTilemap = this.scene.make && this.scene.make.tilemap
+        ? this.scene.make.tilemap({
+            tileWidth: 64,
+            tileHeight: 64,
+            width: mapMatrix[0].length,
+            height: mapMatrix.length
+          })
+        : null;
+      if (decorativeTilemap) {
+        const decorativeTileset = decorativeTilemap.addTilesetImage ? decorativeTilemap.addTilesetImage('tiles') : null;
+        if (decorativeTileset) {
+          decorativeLayer = decorativeTilemap.createLayer ? decorativeTilemap.createLayer(0, decorativeTileset, 0, 0) : null;
+          if (decorativeLayer) {
+            if (decorativeLayer.setCullPaddingX) decorativeLayer.setCullPaddingX(cullingConfig.cullPaddingX || 2);
+            if (decorativeLayer.setCullPaddingY) decorativeLayer.setCullPaddingY(cullingConfig.cullPaddingY || 2);
+            decorativeLayer.skipCull = cullingConfig.skipCull || false;
+            if (decorativeLayer.setScale) decorativeLayer.setScale(LEVEL_SCALE, LEVEL_SCALE);
+            const targetGroup = decorativeGroup || platformsGroup;
+            if (targetGroup && targetGroup.add) targetGroup.add(decorativeLayer);
+            decorativePlatforms.push(decorativeLayer);
+          }
+        }
+      }
+    }
+
+    // Populate tilemap layers with tile data
+    for (let rowIndex = 0; rowIndex < mapMatrix.length; rowIndex++) {
+      const row = mapMatrix[rowIndex];
+      for (let colIndex = 0; colIndex < row.length; colIndex++) {
+        const tileDict = row[colIndex];
+        if (!tileDict) {
+          continue;
+        }
+        const tileIndex = this.getTileIndex(tileDict.tileKey);
+        if (tileIndex === -1) {
+          console.warn(`[SceneFactory] Invalid tile key: ${tileDict.tileKey}`);
+          continue;
+        }
+        if (tileDict.type === 'ground' && groundLayer && groundLayer.putTileAt) {
+          groundLayer.putTileAt(tileIndex, colIndex, rowIndex);
+        } else if (tileDict.type === 'decorative' && decorativeLayer && decorativeLayer.putTileAt) {
+          decorativeLayer.putTileAt(tileIndex, colIndex, rowIndex);
+        }
+      }
+    }
+
+    return {
+      groundPlatforms,
+      decorativePlatforms
+    };
+  }
+
+  /**
+   * Creates map matrix using individual sprites (backward compatibility)
+   * @param {Array} mapMatrix - The map matrix array
+   * @param {Phaser.GameObjects.Group} platformsGroup - The platforms group
+   * @param {Phaser.GameObjects.Group} decorativeGroup - The decorative group
+   * @returns {Object} Object with groundPlatforms and decorativePlatforms arrays
+   */
+  createMapMatrixWithSprites(mapMatrix, platformsGroup, decorativeGroup = null) {
     const groundPlatforms = [];
     const decorativePlatforms = [];
 
@@ -1217,6 +1369,71 @@ export class SceneFactory {
       groundPlatforms,
       decorativePlatforms
     };
+  }
+
+  /**
+   * Gets the tile index for a given tile key
+   * @param {string} tileKey - The tile key to look up
+   * @returns {number} The tile index, or -1 if not found
+   */
+  getTileIndex(tileKey) {
+    // This is a simplified implementation - in a real scenario,
+    // you would have a mapping from tile keys to tile indices
+    // For now, we'll use a basic approach that works with the existing system
+    const availableTiles = [
+      'terrain_grass_block', 'terrain_grass_block_bottom', 'terrain_grass_block_bottom_left',
+      'terrain_grass_block_bottom_right', 'terrain_grass_block_center', 'terrain_grass_block_left',
+      'terrain_grass_block_right', 'terrain_grass_block_top', 'terrain_grass_block_top_left',
+      'terrain_grass_block_top_right', 'terrain_grass_cloud', 'terrain_grass_cloud_background',
+      'terrain_grass_cloud_left', 'terrain_grass_cloud_middle', 'terrain_grass_cloud_right',
+      'terrain_grass_horizontal_left', 'terrain_grass_horizontal_middle', 'terrain_grass_horizontal_overhang_left',
+      'terrain_grass_horizontal_overhang_right', 'terrain_grass_horizontal_right', 'terrain_grass_ramp_long_a',
+      'terrain_grass_ramp_long_b', 'terrain_grass_ramp_long_c', 'terrain_grass_ramp_short_a',
+      'terrain_grass_ramp_short_b', 'terrain_grass_vertical_bottom', 'terrain_grass_vertical_middle',
+      'terrain_grass_vertical_top', 'terrain_purple_block', 'terrain_purple_block_bottom',
+      'terrain_purple_block_bottom_left', 'terrain_purple_block_bottom_right', 'terrain_purple_block_center',
+      'terrain_purple_block_left', 'terrain_purple_block_right', 'terrain_purple_block_top',
+      'terrain_purple_block_top_left', 'terrain_purple_block_top_right', 'terrain_purple_cloud',
+      'terrain_purple_cloud_background', 'terrain_purple_cloud_left', 'terrain_purple_cloud_middle',
+      'terrain_purple_cloud_right', 'terrain_purple_horizontal_left', 'terrain_purple_horizontal_middle',
+      'terrain_purple_horizontal_overhang_left', 'terrain_purple_horizontal_overhang_right',
+      'terrain_purple_horizontal_right', 'terrain_purple_ramp_long_a', 'terrain_purple_ramp_long_b',
+      'terrain_purple_ramp_long_c', 'terrain_purple_ramp_short_a', 'terrain_purple_ramp_short_b',
+      'terrain_purple_vertical_bottom', 'terrain_purple_vertical_middle', 'terrain_purple_vertical_top',
+      'terrain_sand_block', 'terrain_sand_block_bottom', 'terrain_sand_block_bottom_left',
+      'terrain_sand_block_bottom_right', 'terrain_sand_block_center', 'terrain_sand_block_left',
+      'terrain_sand_block_right', 'terrain_sand_block_top', 'terrain_sand_block_top_left',
+      'terrain_sand_block_top_right', 'terrain_sand_cloud', 'terrain_sand_cloud_background',
+      'terrain_sand_cloud_left', 'terrain_sand_cloud_middle', 'terrain_sand_cloud_right',
+      'terrain_sand_horizontal_left', 'terrain_sand_horizontal_middle', 'terrain_sand_horizontal_overhang_left',
+      'terrain_sand_horizontal_overhang_right', 'terrain_sand_horizontal_right', 'terrain_sand_ramp_long_a',
+      'terrain_sand_ramp_long_b', 'terrain_sand_ramp_long_c', 'terrain_sand_ramp_short_a',
+      'terrain_sand_ramp_short_b', 'terrain_sand_vertical_bottom', 'terrain_sand_vertical_middle',
+      'terrain_sand_vertical_top', 'terrain_snow_block', 'terrain_snow_block_bottom',
+      'terrain_snow_block_bottom_left', 'terrain_snow_block_bottom_right', 'terrain_snow_block_center',
+      'terrain_snow_block_left', 'terrain_snow_block_right', 'terrain_snow_block_top',
+      'terrain_snow_block_top_left', 'terrain_snow_block_top_right', 'terrain_snow_cloud',
+      'terrain_snow_cloud_background', 'terrain_snow_cloud_left', 'terrain_snow_cloud_middle',
+      'terrain_snow_cloud_right', 'terrain_snow_horizontal_left', 'terrain_snow_horizontal_middle',
+      'terrain_snow_horizontal_overhang_left', 'terrain_snow_horizontal_overhang_right',
+      'terrain_snow_horizontal_right', 'terrain_snow_ramp_long_a', 'terrain_snow_ramp_long_b',
+      'terrain_snow_ramp_long_c', 'terrain_snow_ramp_short_a', 'terrain_snow_ramp_short_b',
+      'terrain_snow_vertical_bottom', 'terrain_snow_vertical_middle', 'terrain_snow_vertical_top',
+      'terrain_stone_block', 'terrain_stone_block_bottom', 'terrain_stone_block_bottom_left',
+      'terrain_stone_block_bottom_right', 'terrain_stone_block_center', 'terrain_stone_block_left',
+      'terrain_stone_block_right', 'terrain_stone_block_top', 'terrain_stone_block_top_left',
+      'terrain_stone_block_top_right', 'terrain_stone_cloud', 'terrain_stone_cloud_background',
+      'terrain_stone_cloud_left', 'terrain_stone_cloud_middle', 'terrain_stone_cloud_right',
+      'terrain_stone_horizontal_left', 'terrain_stone_horizontal_middle', 'terrain_stone_horizontal_overhang_left',
+      'terrain_stone_horizontal_overhang_right', 'terrain_stone_horizontal_right', 'terrain_stone_ramp_long_a',
+      'terrain_stone_ramp_long_b', 'terrain_stone_ramp_long_c', 'terrain_stone_ramp_short_a',
+      'terrain_stone_ramp_short_b', 'terrain_stone_vertical_bottom', 'terrain_stone_vertical_middle',
+      'terrain_stone_vertical_top', 'torch_off', 'torch_on_a', 'torch_on_b', 'water', 'water_top',
+      'water_top_low', 'weight', 'window'
+    ];
+    
+    const index = availableTiles.indexOf(tileKey);
+    return index >= 0 ? index : -1;
   }
 
   // ========================================

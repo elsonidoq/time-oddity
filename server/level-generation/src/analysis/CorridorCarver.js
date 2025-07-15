@@ -141,10 +141,12 @@ class CorridorCarver {
     const safeStartX = Math.max(0, Math.min(startX, width - 1));
     const safeEndX = Math.max(0, Math.min(endX, width - 1));
     const safeY = Math.max(0, Math.min(y, height - 1));
-    
-    // Carve the horizontal line
+    const safeY2 = Math.max(0, Math.min(y + 1, height - 1)); // Second row for two-tile height
+
+    // Carve the horizontal line with two tiles height
     for (let x = Math.min(safeStartX, safeEndX); x <= Math.max(safeStartX, safeEndX); x++) {
-      grid.set(x, safeY, 0); // Set to floor
+      grid.set(x, safeY, 0);   // Set first row to floor
+      grid.set(x, safeY2, 0);  // Set second row to floor
     }
   }
   
@@ -167,12 +169,14 @@ class CorridorCarver {
     
     // Ensure coordinates are within bounds
     const safeX = Math.max(0, Math.min(x, width - 1));
+    const safeX2 = Math.max(0, Math.min(x + 1, width - 1)); // Second column for two-tile width
     const safeStartY = Math.max(0, Math.min(startY, height - 1));
     const safeEndY = Math.max(0, Math.min(endY, height - 1));
     
-    // Carve the vertical line
+    // Carve the vertical line with two tiles width
     for (let y = Math.min(safeStartY, safeEndY); y <= Math.max(safeStartY, safeEndY); y++) {
-      grid.set(safeX, y, 0); // Set to floor
+      grid.set(safeX, y, 0);   // Set first column to floor
+      grid.set(safeX2, y, 0);  // Set second column to floor
     }
   }
   

@@ -1,0 +1,19 @@
+{
+  "playerSpawn": { "x": 200, "y": 870 },
+  "goal": {
+    "x": 4000,
+    "y": 850,
+    "tileKey": "sign_exit",
+    "isFullBlock": true
+  },
+  "map_matrix": [
+    [
+      { "tileKey": "invalid_tile_key", "type": "ground" },
+      { "tileKey": "bush", "type": "decorative" }
+    ],
+    [
+      { "tileKey": "terrain_grass_block", "type": "invalid_type" },
+      { "tileKey": "rock", "type": "decorative" }
+    ]
+  ]
+} 

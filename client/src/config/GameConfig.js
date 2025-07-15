@@ -12,7 +12,7 @@
  * - Scale value must maintain visual consistency with previous camera zoom
  */
 
-export const GITHUB_PAGES = true;
+export const GITHUB_PAGES = false;
 /**
  * Single source of truth for level scaling
  * 
@@ -41,6 +41,85 @@ export const GameConfig = Object.freeze({
    * @type {number}
    */
   levelScale: LEVEL_SCALE,
+  
+  /**
+   * Culling system configuration for performance optimization
+   * 
+   * Controls viewport-based culling for large level rendering.
+   * 
+   * @type {Object}
+   */
+  culling: {
+    /**
+     * Distance beyond viewport to keep sprites visible (in pixels)
+     * 
+     * @type {number}
+     */
+    cullDistance: 200,
+    
+    /**
+     * Tilemap culling configuration for optimized rendering
+     * 
+     * @type {Object}
+     */
+    tilemap: {
+      /**
+       * Enable tilemap layer culling for performance
+       * 
+       * @type {boolean}
+       */
+      enabled: true,
+      
+      /**
+       * Padding tiles beyond viewport for tilemap culling
+       * 
+       * @type {number}
+       */
+      cullPaddingX: 2,
+      
+      /**
+       * Padding tiles beyond viewport for tilemap culling
+       * 
+       * @type {number}
+       */
+      cullPaddingY: 2,
+      
+      /**
+       * Skip culling for tilemap layers (set to false for performance)
+       * 
+       * @type {boolean}
+       */
+      skipCull: false
+    },
+    
+    /**
+     * Performance monitoring configuration
+     * 
+     * @type {Object}
+     */
+    performance: {
+      /**
+       * Enable performance metrics logging
+       * 
+       * @type {boolean}
+       */
+      enableLogging: true,
+      
+      /**
+       * Log performance metrics every N frames
+       * 
+       * @type {number}
+       */
+      logInterval: 60,
+      
+      /**
+       * Target frame rate for performance monitoring
+       * 
+       * @type {number}
+       */
+      targetFPS: 60
+    }
+  },
   
   /**
    * Game configuration constants

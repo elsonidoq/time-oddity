@@ -301,37 +301,86 @@ describe('CoinDistributor', () => {
   });
 
   describe('validateCoinPlacement', () => {
-    it('should validate coin placement against collision detection', () => {
+    it('should validate coin placement against collision detection and surrounding tiles', () => {
+      const grid = testUtils.createMockGrid(10, 10);
+      
+      // Create a valid position with all surrounding tiles as floor
+      for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+          grid.set(5 + dx, 5 + dy, 0); // All surrounding tiles are floor
+        }
+      }
+      
       const coin = { x: 5, y: 5 };
       const platforms = [
         { x: 0, y: 0, width: 64, height: 64, type: 'ground' }
       ];
       
-      const isValid = distributor.validateCoinPlacement(coin, platforms);
+      const isValid = distributor.validateCoinPlacement(coin, platforms, grid);
       
       expect(typeof isValid).toBe('boolean');
     });
 
     it('should reject coins placed inside platforms', () => {
+      const grid = testUtils.createMockGrid(10, 10);
+      
+      // Create a valid position with all surrounding tiles as floor
+      for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+          grid.set(5 + dx, 5 + dy, 0); // All surrounding tiles are floor
+        }
+      }
+      
       const coin = { x: 5, y: 5 };
       const platforms = [
         { x: 0, y: 0, width: 384, height: 384, type: 'ground' } // Large platform covering coin
       ];
       
-      const isValid = distributor.validateCoinPlacement(coin, platforms);
+      const isValid = distributor.validateCoinPlacement(coin, platforms, grid);
       
       expect(isValid).toBe(false);
     });
 
-    it('should accept coins placed outside platforms', () => {
+    it('should accept coins placed outside platforms with valid surrounding tiles', () => {
+      const grid = testUtils.createMockGrid(10, 10);
+      
+      // Create a valid position with all surrounding tiles as floor
+      for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+          grid.set(5 + dx, 5 + dy, 0); // All surrounding tiles are floor
+        }
+      }
+      
       const coin = { x: 5, y: 5 };
       const platforms = [
         { x: 0, y: 0, width: 64, height: 64, type: 'ground' } // Small platform not covering coin
       ];
       
-      const isValid = distributor.validateCoinPlacement(coin, platforms);
+      const isValid = distributor.validateCoinPlacement(coin, platforms, grid);
       
       expect(isValid).toBe(true);
+    });
+
+    it('should reject coins when surrounding tiles are not all floor', () => {
+      const grid = testUtils.createMockGrid(10, 10);
+      
+      // Create a position with some surrounding tiles as walls
+      grid.set(5, 5, 0); // Coin position
+      grid.set(4, 5, 0); // Left floor
+      grid.set(6, 5, 0); // Right floor
+      grid.set(5, 4, 0); // Up floor
+      grid.set(5, 6, 0); // Down floor
+      grid.set(4, 4, 0); // Diagonal floor
+      grid.set(6, 4, 0); // Diagonal floor
+      grid.set(4, 6, 0); // Diagonal floor
+      grid.set(6, 6, 1); // One diagonal is wall - should be invalid
+      
+      const coin = { x: 5, y: 5 };
+      const platforms = [];
+      
+      const isValid = distributor.validateCoinPlacement(coin, platforms, grid);
+      
+      expect(isValid).toBe(false);
     });
   });
 

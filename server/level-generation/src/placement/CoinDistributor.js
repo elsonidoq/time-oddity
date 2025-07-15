@@ -441,20 +441,51 @@ class CoinDistributor {
   }
 
   /**
-   * Validates coin placement against collision detection
+   * Validates coin placement against collision detection and ensures all surrounding tiles at distance 1 are floor
    * 
    * @param {Object} coin - Coin position {x, y}
    * @param {Array<Object>} platforms - Array of platform objects
+   * @param {ndarray} grid - The grid to check surrounding tiles
    * @returns {boolean} True if placement is valid
    */
-  validateCoinPlacement(coin, platforms) {
+  validateCoinPlacement(coin, platforms, grid) {
     if (!platforms || platforms.length === 0) {
-      return true;
+      // Still need to check surrounding tiles even if no platforms
     }
     
+    // Check platform collisions
     for (const platform of platforms) {
       if (this.coinCollidesWithPlatform(coin, platform)) {
         return false;
+      }
+    }
+    
+    // Check that all surrounding tiles at distance 1 are floor (value = 0)
+    const [width, height] = grid.shape;
+    const x = coin.x;
+    const y = coin.y;
+    
+    // Check all 8 surrounding tiles (including diagonals)
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        // Skip the coin's own position
+        if (dx === 0 && dy === 0) {
+          continue;
+        }
+        
+        const checkX = x + dx;
+        const checkY = y + dy;
+        
+        // Check bounds
+        if (checkX >= 0 && checkX < width && checkY >= 0 && checkY < height) {
+          // If any surrounding tile is not floor (value != 0), the placement is invalid
+          if (grid.get(checkX, checkY) !== 0) {
+            return false;
+          }
+        } else {
+          // If the surrounding tile is out of bounds, consider it invalid
+          return false;
+        }
       }
     }
     

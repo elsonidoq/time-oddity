@@ -105,6 +105,24 @@ class ReachableCoinPlacer {
 
     // Get all reachable positions from player
     const reachablePositions = this.reachabilityAnalyzer.detectReachablePositionsFromStartingPoint(grid, playerPos);
+
+    // Assert that at least 60% of the grid is reachable from the player position
+    const totalGridSpaces = grid.shape[0] * grid.shape[1];
+    let wallCount = 0;
+    for (let x = 0; x < grid.shape[0]; x++) {
+      for (let y = 0; y < grid.shape[1]; y++) {
+        if (grid.get(x, y) === 1) {
+          wallCount++;
+        }
+      }
+    }
+
+    const reachableRatio = reachablePositions.length / (totalGridSpaces - wallCount);
+    if (reachableRatio < 0.6) {
+      throw new Error(
+        `Reachable area too low: only ${(reachableRatio * 100).toFixed(2)}% of grid is reachable from player (expected at least 60%).`
+      );
+    }
     
     if (reachablePositions.length === 0) {
       return [];
@@ -112,7 +130,7 @@ class ReachableCoinPlacer {
 
     // Filter out positions that collide with platforms
     const validPositions = reachablePositions.filter(pos => 
-      this.validateCoinPlacement(pos, platforms)
+      this.validateCoinPlacement(pos, platforms, grid)
     );
 
     if (validPositions.length === 0) {
@@ -362,18 +380,50 @@ class ReachableCoinPlacer {
   }
 
   /**
-   * Validates coin placement against all platforms
+   * Validates coin placement against all platforms and ensures all surrounding tiles at distance 1 are floor
    * 
    * @param {Object} coin - Coin position {x, y}
    * @param {Array} platforms - Array of platform objects
+   * @param {ndarray} grid - The grid to check surrounding tiles
    * @returns {boolean} True if placement is valid
    */
-  validateCoinPlacement(coin, platforms) {
+  validateCoinPlacement(coin, platforms, grid) {
+    // Check platform collisions
     for (const platform of platforms) {
       if (this.coinCollidesWithPlatform(coin, platform)) {
         return false;
       }
     }
+    
+    // Check that all surrounding tiles at distance 1 are floor (value = 0)
+    const [width, height] = grid.shape;
+    const x = coin.x;
+    const y = coin.y;
+    
+    // Check all 8 surrounding tiles (including diagonals)
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        // Skip the coin's own position
+        if (dx === 0 && dy === 0) {
+          continue;
+        }
+        
+        const checkX = x + dx;
+        const checkY = y + dy;
+        
+        // Check bounds
+        if (checkX >= 0 && checkX < width && checkY >= 0 && checkY < height) {
+          // If any surrounding tile is not floor (value != 0), the placement is invalid
+          if (grid.get(checkX, checkY) !== 0) {
+            return false;
+          }
+        } else {
+          // If the surrounding tile is out of bounds, consider it invalid
+          return false;
+        }
+      }
+    }
+    
     return true;
   }
 

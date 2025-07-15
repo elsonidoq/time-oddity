@@ -1,0 +1,26 @@
+{
+  "playerSpawn": { "x": 200, "y": 870 },
+  "goal": {
+    "x": 4000,
+    "y": 850,
+    "tileKey": "sign_exit",
+    "isFullBlock": true
+  },
+  "map_matrix": [
+    [
+      { "tileKey": "terrain_grass_block", "type": "ground" },
+      { "tileKey": "bush", "type": "decorative" },
+      { "tileKey": "terrain_grass_block", "type": "ground" }
+    ],
+    [
+      { "tileKey": "rock", "type": "decorative" },
+      { "tileKey": "terrain_grass_block", "type": "ground" },
+      { "tileKey": "cactus", "type": "decorative" }
+    ],
+    [
+      { "tileKey": "terrain_grass_block", "type": "ground" },
+      { "tileKey": "terrain_grass_block", "type": "ground" },
+      { "tileKey": "terrain_grass_block", "type": "ground" }
+    ]
+  ]
+} 

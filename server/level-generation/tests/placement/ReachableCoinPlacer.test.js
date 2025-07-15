@@ -320,26 +320,76 @@ describe('ReachableCoinPlacer', () => {
   });
 
   describe('validateCoinPlacement', () => {
-    test('should validate coin placement against all platforms', () => {
+    test('should validate coin placement against all platforms and surrounding tiles', () => {
+      const grid = testUtils.createMockGrid(10, 10);
+      
+      // Create a valid position with all surrounding tiles as floor
+      for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+          grid.set(5 + dx, 8 + dy, 0); // All surrounding tiles are floor
+        }
+      }
+      
+      const coin = { x: 5, y: 8 };
+      const platforms = [
+        { x: 10, y: 8, width: 64, type: 'floating' }
+      ];
+      
+      const isValid = placer.validateCoinPlacement(coin, platforms, grid);
+      expect(isValid).toBe(true); // Should be valid - no platform collision and all surrounding tiles are floor
+    });
+
+    test('should return false when coin collides with platform', () => {
+      const grid = testUtils.createMockGrid(10, 10);
+      
+      // Create a valid position with all surrounding tiles as floor
+      for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+          grid.set(5 + dx, 8 + dy, 0); // All surrounding tiles are floor
+        }
+      }
+      
       const coin = { x: 5, y: 8 };
       const platforms = [
         { x: 5, y: 8, width: 64, type: 'floating' },
         { x: 10, y: 8, width: 64, type: 'floating' }
       ];
       
-      const isValid = placer.validateCoinPlacement(coin, platforms);
+      const isValid = placer.validateCoinPlacement(coin, platforms, grid);
       expect(isValid).toBe(false); // Should collide with first platform
     });
 
-    test('should return true for valid coin placement', () => {
-      const coin = { x: 7, y: 8 };
+    test('should return false when surrounding tiles are not all floor', () => {
+      const grid = testUtils.createMockGrid(10, 10);
+      
+      // Create a position with some surrounding tiles as walls
+      grid.set(5, 8, 0); // Coin position
+      grid.set(4, 8, 0); // Left floor
+      grid.set(6, 8, 0); // Right floor
+      grid.set(5, 7, 0); // Up floor
+      grid.set(5, 9, 0); // Down floor
+      grid.set(4, 7, 0); // Diagonal floor
+      grid.set(6, 7, 0); // Diagonal floor
+      grid.set(4, 9, 0); // Diagonal floor
+      grid.set(6, 9, 1); // One diagonal is wall - should be invalid
+      
+      const coin = { x: 5, y: 8 };
       const platforms = [
-        { x: 5, y: 8, width: 64, type: 'floating' },
         { x: 10, y: 8, width: 64, type: 'floating' }
       ];
       
-      const isValid = placer.validateCoinPlacement(coin, platforms);
-      expect(isValid).toBe(true); // Should not collide with any platform
+      const isValid = placer.validateCoinPlacement(coin, platforms, grid);
+      expect(isValid).toBe(false); // Should be invalid because one surrounding tile is wall
+    });
+
+    test('should return false when coin is at grid edge', () => {
+      const grid = testUtils.createMockGrid(10, 10);
+      
+      const coin = { x: 0, y: 0 }; // At edge of grid
+      const platforms = [];
+      
+      const isValid = placer.validateCoinPlacement(coin, platforms, grid);
+      expect(isValid).toBe(false); // Should be invalid because some surrounding tiles are out of bounds
     });
   });
 

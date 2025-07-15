@@ -1,0 +1,48 @@
+{
+  "playerSpawn": { "x": 200, "y": 870 },
+  "goal": {
+    "x": 4000,
+    "y": 850,
+    "tileKey": "sign_exit",
+    "isFullBlock": true
+  },
+  "platforms": [
+    {
+      "type": "ground",
+      "x": 0,
+      "y": 2900,
+      "width": 6000,
+      "tilePrefix": "terrain_grass_horizontal",
+      "isFullBlock": true
+    },
+    {
+      "type": "floating",
+      "x": 700,
+      "y": 2350,
+      "width": 250,
+      "tilePrefix": "terrain_grass_cloud",
+      "isFullBlock": true
+    }
+  ],
+  "decorativePlatforms": [
+    {
+      "type": "decorative",
+      "x": 310,
+      "y": 850,
+      "tilePrefix": "terrain_grass_block",
+      "depth": -0.2
+    }
+  ],
+  "map_matrix": [
+    [
+      { "tileKey": "terrain_grass_block", "type": "ground" },
+      { "tileKey": "bush", "type": "decorative" },
+      { "tileKey": "terrain_grass_block", "type": "ground" }
+    ],
+    [
+      { "tileKey": "rock", "type": "decorative" },
+      { "tileKey": "terrain_grass_block", "type": "ground" },
+      { "tileKey": "cactus", "type": "decorative" }
+    ]
+  ]
+} 

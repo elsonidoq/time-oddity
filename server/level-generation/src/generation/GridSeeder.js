@@ -6,6 +6,7 @@
  */
 
 const GridUtilities = require('../core/GridUtilities');
+const { toAsciiArt } = require('../core/VisualizationUtils');
 
 /**
  * GridSeeder provides the initial grid seeding algorithm for cave generation
@@ -168,27 +169,24 @@ class GridSeeder {
   }
 
   /**
-   * Converts a grid to ASCII art for visual inspection
+   * Converts a grid to ASCII art for visual inspection, with optional overlays.
+   *
+   * Delegates to the global VisualizationUtils.toAsciiArt function.
    *
    * @param {ndarray} grid - The grid to visualize
+   * @param {Object} [options] - Optional overlays
+   * @param {Array<{x:number, y:number}>} [options.reachableTiles] - Tiles to mark as 'X'
+   * @param {Array<{x:number, y:number}>} [options.platforms] - Tiles to mark as 'l'
+   * @param {Array<{x:number, y:number}>} [options.coins] - Tiles to mark as 'C'
+   * @param {Array<{x:number, y:number}>} [options.enemies] - Tiles to mark as 'E'
+   * @param {{x:number, y:number}} [options.player] - Player position to mark as 'P'
+   * @param {{x:number, y:number}} [options.goal] - Goal position to mark as 'G'
    * @returns {string} ASCII art string (rows separated by newlines)
+   * @throws {Error} If any overlay is placed on a wall tile (value = 1)
    */
-  toAsciiArt(grid) {
-    if (!grid) throw new Error('Grid is required');
-    const [width, height] = grid.shape;
-    let lines = [];
-    for (let y = 0; y < height; y++) {
-      let line = '';
-      for (let x = 0; x < width; x++) {
-        const v = grid.get(x, y);
-        line += v === 1 ? '#' : '.';
-      }
-      lines.push(line);
-    }
-    return lines.join('\n');
+  toAsciiArt(grid, options = {}) {
+    return toAsciiArt(grid, options);
   }
 }
 
-module.exports = {
-  GridSeeder
-}; 
+module.exports = GridSeeder; 

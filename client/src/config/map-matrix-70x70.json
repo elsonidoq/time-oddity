@@ -1,0 +1,1818 @@
+{
+  "playerSpawn": {
+    "x": 2240,
+    "y": 4032
+  },
+  "goal": {
+    "x": 4160,
+    "y": 4096,
+    "tileKey": "sign_exit",
+    "isFullBlock": true
+  },
+  "map_matrix": [
+    [
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_red",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "hill_top",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "cactus",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "bush",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "rock",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      },
+      {
+        "tileKey": "mushroom_brown",
+        "type": "decorative"
+      }
+    ],
+    [
+      {
+        "tileKey": "terrain_stone_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_stone_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_grass_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_dirt_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_dirt_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_dirt_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_grass_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_dirt_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_dirt_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_grass_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_grass_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_dirt_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_dirt_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_dirt_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_grass_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_dirt_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_dirt_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_stone_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_dirt_block",
+        "type": "ground"
+      },
+      {
+        "tileKey": "terrain_grass_block",
+        "type": "ground"
+      }
+    ]
+  ]
+}

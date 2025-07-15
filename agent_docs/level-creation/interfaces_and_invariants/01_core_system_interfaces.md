@@ -72,6 +72,56 @@ getMemoryUsage(grid: ndarray): {dataSize: number, totalSize: number}
 - Null/undefined grid parameters
 - Invalid region bounds
 
+### 1.3 VisualizationUtils Interface
+
+**File**: `src/core/VisualizationUtils.js`
+
+**Purpose**: Provides global visualization utilities for ASCII art generation and debugging.
+
+**Static Methods**:
+```javascript
+toAsciiArt(grid: ndarray, options?: Object): string
+```
+
+**Parameters**:
+- `grid`: The grid to visualize (ndarray)
+- `options`: Optional overlays object with properties:
+  - `reachableTiles`: Array of {x, y} positions to mark as 'X'
+  - `platforms`: Array of {x, y} positions to mark as 'l'
+  - `coins`: Array of {x, y} positions to mark as 'C'
+  - `enemies`: Array of {x, y} positions to mark as 'E'
+  - `player`: {x, y} position to mark as 'P'
+  - `goal`: {x, y} position to mark as 'G'
+
+**Character Mapping**:
+- `#`: Wall tiles (value = 1)
+- `l`: Platform tiles (walls with platform overlay)
+- `.`: Floor tiles (value = 0)
+- `P`: Player position (highest priority)
+- `G`: Goal position
+- `E`: Enemy position
+- `C`: Coin position
+- `X`: Reachable tile (lowest priority)
+
+**Invariants**:
+- **VIZ-UTILS-1**: ASCII art accurately represents grid structure
+- **VIZ-UTILS-2**: Overlay priority is consistent: P > G > E > C > l > X
+- **VIZ-UTILS-3**: Platforms can be placed on walls, other overlays cannot
+- **VIZ-UTILS-4**: Output is human-readable with proper line breaks
+- **VIZ-UTILS-5**: Performance scales linearly with grid size
+
+**Error Conditions**:
+- Null/undefined grid input
+- Overlay placement on wall tiles (except platforms)
+- Invalid coordinate values (negative or out of bounds)
+- Memory allocation failures for large grids
+
+**Contracts**:
+- Grid must be a valid ndarray with shape [width, height]
+- All overlay coordinates must be within grid bounds
+- Platform overlays are the only overlays allowed on wall tiles
+- Output string contains newline-separated rows matching grid dimensions
+
 ---
 
 ### 1.3 LevelJSONExporter Interface

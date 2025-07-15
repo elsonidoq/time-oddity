@@ -9,6 +9,8 @@ import { SceneFactory } from '../systems/SceneFactory.js';
 import AudioManager from '../systems/AudioManager.js';
 import testLevelConfig from '../config/test-cave.json';
 import { GITHUB_PAGES, LEVEL_SCALE } from '../config/GameConfig.js';
+import { ViewportCullingManager } from '../systems/ViewportCullingManager.js';
+import { GameConfig } from '../config/GameConfig.js';
 
 export default class GameScene extends BaseScene {
   // Camera follow constants for easy tuning
@@ -292,6 +294,13 @@ export default class GameScene extends BaseScene {
         }
       }
     });
+
+    // Initialize culling manager
+    if (this.cameras && this.cameras.main) {
+      this.viewportCullingManager = new ViewportCullingManager(this, this.cameras.main, {
+        cullDistance: GameConfig.culling?.cullDistance || 200
+      });
+    }
   }
 
   /**
@@ -707,6 +716,18 @@ export default class GameScene extends BaseScene {
     if (this.registry && this.player && this.player.chronoPulse) {
       this.registry.set('chronoPulseLastActivation', this.player.chronoPulse.lastActivationTime);
     }
+
+    if (this.viewportCullingManager) {
+      if (this.platforms) this.viewportCullingManager.updateCulling(this.platforms);
+      if (this.decorativeTiles) this.viewportCullingManager.updateCulling(this.decorativeTiles);
+      // Log performance metrics every 60 frames
+      if (typeof this.time === 'number' && this.time % 60 === 0) {
+        const metrics = this.viewportCullingManager.performanceMetrics;
+        console.log(
+          `Culling: ${metrics.visibleSprites}/${metrics.totalSprites} sprites visible, ${metrics.cullTime}ms`
+        );
+      }
+    }
   }
 
   // Cleanup resources on shutdown
@@ -724,3 +745,5 @@ export default class GameScene extends BaseScene {
     this.events.on('shutdown', this.onShutdown, this);
   }
 } 
+
+export { GameScene }; 

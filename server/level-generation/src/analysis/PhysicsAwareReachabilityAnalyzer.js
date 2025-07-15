@@ -4,6 +4,7 @@
  */
 
 const ndarray = require('ndarray');
+const { toAsciiArt } = require('../core/VisualizationUtils');
 
 /**
  * PhysicsAwareReachabilityAnalyzer class for physics-aware reachability analysis
@@ -537,6 +538,9 @@ class PhysicsAwareReachabilityAnalyzer {
 
     // Validate player position is on floor tile
     if (grid.get(playerPosition.x, playerPosition.y) !== 0) {
+      console.log(toAsciiArt(grid, { 
+        player: playerPosition, 
+      }));
       throw new Error('Player position must be on a floor tile');
     }
 

@@ -620,6 +620,335 @@ if (isRewinding) {
 
 ---
 
+## 22. Viewport Culling System Invariants
+
+### 22.1 ViewportCullingManager State (systems/ViewportCullingManager.js)
+The ViewportCullingManager maintains performance optimization state for large level rendering:
+
+```javascript
+// ViewportCullingManager state
+{
+  scene: Phaser.Scene,              // Reference to the game scene
+  camera: Phaser.Cameras.Scene2D.Camera, // Camera for viewport bounds
+  cullDistance: number,             // Distance beyond viewport to keep sprites visible (default: 200)
+  visibleSprites: Set<Sprite>,      // Set of currently visible sprites for tracking
+  performanceMetrics: {             // Performance monitoring data
+    totalSprites: number,           // Total sprites processed
+    visibleSprites: number,         // Currently visible sprites
+    cullTime: number               // Time taken for culling operation in ms
+  }
+}
+```
+
+**Culling System Contracts**:
+1. **Viewport bounds calculation**: Culling bounds are calculated as camera bounds ± cullDistance
+2. **Sprite visibility management**: Sprites outside cull bounds have `setVisible(false)` and `setActive(false)` called
+3. **Performance tracking**: Culling operations are timed and metrics are updated after each update
+4. **Time reversal compatibility**: Visible sprites set is preserved for state restoration during rewind
+
+### 22.2 GameScene Culling Integration Contract
+GameScene integrates ViewportCullingManager for performance optimization:
+
+```javascript
+// GameScene culling integration in create()
+this.viewportCullingManager = new ViewportCullingManager(this, this.cameras.main, {
+  cullDistance: GameConfig.culling?.cullDistance || 200
+});
+
+// GameScene culling integration in update()
+if (this.viewportCullingManager) {
+  if (this.platforms) this.viewportCullingManager.updateCulling(this.platforms);
+  if (this.decorativeTiles) this.viewportCullingManager.updateCulling(this.decorativeTiles);
+  
+  // Log performance metrics every 60 frames
+  if (typeof this.time === 'number' && this.time % 60 === 0) {
+    const metrics = this.viewportCullingManager.performanceMetrics;
+    console.log(`Culling: ${metrics.visibleSprites}/${metrics.totalSprites} sprites visible, ${metrics.cullTime}ms`);
+  }
+}
+```
+
+**GameScene Culling Rules**:
+1. **Initialization timing**: ViewportCullingManager must be initialized after camera setup in GameScene.create()
+2. **Update frequency**: Culling is updated every frame in GameScene.update()
+3. **Group management**: Both platforms and decorativeTiles groups are culled independently
+4. **Performance logging**: Metrics are logged every 60 frames for monitoring
+
+### 22.3 SceneFactory Culling Integration Contract
+SceneFactory supports both tilemap and sprite-based culling for optimal performance:
+
+```javascript
+// SceneFactory culling configuration in createMapMatrixWithTilemap()
+const cullingConfig = (this.config && this.config.culling && this.config.culling.tilemap) 
+  ? this.config.culling.tilemap : {};
+
+// Configure tilemap layer culling
+if (groundLayer.setCullPaddingX) groundLayer.setCullPaddingX(cullingConfig.cullPaddingX || 2);
+if (groundLayer.setCullPaddingY) groundLayer.setCullPaddingY(cullingConfig.cullPaddingY || 2);
+groundLayer.skipCull = cullingConfig.skipCull || false;
+```
+
+**SceneFactory Culling Rules**:
+1. **Fallback system**: If tilemap creation fails, SceneFactory falls back to sprite-based creation
+2. **Tilemap culling**: Tilemap layers use native Phaser culling with configurable padding
+3. **Sprite culling**: Individual sprites are managed by ViewportCullingManager
+4. **Configuration**: Culling settings are read from GameConfig.culling.tilemap
+
+### 22.4 GameConfig Culling Configuration Contract
+GameConfig provides centralized culling configuration:
+
+```javascript
+// GameConfig culling configuration
+culling: {
+  cullDistance: 200,               // Distance beyond viewport for sprite culling
+  tilemap: {
+    enabled: true,                 // Enable tilemap layer culling
+    cullPaddingX: 2,              // Padding tiles beyond viewport X
+    cullPaddingY: 2,              // Padding tiles beyond viewport Y
+    skipCull: false               // Skip culling for tilemap layers
+  },
+  performance: {
+    enableLogging: true,           // Enable performance metrics logging
+    logInterval: 60,              // Log metrics every N frames
+    targetFPS: 60                 // Target frame rate for monitoring
+  }
+}
+```
+
+**Configuration Contracts**:
+1. **Default values**: All culling configuration has sensible defaults for immediate use
+2. **Performance monitoring**: Configuration includes performance logging settings
+3. **Tilemap integration**: Separate configuration for tilemap vs sprite culling
+4. **Extensibility**: Configuration structure supports future culling enhancements
+
+### 22.5 Culling System State Structures
+
+#### 22.5.1 ViewportCullingManager State Extensions
+```javascript
+// ViewportCullingManager state for time reversal compatibility
+{
+  // ... existing ViewportCullingManager state ...
+  visibleSprites: Set<Sprite>,      // Must be preserved during time reversal
+  performanceMetrics: {             // Performance data for monitoring
+    totalSprites: number,
+    visibleSprites: number,
+    cullTime: number
+  }
+}
+```
+
+#### 22.5.2 GameScene Culling Integration State
+```javascript
+// GameScene culling integration state
+{
+  viewportCullingManager: ViewportCullingManager|null, // Culling manager instance
+  // No additional state - uses existing platforms and decorativeTiles groups
+}
+```
+
+#### 22.5.3 SceneFactory Culling State
+```javascript
+// SceneFactory culling configuration state
+{
+  config: {                        // Level configuration including culling settings
+    culling: {
+      tilemap: {
+        enabled: boolean,
+        cullPaddingX: number,
+        cullPaddingY: number,
+        skipCull: boolean
+      }
+    }
+  }
+}
+```
+
+### 22.6 Culling System Testing Contracts
+1. **Unit testing**: ViewportCullingManager must be tested for bounds calculation and sprite visibility
+2. **Integration testing**: GameScene culling integration must be tested for proper initialization and updates
+3. **Performance testing**: Culling operations must be benchmarked for large sprite counts
+4. **Fallback testing**: SceneFactory must be tested for tilemap-to-sprite fallback scenarios
+
+### 22.7 Culling System Event Flow
+1. **Initialization Flow**:
+   - GameScene.create() → ViewportCullingManager initialization → Camera bounds setup
+   - SceneFactory.createMapMatrixFromConfig() → Tilemap creation attempt → Fallback to sprites if needed
+
+2. **Update Flow**:
+   - GameScene.update() → ViewportCullingManager.updateCulling() → Sprite visibility updates
+   - Performance metrics collection → Console logging every 60 frames
+
+3. **Fallback Flow**:
+   - Tilemap creation fails → SceneFactory detects empty results → Calls createMapMatrixWithSprites()
+   - Sprite-based creation → Individual sprites managed by ViewportCullingManager
+
+4. **Performance Monitoring Flow**:
+   - Culling operation timing → Metrics update → Console logging at configured intervals
+   - Frame rate monitoring → Performance alerts if below target FPS
+
+### 22.8 Culling System Integration Points
+1. **GameScene ↔ ViewportCullingManager**: Camera bounds and sprite group management
+2. **SceneFactory ↔ Tilemap Culling**: Native Phaser culling configuration
+3. **Physics Groups ↔ Culling**: Optimized group settings for large sprite counts
+4. **TimeManager ↔ Culling State**: Preserve visibility state during time reversal
+5. **Camera System ↔ Culling**: Real-time viewport bounds calculation
+
+### 22.9 Culling System Performance Requirements
+1. **Large level support**: System must handle 500x100+ tile levels at 60fps
+2. **Memory efficiency**: Culling must not cause memory leaks or excessive allocation
+3. **CPU optimization**: Culling operations must complete within frame budget
+4. **Visual consistency**: No missing sprites or visual artifacts during camera movement
+
+---
+
+## 23. GraphGridSeeder Graph Storage Invariants
+
+### 23.1 GraphGridSeeder Graph State (server/level-generation/src/generation/GraphGridSeeder.js)
+The GraphGridSeeder maintains a graph representation of the generated cave structure for use by other algorithms:
+
+```javascript
+// GraphGridSeeder graph state
+{
+  graph: Map<string, Array<{x: number, y: number}>>, // Graph as mapping of points to neighbors
+  corridorHeight: number,         // Height of corridors in tiles (default: 3)
+  corridorThreshold: number,      // Threshold for corridor tiles (0.0 to 1.0, default: 0.3)
+  nonCorridorThreshold: number,   // Threshold for non-corridor tiles (0.0 to 1.0, default: 0.7)
+  mainPoints: Array<{x: number, y: number}> // Main points used for generation
+}
+```
+
+**Graph Storage Contracts**:
+1. **Graph structure**: Graph is stored as a Map where keys are string representations of points (`"x,y"`) and values are arrays of neighbor point objects
+2. **Bidirectional edges**: All graph edges are bidirectional - if point A connects to point B, point B also connects to point A
+3. **Duplicate prevention**: The graph building process prevents duplicate edges between the same points
+4. **Graph clearing**: The graph is cleared (`this.graph.clear()`) at the start of each generation to prevent stale data
+5. **Point key conversion**: Points are converted to string keys using `_pointToKey(point)` method for Map storage
+
+### 23.2 Graph Building Process Contract
+The graph is built during the `_buildThresholdMatrix` method execution:
+
+```javascript
+// Graph building process in _buildThresholdMatrix()
+// Clear the graph for this generation
+this.graph.clear();
+
+// Initialize graph with all main points
+for (const point of mainPoints) {
+  this.graph.set(this._pointToKey(point), []);
+}
+
+// For each point, create corridors to closest points and build graph
+for (let i = 0; i < mainPoints.length; i++) {
+  const point = mainPoints[i];
+  const closestPoints = this._findClosestPoints(point, mainPoints, k, i);
+  
+  for (const closestPoint of closestPoints) {
+    this._createCorridor(point, closestPoint, corridorHeight, thresholds, rng);
+    
+    // Add edge to graph (bidirectional)
+    const pointKey = this._pointToKey(point);
+    const closestPointKey = this._pointToKey(closestPoint);
+    
+    if (!this.graph.get(pointKey).some(p => this._pointToKey(p) === closestPointKey)) {
+      this.graph.get(pointKey).push(closestPoint);
+    }
+    if (!this.graph.get(closestPointKey).some(p => this._pointToKey(p) === pointKey)) {
+      this.graph.get(closestPointKey).push(point);
+    }
+  }
+}
+```
+
+**Graph Building Rules**:
+1. **Initialization timing**: Graph is initialized after main points are selected but before corridor creation
+2. **Edge creation timing**: Graph edges are created during corridor creation to ensure consistency
+3. **Bidirectional consistency**: Both directions of each edge must be added to maintain graph integrity
+4. **Duplicate checking**: Each edge addition checks for existing connections to prevent duplicates
+
+### 23.3 Graph Access Contract
+The graph is accessible after grid seeding for use by other algorithms:
+
+```javascript
+// Graph access pattern
+const seeder = new GraphGridSeeder();
+const grid = seeder.seedGrid(config, rng);
+
+// Access the graph
+const graph = seeder.graph;
+const pointKey = "10,15";
+const neighbors = graph.get(pointKey); // Returns array of neighbor points
+```
+
+**Graph Access Rules**:
+1. **Post-generation access**: Graph is only available after `seedGrid()` has been called
+2. **Key format**: Point keys are strings in format `"x,y"` (e.g., `"10,15"`)
+3. **Neighbor format**: Neighbors are point objects with `{x: number, y: number}` structure
+4. **Empty arrays**: Points with no connections return empty arrays, not null/undefined
+
+### 23.4 GraphGridSeeder State Structures
+
+#### 23.4.1 GraphGridSeeder Graph State Extensions
+```javascript
+// GraphGridSeeder state for graph storage
+{
+  // ... existing GraphGridSeeder state ...
+  graph: Map<string, Array<{x: number, y: number}>>, // Graph storage
+  mainPoints: Array<{x: number, y: number}> // Main points from generation
+}
+```
+
+#### 23.4.2 Point Key Conversion State
+```javascript
+// Point key conversion method
+_pointToKey(point: {x: number, y: number}): string // Returns "x,y" format
+```
+
+#### 23.4.3 Graph Building State
+```javascript
+// Graph building process state
+{
+  mainPoints: Array<{x: number, y: number}>, // Points to connect
+  closestPoints: Array<{x: number, y: number}>, // Selected neighbors
+  pointKey: string,                           // Current point key
+  closestPointKey: string                     // Current neighbor key
+}
+```
+
+### 23.5 Graph Storage Testing Contracts
+1. **Unit testing**: GraphGridSeeder must be tested for proper graph initialization and edge creation
+2. **Graph integrity testing**: Tests must verify bidirectional edges and absence of duplicates
+3. **Key conversion testing**: `_pointToKey` method must be tested for correct string formatting
+4. **Graph access testing**: Tests must verify graph is accessible after seeding and contains expected connections
+
+### 23.6 Graph Storage Event Flow
+1. **Initialization Flow**:
+   - GraphGridSeeder constructor → `this.graph = new Map()` → Graph storage initialized
+   - `seedGrid()` → `_buildThresholdMatrix()` → Graph cleared and rebuilt
+
+2. **Graph Building Flow**:
+   - Main points selected → Graph initialized with empty neighbor arrays
+   - Corridor creation → Edges added to graph bidirectionally
+   - Duplicate checking → Prevents multiple edges between same points
+
+3. **Graph Access Flow**:
+   - `seedGrid()` completes → Graph available via `this.graph`
+   - Point key conversion → `_pointToKey()` converts point objects to string keys
+   - Neighbor lookup → `graph.get(key)` returns array of neighbor points
+
+### 23.7 Graph Storage Integration Points
+1. **GraphGridSeeder ↔ Other Algorithms**: Graph provides connectivity data for pathfinding, analysis, or optimization
+2. **Point Selection ↔ Graph Building**: Main points determine graph vertices
+3. **Corridor Creation ↔ Edge Creation**: Corridor connections determine graph edges
+4. **String Keys ↔ Map Storage**: Point key conversion enables efficient Map-based storage
+
+### 23.8 Graph Storage Performance Requirements
+1. **Efficient storage**: Graph must use minimal memory for large cave structures
+2. **Fast lookup**: Neighbor queries must complete in O(1) time using Map structure
+3. **Bidirectional consistency**: Graph must maintain consistent bidirectional relationships
+4. **Memory cleanup**: Graph clearing must prevent memory leaks between generations
+
+---
+
 ### How to update this document
 * When you purposefully change an invariant, **edit this file in the same pull-request** and explain why the change is safe.  
 * Run `npm test` locally – a large portion of the suite guards against these invariants implicitly.
